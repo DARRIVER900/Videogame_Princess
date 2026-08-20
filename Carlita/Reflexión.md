@@ -1,6 +1,6 @@
 # 🎮💭 Reflexión sobre mí
 
-![image alt](https://raw.githubusercontent.com/DARRIVER900/videogame_Princess/main/Carlita/Carla.jpg)
+![image alt](https://raw.githubusercontent.com/DARRIVER900/videogame_Princess/main/Carlita/Carla.jpeg)
 
 ¡Hola! Soy **Carla Jazmín Ríos Martínez**, estudiante de **7.º semestre de Ingeniería de Software**, muy cerca de concluir mi carrera.
 
