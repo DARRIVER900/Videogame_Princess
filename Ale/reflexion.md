@@ -27,4 +27,4 @@ Busco construir un puente entre mi intuición de jugador y un enfoque disciplina
 
 ## Foto 
 
-![yop](yop.jeg)
+![yop](yop.jpeg)
