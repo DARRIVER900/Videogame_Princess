@@ -80,3 +80,23 @@ Los reinos de Candy (riqueza comercial) y Chocolate (riqueza minera) mantenían 
     "modsetClase": "AGIL_DISTANCIA",
     "multiplicadorDanio": 1.0
   }
+
+  ## 13. Roles del Equipo de Diseño
+
+* **Lead Designer & UI Designer (Barbara):**
+  * Supervisión general de la visión del juego y coherencia entre sistemas.
+  * Diseño conceptual de la interfaz de usuario (HUD, barras de HP, temporizadores y contadores de inventario).
+  * Creación y flujo de pantallas (Menú principal, Selección de personaje, Diálogos narrativos y *Game Over*).
+  * Regulación del feedback visual e indicadores de estado (*Veneno/Normal*, alertas de vida baja).
+
+* **Game Designer (Alex):**
+  * Definición y balanceo del *Core Loop* de juego y sistemas de combate 1v1.
+  * Mapeo y asignación de controles tácticos (`W,A,S,D` + `U,J,K,L,E`).
+  * Parametrización del sistema de combate (daño por tipo de ataque, tiempos de refresco, consumo de pociones +15 HP).
+  * Definición de reglas del juego, condiciones de victoria/derrota y estructura POO de la clase base `Personaje`.
+
+* **Level Designer & Writer (Carla):**
+  * Redacción de la narrativa *Dark-Cute* y estructuración de los 9 pasos del arco dramático.
+  * Diseño del flujo de misiones y progresión de capítulos.
+  * Creación del trasfondo de los reinos de **Candyr** y **Chocolate**, así como las fichas de las princesas.
+  * Layout y ambientación espacial de la arena de combate 2D (Frontera en ruinas y Catedral de Azúcar).
