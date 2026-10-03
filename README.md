@@ -4,14 +4,15 @@
 
 ## 💕 Sobre el proyecto
 
-Somos un equipo de **dos ingenieras de software** próximas a crear nuestro propio videojuego como parte de la materia **Creación de Videojuegos**.
+Somos un equipo de **tres estudiantes de Ingeniería de Software** que pronto crearemos nuestro propio videojuego como parte de la materia **Creación de Videojuegos**.
 
 Este proyecto es una colaboración entre:
 
 - 👩🏻‍💻 **Bárbara Daría Rivera Anguiano**
 - 👩🏻‍💻 **Carla Jazmín Ríos Martínez**
+- 👨🏻‍💻 **Alejandro Rodríguez**
 
-Ambas somos estudiantes de **7.º semestre de Ingeniería de Software** en la **Facultad de Telemática de la Universidad de Colima**. 🎓💻
+Somos estudiantes de **7.º semestre de Ingeniería de Software** en la **Facultad de Telemática de la Universidad de Colima**. 🎓💻
 
 ## 🌷 Nuestra inspiración
 
@@ -64,6 +65,6 @@ Este repositorio documentará nuestro proceso de creación, desde la conceptuali
 
 ### 💗 Hecho con creatividad, código y muchas ganas de crear algo nuestro.
 
-**Bárbara Daría Rivera Anguiano & Carla Jazmín Ríos Martínez**  
+**Bárbara Daría Rivera Anguiano, Carla Jazmín Ríos Martínez & Alejandro Rodríguez**  
 *Ingeniería de Software — Facultad de Telemática*  
 *Universidad de Colima* 🎓💻
