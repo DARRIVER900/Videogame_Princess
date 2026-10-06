@@ -1,0 +1,52 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/arena_movimiento.gd" id="1_q45y2"]
+[ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="2_qjpyg"]
+[ext_resource type="Script" path="res://scripts/personaje/princesa_dulcecito.gd" id="3_afhrj"]
+[ext_resource type="Script" path="res://scripts/personaje/controlador_jugador.gd" id="4_o1wae"]
+[ext_resource type="PackedScene" path="res://escenas/princesa_chocolatito.tscn" id="5_80epw"]
+[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="6_iku6b"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bwkvl"]
+size = Vector2(2400, 200)
+
+[node name="Arena" type="Node2D"]
+script = ExtResource("1_q45y2")
+
+[node name="Suelo" type="StaticBody2D" parent="."]
+
+[node name="Colision" type="CollisionShape2D" parent="Suelo"]
+position = Vector2(0, 100)
+shape = SubResource("RectangleShape2D_bwkvl")
+
+[node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("2_qjpyg")]
+position = Vector2(-160, -32)
+script = ExtResource("3_afhrj")
+nombre = "Princesa Dulcecito"
+id_skin_activa = "SKIN_CANDYR_DEFAULT"
+nodo_sprite = NodePath("Sprite")
+
+[node name="Controlador" type="Node" parent="Jugadora" node_paths=PackedStringArray("personaje", "rival")]
+script = ExtResource("4_o1wae")
+personaje = NodePath("..")
+rival = NodePath("../../Rival")
+
+[node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("5_80epw")]
+position = Vector2(160, -32)
+script = ExtResource("6_iku6b")
+nombre = "Princesa Chocolatito"
+id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"
+modset_clase = 1
+nodo_sprite = NodePath("Sprite")
+
+[node name="Camara" type="Camera2D" parent="."]
+position = Vector2(0, -60)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Estado" type="Label" parent="HUD"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 12.0
+offset_bottom = 8.0
+theme_override_font_sizes/font_size = 14

@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="1_v5mhl"]
+[ext_resource type="Texture2D" path="res://recursos/placeholder_chocolatito.png" id="2_uq6s8"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_emk6m"]
+radius = 12.0
+height = 64.0
+
+[node name="Princesa" type="CharacterBody2D"]
+script = ExtResource("1_v5mhl")
+nombre = "Princesa Chocolatito"
+id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"
+modset_clase = 1
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture = ExtResource("2_uq6s8")
+
+[node name="Colision" type="CollisionShape2D" parent="."]
+shape = SubResource("CapsuleShape2D_emk6m")
