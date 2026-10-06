@@ -17,6 +17,8 @@ const ACCION_IZQUIERDA := "mover_izquierda"
 const ACCION_DERECHA := "mover_derecha"
 const ACCION_SALTAR := "salto"
 const ACCION_AGACHAR := "agachar"
+const ACCION_GOLPE_NORMAL := "golpe_normal"
+const ACCION_GOLPE_FUERTE := "golpe_fuerte"
 
 ## Personaje al que se le inyectan los comandos. Si se deja vacio, se resuelve el
 ## primer ancestro [Personaje] en [method _ready].
@@ -53,6 +55,13 @@ func _physics_process(delta: float) -> void:
 		Input.is_action_pressed(ACCION_AGACHAR)
 	)
 
+	# Combate (OUFW-3): `K` y `L` se consumen con just_pressed para que mantener la
+	# tecla no encadene golpes; el cooldown interno de Personaje refuerza la regla.
+	if Input.is_action_just_pressed(ACCION_GOLPE_NORMAL):
+		personaje.ataque_normal()
+	if Input.is_action_just_pressed(ACCION_GOLPE_FUERTE):
+		personaje.ataque_fuerte()
+
 
 ## Direccion de avance del jugador: -1.0 izquierda, 0.0 quieto, 1.0 derecha.
 ##
@@ -70,7 +79,10 @@ func leer_direccion(fuerza: float = 1.0) -> float:
 ## Elimina el input del jugador del mapa de acciones. Se usa al cambiar de
 ## personaje o al reiniciar el combate, para no dejar teclas "pegadas".
 func soltar_controles() -> void:
-	for accion: String in [ACCION_IZQUIERDA, ACCION_DERECHA, ACCION_SALTAR, ACCION_AGACHAR]:
+	for accion: String in [
+		ACCION_IZQUIERDA, ACCION_DERECHA, ACCION_SALTAR, ACCION_AGACHAR,
+		ACCION_GOLPE_NORMAL, ACCION_GOLPE_FUERTE,
+	]:
 		if Input.is_action_pressed(accion):
 			Input.action_release(accion)
 

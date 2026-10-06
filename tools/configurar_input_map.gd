@@ -7,14 +7,17 @@ extends SceneTree
 ## Se usan physical_keycode (no keycode) para que WASD funcione igual en
 ## distribuciones AZERTY/QWERTZ, que es lo que recomienda Godot.
 
-## Acciones de OUFW-2. Los acordes (W+A, W+D, S+A/D) NO se declaran aqui como
-## acciones propias: se componen en codigo en Personaje porque dependen de
-## combinar el estado de varias teclas a la vez.
+## Acciones de juego del proyecto. Los acordes (W+A, W+D, S+A/D) NO se declaran
+## aqui como acciones propias: se componen en codigo en Personaje porque dependen
+## de combinar el estado de varias teclas a la vez. Lo mismo vale para las teclas
+## de OUFW-8/OUFW-9/OUFW-10 (U, J, E): llegan con sus issues.
 const ACCIONES := {
 	"mover_izquierda": [KEY_A, KEY_LEFT],
 	"mover_derecha": [KEY_D, KEY_RIGHT],
 	"salto": [KEY_W, KEY_UP],
 	"agachar": [KEY_S, KEY_DOWN],
+	"golpe_normal": [KEY_K],
+	"golpe_fuerte": [KEY_L],
 }
 
 

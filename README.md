@@ -72,7 +72,7 @@ Este repositorio documentará nuestro proceso de creación, desde la conceptuali
 
 La escena principal es `escenas/arena_movimiento.tscn`: una **arena mínima para probar los controles** (OUFW-2), no el nivel del juego. Ese es OUFW-6.
 
-**Controles:** `A` / `D` moverse · `W + A` / `W + D` salto diagonal · `S` agachar · `S + A` / `S + D` derrape.
+**Controles:** `A` / `D` moverse · `W + A` / `W + D` salto diagonal · `S` agachar · `S + A` / `S + D` derrape · `K` golpe normal · `L` golpe fuerte.
 
 ### 🧪 Pruebas
 
@@ -82,6 +82,7 @@ Las suites corren sin editor y sin gráficos:
 godot --headless --import --path .                # una vez por clon, ver nota abajo
 godot --headless --path . --script res://tests/test_personaje.gd    # OUFW-1
 godot --headless --path . --script res://tests/test_movimiento.gd   # OUFW-2
+godot --headless --path . --script res://tests/test_combate.gd      # OUFW-3
 godot --headless --path . --script res://tests/test_escenas.gd      # integración
 ```
 

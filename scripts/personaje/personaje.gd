@@ -25,6 +25,12 @@ enum TipoAtaque { GOLPE_NORMAL, GOLPE_FUERTE, VENENO, SUPER_PESADO_CARGA }
 ## que OUFW-3 necesita para encoger la Hurtbox (GDD seccion 5: `S` y `S + A/D`).
 enum Locomocion { DE_PIE, AGACHADO, DERRAPE }
 
+## Capas 2D del sistema de combate (OUFW-3): la Hurtbox detecta hitboxes y el
+## Hitbox detecta hurtboxes. Valores en bruto a proposito: la matriz de capas con
+## NOMBRES la configura OUFW-6 ("Physics Layer Matrix configurados correctamente").
+const CAPA_HURTBOX := 2
+const CAPA_HITBOX := 4
+
 ## Equivalente a `OnHealthChanged` en OUFW-1. Lo consume el HUD (OUFW-5).
 signal health_changed(current_hp: int, hp_max: int)
 
@@ -45,6 +51,10 @@ signal derrape_iniciado(direccion: int)
 ## Toco suelo veniendo del aire. Sirve para anticipos, polvo y camara.
 signal aterrizaje
 
+## Se lanzo un ataque que genero un hitbox (OUFW-3). Lo escucha el HUD para la
+## retroalimentacion y OUFW-8 para encadenar el moveset.
+signal ataque_ejecutado(tipo: TipoAtaque)
+
 @export_group("Identidad")
 ## Nombre mostrable en la interfaz y en los dialogos de novela visual.
 @export var nombre: String = ""
@@ -60,6 +70,24 @@ signal aterrizaje
 @export var cantidad_pociones: int = 3
 ## Perfil de combate que define el moveset disponible.
 @export var modset_clase: Modset = Modset.AGIL_DISTANCIA
+## Dano base del golpe normal (K): el boton rapido del moveset, sin empuje.
+@export var dano_golpe_normal: int = 10
+## Dano base del golpe fuerte (L): lento, caro en cooldown y con empuje.
+@export var dano_golpe_fuerte: int = 25
+## Tamano del volumen del golpe normal: corto y a la altura del torso.
+@export var alcance_golpe_normal: Vector2 = Vector2(90.0, 64.0)
+## Tamano del golpe fuerte: area extendida (GDD seccion 5 "ataques de rango").
+@export var alcance_golpe_fuerte: Vector2 = Vector2(150.0, 72.0)
+## Empuje horizontal (knockback) en px/s del golpe fuerte. El golpe normal no empuja.
+@export var empuje_golpe_fuerte: float = 300.0
+## Pausa entre golpes normales. Corta el spam de tecla mantenida.
+@export var cooldown_golpe_normal: float = 0.15
+## Pausa entre golpes fuertes: mas lenta por dano y alcance.
+@export var cooldown_golpe_fuerte: float = 0.35
+## Ventana de frames activos ("active frames") del hitbox del golpe normal.
+@export var duracion_hitbox_golpe_normal: float = 0.12
+## Ventana activa del golpe fuerte: algo mas generosa que la del normal.
+@export var duracion_hitbox_golpe_fuerte: float = 0.18
 
 @export_group("Movimiento")
 ## Velocidad objetivo en X de pie, en px/s. Es el valor al que la aceleracion lleva
@@ -158,6 +186,15 @@ var _buffer_restante: float = 0.0
 ## Estado de suelo del frame anterior, para detectar el aterrizaje.
 var _estaba_en_suelo: bool = false
 
+# --- OUFW-3: estado de combate ---
+
+## Hurtbox de este personaje, creada en [_ready] (no vive en las escenas).
+var _hurtbox: Hurtbox = null
+## Segundos restantes del cooldown entre ataques. 0 = listo para golpear.
+var _cooldown_ataque: float = 0.0
+## Contador para nombrar hitboxes unicos (`Hitbox_0`, `Hitbox_1`, ...).
+var _contador_hitboxes: int = 0
+
 
 ## Aplica los valores por defecto del personaje y lo deja vivo y a tope de vida.
 ##
@@ -172,6 +209,7 @@ func _ready() -> void:
 		nodo_sprite = _buscar_sprite()
 	_estaba_en_suelo = en_suelo()
 	_aplicar_flip()
+	_crear_hurtbox()
 
 
 ## Punto de extension donde cada princesa declara su identidad y sus atributos
@@ -187,15 +225,22 @@ func _configurar_atributos_por_defecto() -> void:
 ## Aplica dano al personaje (OUFW-1). El HP nunca baja de 0 y, al alcanzarlo, se
 ## marca como muerto y se emite [signal died] exactamente una vez.
 ##
+## [param empuje] y [param direccion_empuje] entregan el knockback de los golpes
+## fuertes (OUFW-3): fijan [member velocity] en X para que el impacto "empuje" de
+## verdad al rival, no solo reste vida.
 ## El parametro [param tipo] queda sin uso aqui: los modificadores por tipo de
 ## ataque (veneno, rotura de guardia) llegan en OUFW-8 y OUFW-9.
 @warning_ignore("unused_parameter")
-func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL) -> void:
+func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL,
+		empuje: float = 0.0, direccion_empuje: int = 0) -> void:
 	if esta_muerto or cantidad <= 0:
 		return
 
 	current_hp = maxi(0, current_hp - cantidad)
 	health_changed.emit(current_hp, hp_max)
+
+	if empuje > 0.0 and direccion_empuje != 0:
+		velocity.x = float(direccion_empuje) * empuje
 
 	if current_hp <= 0:
 		esta_muerto = true
@@ -220,6 +265,88 @@ func aplicar_curacion(hp_restaurada: int) -> int:
 		health_changed.emit(current_hp, hp_max)
 
 	return current_hp - vida_previa
+
+
+# --- OUFW-3: hitbox/hurtbox (combate) ---
+
+## Descuenta el cooldown entre ataques. El combate no bloquea la locomotion: la
+## princesa puede moverse y saltar mientras el golpe esta en cooldown.
+func _physics_process(delta: float) -> void:
+	if _cooldown_ataque > 0.0:
+		_cooldown_ataque = maxf(0.0, _cooldown_ataque - delta)
+
+
+## Golpe normal (`K`): rapido, corto y sin empuje. Es el pilar del moveset base y
+## el que los jugadores van a probar primero en la arena.
+func ataque_normal() -> void:
+	_ejecutar_ataque(
+		dano_golpe_normal,
+		TipoAtaque.GOLPE_NORMAL,
+		alcance_golpe_normal,
+		0.0,
+		cooldown_golpe_normal,
+		duracion_hitbox_golpe_normal
+	)
+
+
+## Golpe fuerte (`L`): lento, de area extendida, con dano alto y empuje
+## (GDD seccion 5: "ataques de rango" y "gestión de riesgo vs. recompensa").
+func ataque_fuerte() -> void:
+	_ejecutar_ataque(
+		dano_golpe_fuerte,
+		TipoAtaque.GOLPE_FUERTE,
+		alcance_golpe_fuerte,
+		empuje_golpe_fuerte,
+		cooldown_golpe_fuerte,
+		duracion_hitbox_golpe_fuerte
+	)
+
+
+## Crea un [Hitbox] frontal como hijo (viaja con el personaje) y lo posiciona a la
+## distancia de alcance EN FRENTE de la mirada. El cooldown corta el spam de tecla
+## mantenida: pulsar `K` en bucle solo suelta un golpe cada
+## [member cooldown_golpe_normal] segundos.
+##
+## El dano pasa por [member multiplicador_dano] (perfil "glass cannon" del GDD
+## seccion 8); el resto del volumen y el empuje se inyectan tal cual.
+func _ejecutar_ataque(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: float,
+		cooldown: float, duracion: float) -> void:
+	if esta_muerto or _cooldown_ataque > 0.0 or not is_inside_tree():
+		return
+
+	_cooldown_ataque = cooldown
+
+	var hitbox := Hitbox.new()
+	hitbox.name = "Hitbox_%d" % _contador_hitboxes
+	_contador_hitboxes += 1
+	add_child(hitbox)
+	hitbox.iniciar(
+		maxi(1, roundi(dano * multiplicador_dano)),
+		tipo,
+		tamano,
+		empuje,
+		_signo_mirada(),
+		self,
+		duracion
+	)
+	# El golpe nace a alcance corto del cuerpo (media del tamano + 8 px) para no
+	# "nacer adentro" del rival: la superposicion se produce cuando el golpe entra
+	# en rango, y la hurtbox lo detecta con su area_entered ese mismo frame.
+	hitbox.position = Vector2(float(_signo_mirada()) * (tamano.x * 0.5 + 8.0), -24.0)
+
+	ataque_ejecutado.emit(tipo)
+
+
+## Crea la hurtbox de este personaje en runtime. Al vivir en la clase base, toda
+## princesa (jugable, bot de OUFW-11, futuras) recibe la suya sin tocar escenas.
+func _crear_hurtbox() -> void:
+	if _hurtbox != null:
+		return
+	var hurtbox := Hurtbox.new()
+	hurtbox.name = "Hurtbox"
+	hurtbox.personaje = self
+	add_child(hurtbox)
+	_hurtbox = hurtbox
 
 
 # --- OUFW-2: locomocion (movimiento, salto, agachado, derrape y flipper) ---
