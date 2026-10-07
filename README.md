@@ -64,10 +64,10 @@ Este repositorio documentará nuestro proceso de creación, desde la conceptuali
 ## 🕹️ Cómo correrlo
 
 1. Instala [Godot 4.7.2](https://godotengine.org/download/windows/) — basta con el binario, no hay nada más que instalar.
-2. Abre el proyecto en el editor y pulsa ▶, o corre desde terminal:
+2. Abre `godot/project.godot` en el editor y pulsa ▶, o corre desde terminal (desde la raíz del repo):
 
    ```bash
-   godot --path .
+   godot --path godot
    ```
 
 La escena principal es `escenas/arena_movimiento.tscn`: una **arena mínima para probar los controles** (OUFW-2), no el nivel del juego. Ese es OUFW-6.
@@ -79,11 +79,11 @@ La escena principal es `escenas/arena_movimiento.tscn`: una **arena mínima para
 Las suites corren sin editor y sin gráficos:
 
 ```bash
-godot --headless --import --path .                # una vez por clon, ver nota abajo
-godot --headless --path . --script res://tests/test_personaje.gd    # OUFW-1
-godot --headless --path . --script res://tests/test_movimiento.gd   # OUFW-2
-godot --headless --path . --script res://tests/test_combate.gd      # OUFW-3
-godot --headless --path . --script res://tests/test_escenas.gd      # integración
+godot --headless --import --path godot                # una vez por clon, ver nota abajo
+godot --headless --path godot --script res://tests/test_personaje.gd    # OUFW-1
+godot --headless --path godot --script res://tests/test_movimiento.gd   # OUFW-2
+godot --headless --path godot --script res://tests/test_combate.gd      # OUFW-3
+godot --headless --path godot --script res://tests/test_escenas.gd      # integración
 ```
 
 Código de salida `0` = todo en verde.
@@ -95,8 +95,8 @@ Código de salida `0` = todo en verde.
 `escenas/*.tscn` y el `InputMap` se **generan con código**, para que ningún nodo ni tecla quede duplicado a mano:
 
 ```bash
-godot --headless --path . --script res://tools/crear_escenas.gd
-godot --headless --path . --script res://tools/configurar_input_map.gd
+godot --headless --path godot --script res://tools/crear_escenas.gd
+godot --headless --path godot --script res://tools/configurar_input_map.gd
 ```
 
 **No edites `escenas/*.tscn` ni la sección `[input]` de `project.godot` a mano:** se sobrescriben. Si hace falta cambiar un nodo o una tecla, se cambia en el script de `tools/`.
