@@ -1,0 +1,125 @@
+[gd_scene format=3 uid="uid://btwvjk06s34lx"]
+
+[ext_resource type="Script" uid="uid://crfxqmgs7q4sb" path="res://hud.gd" id="1_ws14n"]
+[ext_resource type="Texture2D" uid="uid://mp1d62fp5m7k" path="res://DARRIVER900 Videogame_Princess main godot/recursos/Corazon vacio(1).png" id="2_8b52e"]
+[ext_resource type="Texture2D" uid="uid://ck10vqc0qu5s7" path="res://DARRIVER900 Videogame_Princess main godot/recursos/Corazon_lleno-removebg-preview.png" id="3_ygpg6"]
+[ext_resource type="FontFile" uid="uid://c66yivdtye5rb" path="res://DARRIVER900 Videogame_Princess main godot/recursos/VCR_OSD_MONO_1.001.ttf" id="4_16nk6"]
+[ext_resource type="Texture2D" uid="uid://bxcedf0e3c2h" path="res://DARRIVER900 Videogame_Princess main godot/recursos/243475923600382113-removebg-preview.png" id="5_lcgjw"]
+
+[node name="HUD" type="CanvasLayer" unique_id=648750196]
+script = ExtResource("1_ws14n")
+
+[node name="Control" type="Control" parent="." unique_id=2047804181]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Retrato_Jugadora" type="TextureRect" parent="Control" unique_id=284910601]
+custom_minimum_size = Vector2(200, 48)
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 540.0
+expand_mode = 1
+flip_h = true
+
+[node name="HUD_Superior" type="HBoxContainer" parent="Control" unique_id=1708580631]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 37.0
+offset_top = 1.0
+offset_right = -13.578003
+offset_bottom = 54.641006
+grow_horizontal = 2
+rotation = -6.2831855
+tooltip_text = "
+"
+theme_override_constants/separation = 50
+accessibility_region = true
+
+[node name="Izquierda" type="HBoxContainer" parent="Control/HUD_Superior" unique_id=688102376]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 15
+
+[node name="Progress_Player" type="TextureProgressBar" parent="Control/HUD_Superior/Izquierda" unique_id=1616774750]
+custom_minimum_size = Vector2(250, 20)
+layout_mode = 2
+value = 100.0
+texture_under = ExtResource("2_8b52e")
+texture_progress = ExtResource("3_ygpg6")
+
+[node name="Estado_Jugadora" type="Label" parent="Control/HUD_Superior/Izquierda" unique_id=2114619089]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.7137255, 0.75686276, 1)
+theme_override_fonts/font = ExtResource("4_16nk6")
+theme_override_font_sizes/font_size = 18
+text = "Normal"
+horizontal_alignment = 1
+
+[node name="Temporizador" type="Label" parent="Control/HUD_Superior" unique_id=2040040381]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_16nk6")
+text = "99"
+
+[node name="Derecha" type="HBoxContainer" parent="Control/HUD_Superior" unique_id=136145836]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 15
+accessibility_region = true
+alignment = 2
+
+[node name="Progress_Enemy" type="TextureProgressBar" parent="Control/HUD_Superior/Derecha" unique_id=1948356558]
+custom_minimum_size = Vector2(250, 20)
+layout_mode = 2
+value = 100.0
+texture_under = ExtResource("2_8b52e")
+texture_progress = ExtResource("3_ygpg6")
+
+[node name="Estado_Rival" type="Label" parent="Control/HUD_Superior/Derecha" unique_id=1299966897]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.7137255, 0.75686276, 1)
+theme_override_fonts/font = ExtResource("4_16nk6")
+theme_override_font_sizes/font_size = 18
+text = "Normal"
+horizontal_alignment = 1
+
+[node name="HUD_Inferior" type="HBoxContainer" parent="Control" unique_id=1939029285]
+layout_mode = 1
+offset_top = 500.0
+offset_right = 960.0
+offset_bottom = 550.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Inventario" type="HBoxContainer" parent="Control/HUD_Inferior" unique_id=1865977279]
+custom_minimum_size = Vector2(40, 0)
+layout_mode = 2
+accessibility_region = true
+
+[node name="Icono_Pocion" type="TextureRect" parent="Control/HUD_Inferior" unique_id=8209313]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+texture = ExtResource("5_lcgjw")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Estado" type="Label" parent="Control/HUD_Inferior" unique_id=1662561087]
+layout_mode = 2
+
+[node name="Combos" type="VBoxContainer" parent="Control/HUD_Inferior" unique_id=816247007]
+layout_mode = 2
+
+[node name="Contador_Combos" type="Label" parent="Control/HUD_Inferior/Combos" unique_id=315694565]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_16nk6")
+text = "5 HITS"
+
+[node name="Multiplicador" type="Label" parent="Control/HUD_Inferior/Combos" unique_id=1798215183]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("4_16nk6")
+text = "x1.5"
