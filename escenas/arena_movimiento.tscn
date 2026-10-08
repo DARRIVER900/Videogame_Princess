@@ -1,0 +1,37 @@
+[gd_scene format=3 uid="uid://b63nfkbt4fh5j"]
+
+[ext_resource type="Script" uid="uid://d3547178hkakc" path="res://DARRIVER900 Videogame_Princess main godot/scripts/arena_movimiento.gd" id="1_q45y2"]
+[ext_resource type="PackedScene" uid="uid://b51sgqg47j4op" path="res://DARRIVER900 Videogame_Princess main godot/escenas/princesa_dulcecito.tscn" id="2_qjpyg"]
+[ext_resource type="Script" uid="uid://iqcgclvjmqo8" path="res://DARRIVER900 Videogame_Princess main godot/scripts/personaje/controlador_jugador.gd" id="4_o1wae"]
+[ext_resource type="PackedScene" uid="uid://85jitcjv61fl" path="res://DARRIVER900 Videogame_Princess main godot/escenas/princesa_chocolatito.tscn" id="5_80epw"]
+[ext_resource type="PackedScene" uid="uid://btwvjk06s34lx" path="res://DARRIVER900 Videogame_Princess main godot/escenas/hud.tscn" id="5_p54dd"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bwkvl"]
+size = Vector2(2400, 200)
+
+[node name="Arena" type="Node2D" unique_id=1790960343]
+script = ExtResource("1_q45y2")
+
+[node name="Suelo" type="StaticBody2D" parent="." unique_id=2112732587]
+
+[node name="Colision" type="CollisionShape2D" parent="Suelo" unique_id=325949099]
+position = Vector2(0, 100)
+shape = SubResource("RectangleShape2D_bwkvl")
+
+[node name="Jugadora" parent="." unique_id=1075953442 node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("2_qjpyg")]
+position = Vector2(-160, -32)
+nodo_sprite = NodePath("Sprite")
+
+[node name="Controlador" type="Node" parent="Jugadora" unique_id=1349629927 node_paths=PackedStringArray("personaje", "rival")]
+script = ExtResource("4_o1wae")
+personaje = NodePath("..")
+rival = NodePath("../../Rival")
+
+[node name="Rival" parent="." unique_id=779931660 node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("5_80epw")]
+position = Vector2(160, -32)
+nodo_sprite = NodePath("Sprite")
+
+[node name="Camara" type="Camera2D" parent="." unique_id=284643358]
+position = Vector2(0, -60)
+
+[node name="HUD" parent="." unique_id=694967164 instance=ExtResource("5_p54dd")]
