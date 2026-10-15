@@ -1,0 +1,42 @@
+[
+  {
+    "speaker": "Princesa Dulcecito",
+    "text": "Hasta aquí nos trajo la guerra, Chocolatito. Qué ironía: una pradera tan limpia para una deuda tan sucia.",
+    "portrait": "dulcecito_calm"
+  },
+  {
+    "speaker": "Princesa Chocolatito",
+    "text": "¿Deuda? Mis soldados llevan años enterrando a los suyos por culpa de tu reino. Por fin te atreves a dar la cara.",
+    "portrait": "chocolatito_angry"
+  },
+  {
+    "speaker": "Princesa Dulcecito",
+    "text": "Tu traición manchó de jarabe la memoria de mi hermano... Arrodíllate ante su recuerdo y confiesa, y tal vez tu muerte sea rápida.",
+    "portrait": "dulcecito_angry"
+  },
+  {
+    "speaker": "Princesa Chocolatito",
+    "text": "¡El reino de Chocolate no recibe órdenes de una muñeca de azúcar!",
+    "portrait": "chocolatito_furious"
+  },
+  {
+    "speaker": "Princesa Dulcecito",
+    "text": "Qué ruidosa eres. Nuestros hermanos se visitaban desde niños y no murieron por casualidad. En tu casa alguien conoce la razón.",
+    "portrait": "dulcecito_calm"
+  },
+  {
+    "speaker": "Princesa Chocolatito",
+    "text": "Un sirviente encontró sus cuerpos sin una sola pista. Nadie respondió por su muerte, así que responderás tú.",
+    "portrait": "chocolatito_sad"
+  },
+  {
+    "speaker": "Princesa Dulcecito",
+    "text": "Entonces ambas elegimos lo mismo. Ese día dejé de ser una niña ingenua; hoy solo soy la heredera que viene a terminar con tu casa.",
+    "portrait": "dulcecito_sad"
+  },
+  {
+    "speaker": "Princesa Chocolatito",
+    "text": "¡Inténtalo! Sobre las ruinas de Candy me pondré la corona. ¡Defiéndete, Dulcecito!",
+    "portrait": "chocolatito_furious"
+  }
+]

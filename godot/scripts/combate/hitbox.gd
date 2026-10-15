@@ -14,10 +14,7 @@ extends Area2D
 ## chequeo explicito con [method get_overlapping_areas] cada frame activo. La doble
 ## deteccion es inofensiva porque el consumo se resuelve antes que nada.
 
-## Capa 2D en la que vive el hitbox. Valor en bruto a proposito: la matriz de capas
-## con NOMBRES la configura OUFW-6 ("Physics Layer Matrix configurados
-## correctamente"); aqui solo importa que hurtbox y hitbox se encuentren.
-const CAPA_HITBOX := 4
+## Capas: se leen de [Personaje] (CAPA_HITBOX / CAPA_HURTBOX), fuente unica de verdad.
 
 ## Dano que inflige. Lo fija [method iniciar] desde los exports de [Personaje].
 var dano: int = 0
@@ -58,7 +55,7 @@ func iniciar(p_dano: int, p_tipo: Personaje.TipoAtaque, tamano: Vector2,
 	direccion_empuje = p_direccion
 	dueno = p_dueno
 	_tiempo_activo = duracion
-	collision_layer = CAPA_HITBOX
+	collision_layer = Personaje.CAPA_HITBOX
 	collision_mask = Personaje.CAPA_HURTBOX
 
 	var colision := CollisionShape2D.new()

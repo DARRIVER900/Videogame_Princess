@@ -60,6 +60,13 @@ golpe_fuerte={
 ])
 }
 
+[layer_names]
+
+2d_physics/layer_1="Ground"
+2d_physics/layer_2="Hurtbox"
+2d_physics/layer_3="Hitbox"
+2d_physics/layer_4="Personajes"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

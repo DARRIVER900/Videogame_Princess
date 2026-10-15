@@ -16,8 +16,7 @@ extends Area2D
 ## rutas de deteccion (su propio `area_entered` y el barrido del [Hitbox]). Ignora
 ## los golpes propios y los ya consumidos: ahi se corta el *multi-hitting*.
 
-## Capa 2D en la que vive la hurtbox. Valor en bruto a proposito (ver [Hitbox]).
-const CAPA_HURTBOX := 2
+## Capas: se leen de [Personaje] (CAPA_HURTBOX / CAPA_HITBOX), fuente unica de verdad.
 
 ## Altura de pie de la capsula en px. Coincide con la colision del cuerpo.
 const ALTURA_PIE := 64.0
@@ -41,7 +40,7 @@ func _ready() -> void:
 	if personaje == null:
 		personaje = _buscar_personaje_ancestro()
 
-	collision_layer = CAPA_HURTBOX
+	collision_layer = Personaje.CAPA_HURTBOX
 	collision_mask = Personaje.CAPA_HITBOX
 
 	_forma = CapsuleShape2D.new()

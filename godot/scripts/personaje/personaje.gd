@@ -18,18 +18,26 @@ enum Modset { AGIL_DISTANCIA, PESADO_PESA }
 ## Tipos de ataque del moveset base. El mapeo de teclas vive en la seccion [code][input]
 ## de [code]project.godot[/code] y lo consumen [ControladorJugador] (OUFW-2) y los
 ## sistemas de hitbox (OUFW-3); aqui solo se declara el tipo para que
-## [method recibir_dano] pueda differentiate.
+## [method recibir_dano] pueda diferenciar.
 enum TipoAtaque { GOLPE_NORMAL, GOLPE_FUERTE, VENENO, SUPER_PESADO_CARGA }
 
 ## Poses del cuerpo. Las dos ultimas rebajan la altura del personaje y son la senal
 ## que OUFW-3 necesita para encoger la Hurtbox (GDD seccion 5: `S` y `S + A/D`).
 enum Locomocion { DE_PIE, AGACHADO, DERRAPE }
 
-## Capas 2D del sistema de combate (OUFW-3): la Hurtbox detecta hitboxes y el
-## Hitbox detecta hurtboxes. Valores en bruto a proposito: la matriz de capas con
-## NOMBRES la configura OUFW-6 ("Physics Layer Matrix configurados correctamente").
+## Capas 2D del proyecto. UNICA fuente de verdad de los valores en bruto: [Hitbox],
+## [Hurtbox] y las escenas leen estas constantes. El numero de capa N corresponde al
+## valor 2^(N-1); los NOMBRES de la matriz viven en project.godot y se generan con
+## [code]tools/configurar_capas_fisica.gd[/code] (OUFW-6).
+##   1 Ground (suelo y paredes), 2 Hurtbox, 3 Hitbox, 4 Personajes.
+const CAPA_GROUND := 1
 const CAPA_HURTBOX := 2
 const CAPA_HITBOX := 4
+const CAPA_PERSONAJE := 8
+
+## Altura (px, respecto al centro del cuerpo) a la que nace el volumen de un golpe,
+## a la altura del torso. Antes era un -24.0 escrito a mano en [method _ejecutar_ataque].
+const ALTURA_GOLPE := -24.0
 
 ## Equivalente a `OnHealthChanged` en OUFW-1. Lo consume el HUD (OUFW-5).
 signal health_changed(current_hp: int, hp_max: int)
@@ -332,7 +340,7 @@ func _ejecutar_ataque(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: floa
 	# El golpe nace a alcance corto del cuerpo (media del tamano + 8 px) para no
 	# "nacer adentro" del rival: la superposicion se produce cuando el golpe entra
 	# en rango, y la hurtbox lo detecta con su area_entered ese mismo frame.
-	hitbox.position = Vector2(float(_signo_mirada()) * (tamano.x * 0.5 + 8.0), -24.0)
+	hitbox.position = Vector2(float(_signo_mirada()) * (tamano.x * 0.5 + 8.0), ALTURA_GOLPE)
 
 	ataque_ejecutado.emit(tipo)
 
