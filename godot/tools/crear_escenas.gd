@@ -7,7 +7,7 @@ extends SceneTree
 ## Genera:
 ##   recursos/placeholder_dulcecito.png / placeholder_chocolatito.png
 ##   escenas/princesa_dulcecito.tscn  escenas/princesa_chocolatito.tscn
-##   escenas/arena_movimiento.tscn    (arena de pruebas de OUFW-2)
+##   escenas/arena_movimiento.tscn    (arena de pruebas de OUFW-2/3/9/11)
 ##
 ## IMPORTANTE: estas escenas son el HARNESS de pruebas de OUFW-2, no la arena
 ## de produccion. El graybox del Capitulo 1 es OUFW-6.
@@ -176,6 +176,15 @@ func _crear_arena_de_prueba() -> void:
 	ctrl.rival = rival
 	jugadora.add_child(ctrl)
 	ctrl.owner = arena
+
+	# --- FSM del rival (OUFW-11): el bot decide solo, reutilizando la misma
+	# fisica y el mismo combate que la jugadora, sin leer el teclado. ---
+	var bot := ControladorBot.new()
+	bot.name = "Bot"
+	bot.personaje = rival
+	bot.rival = jugadora
+	rival.add_child(bot)
+	bot.owner = arena
 
 	# --- Camara y HUD ---
 	var camara := Camera2D.new()

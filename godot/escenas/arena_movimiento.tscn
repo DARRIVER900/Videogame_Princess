@@ -1,43 +1,49 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://scripts/arena_movimiento.gd" id="1_q45y2"]
-[ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="2_qjpyg"]
-[ext_resource type="Script" path="res://scripts/personaje/princesa_dulcecito.gd" id="3_afhrj"]
-[ext_resource type="Script" path="res://scripts/personaje/controlador_jugador.gd" id="4_o1wae"]
-[ext_resource type="PackedScene" path="res://escenas/princesa_chocolatito.tscn" id="5_80epw"]
-[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="6_iku6b"]
+[ext_resource type="Script" path="res://scripts/arena_movimiento.gd" id="1_qjpyg"]
+[ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="2_afhrj"]
+[ext_resource type="Script" path="res://scripts/personaje/princesa_dulcecito.gd" id="3_o1wae"]
+[ext_resource type="Script" path="res://scripts/personaje/controlador_jugador.gd" id="4_80epw"]
+[ext_resource type="PackedScene" path="res://escenas/princesa_chocolatito.tscn" id="5_iku6b"]
+[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="6_bwkvl"]
+[ext_resource type="Script" path="res://scripts/personaje/controlador_bot.gd" id="7_8x6ev"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_bwkvl"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_a21yx"]
 size = Vector2(2400, 200)
 
 [node name="Arena" type="Node2D"]
-script = ExtResource("1_q45y2")
+script = ExtResource("1_qjpyg")
 
 [node name="Suelo" type="StaticBody2D" parent="."]
 
 [node name="Colision" type="CollisionShape2D" parent="Suelo"]
 position = Vector2(0, 100)
-shape = SubResource("RectangleShape2D_bwkvl")
+shape = SubResource("RectangleShape2D_a21yx")
 
-[node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("2_qjpyg")]
+[node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("2_afhrj")]
 position = Vector2(-160, -32)
-script = ExtResource("3_afhrj")
+script = ExtResource("3_o1wae")
 nombre = "Princesa Dulcecito"
 id_skin_activa = "SKIN_CANDYR_DEFAULT"
 nodo_sprite = NodePath("Sprite")
 
 [node name="Controlador" type="Node" parent="Jugadora" node_paths=PackedStringArray("personaje", "rival")]
-script = ExtResource("4_o1wae")
+script = ExtResource("4_80epw")
 personaje = NodePath("..")
 rival = NodePath("../../Rival")
 
-[node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("5_80epw")]
+[node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("5_iku6b")]
 position = Vector2(160, -32)
-script = ExtResource("6_iku6b")
+script = ExtResource("6_bwkvl")
 nombre = "Princesa Chocolatito"
 id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"
 modset_clase = 1
 nodo_sprite = NodePath("Sprite")
+
+[node name="Bot" type="Node" parent="Rival" node_paths=PackedStringArray("personaje", "rival")]
+script = ExtResource("7_8x6ev")
+personaje = NodePath("..")
+rival = NodePath("../../Jugadora")
 
 [node name="Camara" type="Camera2D" parent="."]
 position = Vector2(0, -60)

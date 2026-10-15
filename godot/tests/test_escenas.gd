@@ -26,6 +26,7 @@ func _llamar_tarde() -> void:
 
 	await _prueba_escenas_cargan()
 	await _prueba_cableado_del_rival()
+	await _prueba_fsm_de_la_arena()
 	await _prueba_juego_completo()
 
 	print("")
@@ -105,6 +106,7 @@ func _prueba_cableado_del_rival() -> void:
 	var jugadora := arena.get_node_or_null("Jugadora") as Personaje
 	var rival := arena.get_node_or_null("Rival") as Personaje
 	var ctrl := arena.get_node_or_null("Jugadora/Controlador") as ControladorJugador
+	var bot := arena.get_node_or_null("Rival/Bot") as ControladorBot
 
 	_comprobar("la arena tiene Jugadora, Rival y Controlador",
 		jugadora != null and rival != null and ctrl != null)
@@ -120,11 +122,52 @@ func _prueba_cableado_del_rival() -> void:
 		ctrl.personaje == jugadora)
 	_comprobar("Personaje.nodo_sprite resuelve tras cargar",
 		jugadora.nodo_sprite != null, str(jugadora.nodo_sprite))
-	_comprobar("el rival no tiene ControladorJugador (aun no hay FSM)",
+	# OUFW-11: el rival ahora tiene su FSM serializada, y sigue sin leer teclado.
+	_comprobar("el rival no tiene ControladorJugador (no lee teclado)",
 		arena.get_node_or_null("Rival/Controlador") == null)
+	_comprobar("el rival tiene ControladorBot cableado (OUFW-11)",
+		bot != null and bot.personaje == rival and bot.rival == jugadora)
 	_comprobar("hay HUD y camara",
 		arena.get_node_or_null("HUD/Estado") != null
 		and arena.get_node_or_null("Camara") != null)
+
+	# Las demas pruebas de esta suite quieren una jugadora que NADIE le mueva.
+	if bot != null:
+		bot.activo = false
+
+	arena.queue_free()
+
+
+func _prueba_fsm_de_la_arena() -> void:
+	print("-- La FSM del rival serializada arranca y decide en runtime --")
+	var arena := _montar_arena()
+	if arena == null:
+		_comprobar("la arena se instancia", false, "")
+		return
+
+	var rival := arena.get_node("Rival") as Personaje
+	var bot := arena.get_node_or_null("Rival/Bot") as ControladorBot
+	_comprobar("la arena trae su ControladorBot", bot != null)
+	if bot == null:
+		arena.queue_free()
+		return
+
+	# La jugadora esta a 320 px: fuera del rango de ataque, asi que la decision
+	# correcta del bot es ACERCARSE. No se mueve nadie mas en esta prueba.
+	await _pasos(30)
+	_comprobar("la FSM decide ACERCARSE con el rival fuera de rango",
+		bot.estado_actual == ControladorBot.EstadoBot.ACERCARSE,
+		"estado=%s" % ControladorBot.nombre_estado(bot.estado_actual))
+	_comprobar("el bot camina con la fisica del Personaje (en suelo)",
+		rival.en_suelo(), "y=%.1f" % rival.global_position.y)
+
+	# Despejado el escenario, la FSM se congela igual que los controles.
+	bot.activo = false
+	var x_detenido := rival.global_position.x
+	await _pasos(15)
+	_comprobar("desactivada la FSM el rival deja de caminar",
+		is_equal_approx(rival.global_position.x, x_detenido),
+		"desvio=%.2f px" % absf(rival.global_position.x - x_detenido))
 
 	arena.queue_free()
 
@@ -138,6 +181,12 @@ func _prueba_juego_completo() -> void:
 
 	var jugadora := arena.get_node("Jugadora") as Personaje
 	var rival := arena.get_node("Rival") as Personaje
+
+	# El bot se congela: esta prueba verifica el teclado de la jugadora, y una IA
+	# activa empujaria/metraria ruido en las mediciones de velocidad.
+	var bot := arena.get_node_or_null("Rival/Bot") as ControladorBot
+	if bot != null:
+		bot.activo = false
 
 	# Deja asentar a las dos: comparten suelo, asi que la posicion relativa en X
 	# no cambia y el vector de mirada sigue siendo valido.
