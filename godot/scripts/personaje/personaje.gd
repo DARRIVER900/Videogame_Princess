@@ -55,6 +55,17 @@ signal aterrizaje
 ## retroalimentacion y OUFW-8 para encadenar el moveset.
 signal ataque_ejecutado(tipo: TipoAtaque)
 
+## Se empezo a acumular la carga pesada (OUFW-9, tecla `J`).
+signal carga_iniciada
+
+## Nivel de carga actual (0.0..1.0) en cada frame de acumulacion. El HUD dibuja la
+## barra y el sprite usa el nivel para el efecto visual de "inflarse".
+signal carga_cambiada(nivel: float)
+
+## Se libero la carga y el golpe acaba de salir con este multiplicador de dano
+## (1.0 = soltada al instante, [member multiplicador_carga_max] = carga llena).
+signal carga_liberada(multiplicador: float)
+
 @export_group("Identidad")
 ## Nombre mostrable en la interfaz y en los dialogos de novela visual.
 @export var nombre: String = ""
@@ -88,6 +99,26 @@ signal ataque_ejecutado(tipo: TipoAtaque)
 @export var duracion_hitbox_golpe_normal: float = 0.12
 ## Ventana activa del golpe fuerte: algo mas generosa que la del normal.
 @export var duracion_hitbox_golpe_fuerte: float = 0.18
+
+@export_group("Carga (OUFW-9)")
+## Dano base de la carga pesada (`J`) soltada al instante. Se multiplica por el
+## nivel de acumulacion y despues por [member multiplicador_dano].
+@export var dano_carga: int = 30
+## Multiplicador de dano con la carga llena ([member tiempo_carga_max] completo).
+@export var multiplicador_carga_max: float = 2.0
+## Segundos de mantener `J` para llegar a la carga maxima.
+@export var tiempo_carga_max: float = 1.0
+## Tamano del volumen de la carga: el golpe mas ancho del moveset.
+@export var alcance_carga: Vector2 = Vector2(190.0, 80.0)
+## Empuje (knockback) de la carga: sacude mas que el golpe fuerte.
+@export var empuje_carga: float = 420.0
+## Pausa tras soltar la carga. El golpe es lento a proposito: es un gancho leible.
+@export var cooldown_carga: float = 0.6
+## Ventana activa del hitbox de carga.
+@export var duracion_hitbox_carga: float = 0.25
+## Cuanto se "infla" el sprite con la carga llena (0.2 = +20%). Es el efecto visual
+## de acumulacion que pide OUFW-9; el HUD puede sumar su barra con [signal carga_cambiada].
+@export var factor_escala_carga: float = 0.2
 
 @export_group("Movimiento")
 ## Velocidad objetivo en X de pie, en px/s. Es el valor al que la aceleracion lleva
@@ -166,6 +197,13 @@ var mirada_externa: bool = false
 ## Segundos que le quedan al derrape en curso.
 var tiempo_derrape: float = 0.0
 
+## true mientras se mantiene pulsada la carga pesada (OUFW-9). La acumula
+## [method _physics_process] y la consume [method soltar_carga].
+var cargando: bool = false
+
+## Segundos acumulados de carga en curso, con techo en [member tiempo_carga_max].
+var tiempo_carga: float = 0.0
+
 ## Fraccion de vida actual en rango 0.0..1.0. La consume el HUD para calcular el
 ## `fill_amount` de la barra (OUFW-5).
 var ratio_hp: float:
@@ -226,10 +264,12 @@ func _configurar_atributos_por_defecto() -> void:
 ## marca como muerto y se emite [signal died] exactamente una vez.
 ##
 ## [param empuje] y [param direccion_empuje] entregan el knockback de los golpes
-## fuertes (OUFW-3): fijan [member velocity] en X para que el impacto "empuje" de
+## fuertes (OUFW-3): fijan [method velocity] en X para que el impacto "empuje" de
 ## verdad al rival, no solo reste vida.
 ## El parametro [param tipo] queda sin uso aqui: los modificadores por tipo de
-## ataque (veneno, rotura de guardia) llegan en OUFW-8 y OUFW-9.
+## ataque llegan en OUFW-8 (veneno). La rotura de guardia de OUFW-9 no vive aqui
+## sino en la marca [member Hitbox.rompe_guardia], que la [Hurtbox] convierte en
+## su senal [signal Hurtbox.guardia_rota] antes de llegar a este metodo.
 @warning_ignore("unused_parameter")
 func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL,
 		empuje: float = 0.0, direccion_empuje: int = 0) -> void:
@@ -244,6 +284,7 @@ func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL,
 
 	if current_hp <= 0:
 		esta_muerto = true
+		cancelar_carga()
 		died.emit()
 
 
@@ -269,11 +310,18 @@ func aplicar_curacion(hp_restaurada: int) -> int:
 
 # --- OUFW-3: hitbox/hurtbox (combate) ---
 
-## Descuenta el cooldown entre ataques. El combate no bloquea la locomotion: la
-## princesa puede moverse y saltar mientras el golpe esta en cooldown.
+## Descuenta el cooldown entre ataques y acumula la carga pesada en curso (OUFW-9).
+## El combate no bloquea la locomotion: la princesa puede moverse y saltar mientras
+## el golpe esta en cooldown o mientras carga.
 func _physics_process(delta: float) -> void:
 	if _cooldown_ataque > 0.0:
 		_cooldown_ataque = maxf(0.0, _cooldown_ataque - delta)
+	if cargando:
+		var nivel_previo := carga_nivel()
+		tiempo_carga = minf(tiempo_carga + delta, tiempo_carga_max)
+		if not is_equal_approx(nivel_previo, carga_nivel()):
+			_actualizar_escalado_carga()
+			carga_cambiada.emit(carga_nivel())
 
 
 ## Golpe normal (`K`): rapido, corto y sin empuje. Es el pilar del moveset base y
@@ -302,6 +350,82 @@ func ataque_fuerte() -> void:
 	)
 
 
+# --- OUFW-9: carga rompe-guardia (tecla J) ---
+
+## Empieza a acumular la carga pesada (`J` mantenida). No se puede cargar dos veces
+## a la vez ni con el golpe anterior todavia en cooldown; tampoco un personaje
+## muerto. La acumulacion avanza sola en [method _physics_process].
+func iniciar_carga() -> void:
+	if esta_muerto or cargando or _cooldown_ataque > 0.0 or not is_inside_tree():
+		return
+	cargando = true
+	tiempo_carga = 0.0
+	carga_iniciada.emit()
+
+
+## Suelta la carga y despacha el golpe: el dano escala con el nivel acumulado, de
+## [member dano_carga] (soltada al instante) hasta dano_carga x
+## [member multiplicador_carga_max] (carga llena). El golpe lleva la marca
+## [member Hitbox.rompe_guardia], la que la Hurtbox rival convierte en
+## [signal Hurtbox.guardia_rota].
+func soltar_carga() -> void:
+	if not cargando:
+		return
+
+	var multiplicador := lerpf(1.0, multiplicador_carga_max, carga_nivel())
+	cargando = false
+	tiempo_carga = 0.0
+	_restaurar_escala_sprite()
+	carga_liberada.emit(multiplicador)
+
+	_ejecutar_ataque(
+		roundi(dano_carga * multiplicador),
+		TipoAtaque.SUPER_PESADO_CARGA,
+		alcance_carga,
+		empuje_carga,
+		cooldown_carga,
+		duracion_hitbox_carga,
+		true
+	)
+
+
+## Cancela la carga en curso SIN golpear: se usa cuando la accion se interrumpe
+## (controles congelados, muerte del personaje, reinicio del combate).
+func cancelar_carga() -> void:
+	cargando = false
+	tiempo_carga = 0.0
+	_restaurar_escala_sprite()
+
+
+## [return] Progreso de la carga en rango 0.0..1.0. 1.0 = [member tiempo_carga_max].
+func carga_nivel() -> float:
+	if tiempo_carga_max <= 0.0:
+		return 1.0
+	return clampf(tiempo_carga / tiempo_carga_max, 0.0, 1.0)
+
+
+## [return] Si hay una carga acumulandose en este momento.
+func esta_cargando() -> bool:
+	return cargando
+
+
+## Efecto visual de acumulacion (OUFW-9): el sprite se "infla" con la carga, hasta
+## [member factor_escala_carga] extra al nivel maximo. OJO: usa [member Node2D.scale]
+## del sprite, asi que solo conviene con sprites que se volteen via `flip_h` (la
+## convencion de las escenas); un sprite que dependa del signo de `scale.x` para
+## mirar perderia el flip mientras dure la carga.
+func _actualizar_escalado_carga() -> void:
+	if nodo_sprite == null:
+		return
+	var escala := 1.0 + factor_escala_carga * carga_nivel()
+	nodo_sprite.scale = Vector2(escala, escala)
+
+
+func _restaurar_escala_sprite() -> void:
+	if nodo_sprite != null:
+		nodo_sprite.scale = Vector2.ONE
+
+
 ## Crea un [Hitbox] frontal como hijo (viaja con el personaje) y lo posiciona a la
 ## distancia de alcance EN FRENTE de la mirada. El cooldown corta el spam de tecla
 ## mantenida: pulsar `K` en bucle solo suelta un golpe cada
@@ -309,8 +433,10 @@ func ataque_fuerte() -> void:
 ##
 ## El dano pasa por [member multiplicador_dano] (perfil "glass cannon" del GDD
 ## seccion 8); el resto del volumen y el empuje se inyectan tal cual.
+## [param rompe_guardia] marca el golpe con [member Hitbox.rompe_guardia]: el
+## disparador de la rotura de guardia de OUFW-9.
 func _ejecutar_ataque(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: float,
-		cooldown: float, duracion: float) -> void:
+		cooldown: float, duracion: float, rompe_guardia: bool = false) -> void:
 	if esta_muerto or _cooldown_ataque > 0.0 or not is_inside_tree():
 		return
 
@@ -327,7 +453,8 @@ func _ejecutar_ataque(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: floa
 		empuje,
 		_signo_mirada(),
 		self,
-		duracion
+		duracion,
+		rompe_guardia
 	)
 	# El golpe nace a alcance corto del cuerpo (media del tamano + 8 px) para no
 	# "nacer adentro" del rival: la superposicion se produce cuando el golpe entra

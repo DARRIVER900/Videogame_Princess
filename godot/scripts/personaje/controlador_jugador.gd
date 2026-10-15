@@ -19,6 +19,7 @@ const ACCION_SALTAR := "salto"
 const ACCION_AGACHAR := "agachar"
 const ACCION_GOLPE_NORMAL := "golpe_normal"
 const ACCION_GOLPE_FUERTE := "golpe_fuerte"
+const ACCION_CARGA := "carga_pesada"
 
 ## Personaje al que se le inyectan los comandos. Si se deja vacio, se resuelve el
 ## primer ancestro [Personaje] en [method _ready].
@@ -62,6 +63,13 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed(ACCION_GOLPE_FUERTE):
 		personaje.ataque_fuerte()
 
+	# Carga pesada (OUFW-9): `J` es "mantener para acumular, soltar para golpear".
+	# La acumulacion corre en Personaje._physics_process; aqui solo se abre y se cierra.
+	if Input.is_action_just_pressed(ACCION_CARGA):
+		personaje.iniciar_carga()
+	if Input.is_action_just_released(ACCION_CARGA):
+		personaje.soltar_carga()
+
 
 ## Direccion de avance del jugador: -1.0 izquierda, 0.0 quieto, 1.0 derecha.
 ##
@@ -77,14 +85,18 @@ func leer_direccion(fuerza: float = 1.0) -> float:
 
 
 ## Elimina el input del jugador del mapa de acciones. Se usa al cambiar de
-## personaje o al reiniciar el combate, para no dejar teclas "pegadas".
+## personaje o al reiniciar el combate, para no dejar teclas "pegadas". Una carga
+## en curso (OUFW-9) se cancela sin golpear: congelar controles no debe soltar un
+## ataque fantasma.
 func soltar_controles() -> void:
 	for accion: String in [
 		ACCION_IZQUIERDA, ACCION_DERECHA, ACCION_SALTAR, ACCION_AGACHAR,
-		ACCION_GOLPE_NORMAL, ACCION_GOLPE_FUERTE,
+		ACCION_GOLPE_NORMAL, ACCION_GOLPE_FUERTE, ACCION_CARGA,
 	]:
 		if Input.is_action_pressed(accion):
 			Input.action_release(accion)
+	if personaje != null:
+		personaje.cancelar_carga()
 
 
 func _buscar_personaje_ancestro() -> Personaje:
