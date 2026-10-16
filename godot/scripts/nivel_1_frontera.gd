@@ -27,6 +27,20 @@ const Y_APARICION := -32.0
 ## deja fuera del alcance del golpe fuerte (ver tests/test_nivel_1.gd).
 const X_APARICION := 140.0
 
+## Capitulo al que pertenece este nivel (1 a 3). Define la dificultad del rival
+## (OUFW-15): ver [DificultadCapitulo]. Los niveles de los capitulos 2 y 3 reutilizan
+## este script, o uno propio, cambiando solo este valor en el inspector.
+@export_range(1, 3) var capitulo: int = 1
+
+
+## Ajusta al rival al capitulo. Se hace aqui y no en la escena porque
+## [method Personaje._ready] reescribe vida y dano: los multiplicadores tienen que
+## entrar DESPUES del `_ready` del rival, y el de un padre corre despues del de sus hijos.
+func _ready() -> void:
+	var rival := get_node_or_null("Rival") as Personaje
+	if rival != null:
+		DificultadCapitulo.aplicar(rival, capitulo)
+
 
 ## X de la cara interior de la pared izquierda.
 func limite_izquierdo() -> float:

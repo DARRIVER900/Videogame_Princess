@@ -18,13 +18,17 @@ extends Area2D
 
 ## Dano que inflige. Lo fija [method iniciar] desde los exports de [Personaje].
 var dano: int = 0
-## Tipo de ataque que genero este golpe (el moveset lo amplia OUFW-8).
+## Tipo de ataque que genero este golpe.
 var tipo_ataque: Personaje.TipoAtaque = Personaje.TipoAtaque.GOLPE_NORMAL
 ## Empuje horizontal (knockback) en px/s que aplica al impactar. 0 = sin empuje.
 var empuje: float = 0.0
 ## Direccion del empuje: +1 hacia la derecha, -1 hacia la izquierda. Es la mirada
 ## del dueno en el momento del golpe, no la direccion en que "vuela" el rival.
 var direccion_empuje: int = 1
+## Veneno que aplica al impactar (OUFW-8). 0 = el golpe no envenena. Solo se aplica si
+## [member tipo_ataque] es VENENO; lo rellena [method Personaje._ejecutar_ataque].
+var veneno_dps: int = 0
+var veneno_duracion: float = 0.0
 ## Princesa que lanzo el golpe. Su propia hurtbox ignora a este hitbox.
 var dueno: Personaje = null
 ## Una vez la hurtbox rival consume el golpe, ya no puede herir a nadie mas.

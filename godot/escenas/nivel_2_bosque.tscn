@@ -1,0 +1,157 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/nivel_2_bosque.gd" id="1_rpxqq"]
+[ext_resource type="PackedScene" path="res://escenas/ambientacion_bosque.tscn" id="2_vtfqs"]
+[ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="3_xnic0"]
+[ext_resource type="Script" path="res://scripts/personaje/princesa_dulcecito.gd" id="4_5bwd8"]
+[ext_resource type="Script" path="res://scripts/personaje/controlador_jugador.gd" id="5_fxi4o"]
+[ext_resource type="PackedScene" path="res://escenas/princesa_chocolatito.tscn" id="6_cvgwv"]
+[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="7_mx30q"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_0i50g"]
+size = Vector2(1040, 200)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_76mlx"]
+size = Vector2(40, 800)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rg1x8"]
+size = Vector2(40, 800)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jaqq6"]
+size = Vector2(160, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mgket"]
+size = Vector2(160, 12)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gc1n8"]
+size = Vector2(220, 12)
+
+[node name="Nivel2" type="Node2D"]
+script = ExtResource("1_rpxqq")
+capitulo = 2
+
+[node name="Ambientacion" type="Node2D" parent="." instance=ExtResource("2_vtfqs")]
+z_index = -10
+texture_filter = 1
+
+[node name="Suelo" type="StaticBody2D" parent="."]
+position = Vector2(0, 100)
+collision_mask = 0
+
+[node name="Colision" type="CollisionShape2D" parent="Suelo"]
+shape = SubResource("RectangleShape2D_0i50g")
+
+[node name="ParedIzquierda" type="StaticBody2D" parent="."]
+position = Vector2(-476, -200)
+collision_mask = 0
+
+[node name="Colision" type="CollisionShape2D" parent="ParedIzquierda"]
+shape = SubResource("RectangleShape2D_76mlx")
+
+[node name="ParedDerecha" type="StaticBody2D" parent="."]
+position = Vector2(476, -200)
+collision_mask = 0
+
+[node name="Colision" type="CollisionShape2D" parent="ParedDerecha"]
+shape = SubResource("RectangleShape2D_rg1x8")
+
+[node name="Plataformas" type="Node2D" parent="."]
+
+[node name="TroncoIzquierdo" type="StaticBody2D" parent="Plataformas"]
+position = Vector2(-250, -54)
+collision_mask = 0
+
+[node name="Colision" type="CollisionShape2D" parent="Plataformas/TroncoIzquierdo"]
+shape = SubResource("RectangleShape2D_jaqq6")
+one_way_collision = true
+
+[node name="Tronco" type="ColorRect" parent="Plataformas/TroncoIzquierdo"]
+offset_left = -80.0
+offset_top = -6.0
+offset_right = 80.0
+offset_bottom = 6.0
+color = Color(0.41960785, 0.2901961, 0.18431373, 1)
+
+[node name="Musgo" type="ColorRect" parent="Plataformas/TroncoIzquierdo"]
+offset_left = -80.0
+offset_top = -6.0
+offset_right = 80.0
+offset_bottom = -2.0
+color = Color(0.30980393, 0.68235296, 0.41568628, 1)
+
+[node name="TroncoDerecho" type="StaticBody2D" parent="Plataformas"]
+position = Vector2(250, -54)
+collision_mask = 0
+
+[node name="Colision" type="CollisionShape2D" parent="Plataformas/TroncoDerecho"]
+shape = SubResource("RectangleShape2D_mgket")
+one_way_collision = true
+
+[node name="Tronco" type="ColorRect" parent="Plataformas/TroncoDerecho"]
+offset_left = -80.0
+offset_top = -6.0
+offset_right = 80.0
+offset_bottom = 6.0
+color = Color(0.41960785, 0.2901961, 0.18431373, 1)
+
+[node name="Musgo" type="ColorRect" parent="Plataformas/TroncoDerecho"]
+offset_left = -80.0
+offset_top = -6.0
+offset_right = 80.0
+offset_bottom = -2.0
+color = Color(0.30980393, 0.68235296, 0.41568628, 1)
+
+[node name="RamaCentral" type="StaticBody2D" parent="Plataformas"]
+position = Vector2(0, -114)
+collision_mask = 0
+
+[node name="Colision" type="CollisionShape2D" parent="Plataformas/RamaCentral"]
+shape = SubResource("RectangleShape2D_gc1n8")
+one_way_collision = true
+
+[node name="Tronco" type="ColorRect" parent="Plataformas/RamaCentral"]
+offset_left = -110.0
+offset_top = -6.0
+offset_right = 110.0
+offset_bottom = 6.0
+color = Color(0.41960785, 0.2901961, 0.18431373, 1)
+
+[node name="Musgo" type="ColorRect" parent="Plataformas/RamaCentral"]
+offset_left = -110.0
+offset_top = -6.0
+offset_right = 110.0
+offset_bottom = -2.0
+color = Color(0.30980393, 0.68235296, 0.41568628, 1)
+
+[node name="SpawnJugadora" type="Marker2D" parent="."]
+position = Vector2(-140, -32)
+
+[node name="SpawnRival" type="Marker2D" parent="."]
+position = Vector2(140, -32)
+
+[node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("3_xnic0")]
+position = Vector2(-140, -32)
+script = ExtResource("4_5bwd8")
+nombre = "Princesa Dulcecito"
+id_skin_activa = "SKIN_CANDYR_DEFAULT"
+nodo_sprite = NodePath("Sprite")
+
+[node name="Controlador" type="Node" parent="Jugadora" node_paths=PackedStringArray("personaje", "rival")]
+script = ExtResource("5_fxi4o")
+personaje = NodePath("..")
+rival = NodePath("../../Rival")
+
+[node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("6_cvgwv")]
+position = Vector2(140, -32)
+script = ExtResource("7_mx30q")
+nombre = "Princesa Chocolatito"
+id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"
+modset_clase = 1
+nodo_sprite = NodePath("Sprite")
+
+[node name="Camara" type="Camera2D" parent="."]
+position = Vector2(0, -60)
+limit_left = -480
+limit_top = -330
+limit_right = 480
+limit_bottom = 210

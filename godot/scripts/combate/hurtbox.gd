@@ -106,6 +106,10 @@ func recibir_golpe(hitbox: Hitbox) -> void:
 		hitbox.empuje,
 		hitbox.direccion_empuje
 	)
+	# Veneno (OUFW-8): el golpe puede tener danio directo 0, asi que el estado no
+	# depende de que recibir_dano haya descontado vida.
+	if hitbox.tipo_ataque == Personaje.TipoAtaque.VENENO and hitbox.veneno_dps > 0:
+		personaje.aplicar_veneno(hitbox.veneno_dps, hitbox.veneno_duracion)
 	golpe_recibido.emit(hitbox)
 
 

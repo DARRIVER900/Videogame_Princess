@@ -38,11 +38,13 @@ func _process(_delta: float) -> void:
 	var hurtbox_ok := _jugadora.get_node_or_null("Hurtbox") != null
 
 	_etiqueta.text = "\n".join([
-		"OUFW-2/3 - arena de pruebas (no es OUFW-6)",
+		"OUFW-2/3/8/10 - arena de pruebas (no es OUFW-6)",
 		"",
 		"A / D      moverse        W + A / D  salto diagonal",
 		"S          agachar        S + A/D    derrape",
 		"K          golpe normal   L          golpe fuerte",
+		"U          veneno (DoT, solo Dulcecito)",
+		"E          pocion (+15 HP, consume 1)",
 		"",
 		"locomocion  %s   (hurtbox x%.2f)" % [
 			_NOMBRES_LOCOMOCION.get(_jugadora.estado_locomocion, "?"),
@@ -56,9 +58,24 @@ func _process(_delta: float) -> void:
 			"si" if hurtbox_ok else "NO",
 		],
 		"hitboxes    %d activas" % hitboxes,
+		"estado      yo %s   rival %s" % [_texto_estado(_jugadora), _texto_estado(_rival)],
+		"pociones    yo %d   rival %d" % [
+			_jugadora.cantidad_pociones,
+			_rival.cantidad_pociones if _rival != null else 0,
+		],
 		"HP          yo %d/%d   rival %d/%d" % [
 			_jugadora.current_hp, _jugadora.hp_max,
 			_rival.current_hp if _rival != null else 0,
 			_rival.hp_max if _rival != null else 0,
 		],
 	])
+
+
+## Indicador textual del estado alterado (OUFW-8): "Normal" o "Envenenado (3.0s, 4/s)".
+## Cuando exista el HUD de OUFW-5 leera lo mismo de [method Personaje.texto_estado].
+func _texto_estado(p: Personaje) -> String:
+	if p == null:
+		return "-"
+	if p.esta_envenenado():
+		return "%s (%.1fs, %d/s)" % [p.texto_estado(), p.segundos_veneno_restantes(), p.dps_veneno_actual()]
+	return p.texto_estado()

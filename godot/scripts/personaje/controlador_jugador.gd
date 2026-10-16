@@ -19,6 +19,8 @@ const ACCION_SALTAR := "salto"
 const ACCION_AGACHAR := "agachar"
 const ACCION_GOLPE_NORMAL := "golpe_normal"
 const ACCION_GOLPE_FUERTE := "golpe_fuerte"
+const ACCION_USAR_POCION := "usar_pocion"
+const ACCION_VENENO := "ataque_veneno"
 
 ## Personaje al que se le inyectan los comandos. Si se deja vacio, se resuelve el
 ## primer ancestro [Personaje] en [method _ready].
@@ -62,6 +64,16 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed(ACCION_GOLPE_FUERTE):
 		personaje.ataque_fuerte()
 
+	# Veneno (OUFW-8): `U` con just_pressed. Personaje decide si esta princesa tiene la
+	# habilidad y respeta el cooldown.
+	if Input.is_action_just_pressed(ACCION_VENENO):
+		personaje.ataque_veneno()
+
+	# Pociones (OUFW-10): `E` con just_pressed, un uso por pulsacion. Personaje decide
+	# si se puede (sin pociones o vida al 100% se bloquea) y avisa por senales.
+	if Input.is_action_just_pressed(ACCION_USAR_POCION):
+		personaje.usar_pocion()
+
 
 ## Direccion de avance del jugador: -1.0 izquierda, 0.0 quieto, 1.0 derecha.
 ##
@@ -81,7 +93,7 @@ func leer_direccion(fuerza: float = 1.0) -> float:
 func soltar_controles() -> void:
 	for accion: String in [
 		ACCION_IZQUIERDA, ACCION_DERECHA, ACCION_SALTAR, ACCION_AGACHAR,
-		ACCION_GOLPE_NORMAL, ACCION_GOLPE_FUERTE,
+		ACCION_GOLPE_NORMAL, ACCION_GOLPE_FUERTE, ACCION_USAR_POCION, ACCION_VENENO,
 	]:
 		if Input.is_action_pressed(accion):
 			Input.action_release(accion)

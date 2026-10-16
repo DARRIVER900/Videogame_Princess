@@ -9,8 +9,8 @@ extends SceneTree
 
 ## Acciones de juego del proyecto. Los acordes (W+A, W+D, S+A/D) NO se declaran
 ## aqui como acciones propias: se componen en codigo en Personaje porque dependen
-## de combinar el estado de varias teclas a la vez. Lo mismo vale para las teclas
-## de OUFW-8/OUFW-9/OUFW-10 (U, J, E): llegan con sus issues.
+## de combinar el estado de varias teclas a la vez. Las teclas de
+## OUFW-9 (J) llega con su issue; U (veneno) es de OUFW-8 y E (pocion) de OUFW-10.
 const ACCIONES := {
 	"mover_izquierda": [KEY_A, KEY_LEFT],
 	"mover_derecha": [KEY_D, KEY_RIGHT],
@@ -18,6 +18,8 @@ const ACCIONES := {
 	"agachar": [KEY_S, KEY_DOWN],
 	"golpe_normal": [KEY_K],
 	"golpe_fuerte": [KEY_L],
+	"usar_pocion": [KEY_E],
+	"ataque_veneno": [KEY_U],
 }
 
 
