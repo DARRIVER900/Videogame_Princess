@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://b63nfkbt4fh5j"]
 
 [ext_resource type="Script" uid="uid://d3547178hkakc" path="res://DARRIVER900 Videogame_Princess main godot/scripts/arena_movimiento.gd" id="1_q45y2"]
+[ext_resource type="Texture2D" uid="uid://3wlsv3ikg26d" path="res://DARRIVER900 Videogame_Princess main godot/recursos/Gemini_Generated_Image_k2b95xk2b95xk2b9.jpg" id="2_mabll"]
 [ext_resource type="PackedScene" uid="uid://b51sgqg47j4op" path="res://DARRIVER900 Videogame_Princess main godot/escenas/princesa_dulcecito.tscn" id="2_qjpyg"]
 [ext_resource type="Script" uid="uid://iqcgclvjmqo8" path="res://DARRIVER900 Videogame_Princess main godot/scripts/personaje/controlador_jugador.gd" id="4_o1wae"]
 [ext_resource type="PackedScene" uid="uid://85jitcjv61fl" path="res://DARRIVER900 Videogame_Princess main godot/escenas/princesa_chocolatito.tscn" id="5_80epw"]
@@ -10,7 +11,13 @@
 size = Vector2(2400, 200)
 
 [node name="Arena" type="Node2D" unique_id=1790960343]
+position = Vector2(476, 331)
 script = ExtResource("1_q45y2")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1407461469]
+position = Vector2(1.5, -60)
+scale = Vector2(0.70276165, 0.7005208)
+texture = ExtResource("2_mabll")
 
 [node name="Suelo" type="StaticBody2D" parent="." unique_id=2112732587]
 
@@ -19,7 +26,7 @@ position = Vector2(0, 100)
 shape = SubResource("RectangleShape2D_bwkvl")
 
 [node name="Jugadora" parent="." unique_id=1075953442 node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("2_qjpyg")]
-position = Vector2(-160, -32)
+position = Vector2(-485, -397)
 nodo_sprite = NodePath("Sprite")
 
 [node name="Controlador" type="Node" parent="Jugadora" unique_id=1349629927 node_paths=PackedStringArray("personaje", "rival")]
@@ -28,7 +35,7 @@ personaje = NodePath("..")
 rival = NodePath("../../Rival")
 
 [node name="Rival" parent="." unique_id=779931660 node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("5_80epw")]
-position = Vector2(160, -32)
+position = Vector2(-491, -386)
 nodo_sprite = NodePath("Sprite")
 
 [node name="Camara" type="Camera2D" parent="." unique_id=284643358]

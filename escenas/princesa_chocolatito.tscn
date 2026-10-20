@@ -1,14 +1,35 @@
 [gd_scene format=3 uid="uid://85jitcjv61fl"]
 
-[ext_resource type="Script" uid="uid://b2301k01i8rgl" path="res://DARRIVER900 Videogame_Princess main godot/scripts/personaje/princesa_chocolatito.gd" id="1_fqnnr"]
-[ext_resource type="Texture2D" uid="uid://cnvls08hvha46" path="res://DARRIVER900 Videogame_Princess main godot/recursos/placeholder_chocolatito.png" id="2_fqnnr"]
+[ext_resource type="Texture2D" uid="uid://cq5oe1exya65f" path="res://DARRIVER900 Videogame_Princess main godot/recursos/chocolatito-removebg-preview.png" id="1_abmra"]
+
+[sub_resource type="GDScript" id="GDScript_fqnnr"]
+script/source = "class_name PrincesaChocolatito
+extends Personaje
+## Princesa Chocolatito, soberana menor del Reino de Chocolate (la potencia minera).
+## Moveset [constant Modset.PESADO_PESA].
+##
+## Solo encapsula identidad y atributos base; el moveset llega en OUFW-3, la IA
+## rival en OUFW-11 y el resto de sistemas segun su issue.
+##
+## Referencia: GDD seccion 8 \"Fichas de Personajes\".
+
+## Fija identidad y atributos base tomados del GDD. La invoca [method Personaje._ready].
+func _configurar_atributos_por_defecto() -> void:
+	nombre = \"Princesa Chocolatito\"
+	id_skin_activa = \"SKIN_CHOCOLATE_DEFAULT\"
+	modset_clase = Modset.PESADO_PESA
+
+	hp_max = 100
+	multiplicador_dano = 1.0
+	cantidad_pociones = 3
+"
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_emk6m"]
 radius = 12.0
 height = 64.0
 
 [node name="Princesa" type="CharacterBody2D" unique_id=1765756019]
-script = ExtResource("1_fqnnr")
+script = SubResource("GDScript_fqnnr")
 nombre = "Princesa Chocolatito"
 id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"
 hp_max = 80
@@ -16,7 +37,9 @@ multiplicador_dano = 0.8
 modset_clase = 1
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=270597906]
-texture = ExtResource("2_fqnnr")
+position = Vector2(871, 364)
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_abmra")
 
 [node name="Colision" type="CollisionShape2D" parent="." unique_id=672075280]
 shape = SubResource("CapsuleShape2D_emk6m")
