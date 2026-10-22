@@ -12,6 +12,7 @@ extends SceneTree
 ## Codigo de salida: 0 si todo pasa, 1 si algo falla.
 
 const RUTA_ARENA := "res://escenas/arena_movimiento.tscn"
+const RUTA_MENU := "res://escenas/menu_principal.tscn"
 
 var _fallos: int = 0
 var _total: int = 0
@@ -80,8 +81,10 @@ func _prueba_escenas_cargan() -> void:
 		str(sprite_base.texture))
 	sprite_base.free()
 
-	_comprobar("la arena es la escena principal",
-		ProjectSettings.get_setting("application/run/main_scene", "") == RUTA_ARENA,
+	# Desde OUFW-18 el juego arranca en el menu del core loop; la arena de movimiento sigue
+	# existiendo como banco de pruebas de controles (se abre con F6), pero ya no es la principal.
+	_comprobar("el menu del flujo es la escena principal",
+		ProjectSettings.get_setting("application/run/main_scene", "") == RUTA_MENU,
 		str(ProjectSettings.get_setting("application/run/main_scene", "")))
 
 	var p := load("res://escenas/princesa_dulcecito.tscn").instantiate() as Personaje

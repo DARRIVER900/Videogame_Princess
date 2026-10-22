@@ -159,25 +159,7 @@ func _crear_nivel() -> bool:
 	return ok
 
 
-## Una plataforma: cuerpo estatico de un solo sentido, con un tronco y una franja de
-## musgo encima como visual. Visual y colision salen del mismo [Rect2], asi que no se
-## pueden desfasar.
+## Una plataforma del Bosque: un tronco con una franja de musgo encima.
 func _crear_plataforma(padre: Node, datos: Dictionary) -> void:
-	var rect := Nivel.rect_plataforma(datos)
-	var cuerpo := Util.cuerpo_estatico(padre, datos["nombre"], rect.size, rect.get_center(), true)
-
-	var tronco := ColorRect.new()
-	tronco.name = "Tronco"
-	tronco.position = -rect.size * 0.5
-	tronco.size = rect.size
-	tronco.color = COLOR_TRONCO
-	cuerpo.add_child(tronco)
-	tronco.owner = cuerpo.owner
-
-	var musgo := ColorRect.new()
-	musgo.name = "Musgo"
-	musgo.position = -rect.size * 0.5
-	musgo.size = Vector2(rect.size.x, 4.0)
-	musgo.color = COLOR_MUSGO
-	cuerpo.add_child(musgo)
-	musgo.owner = cuerpo.owner
+	Util.plataforma_una_via(padre, datos["nombre"], Nivel.rect_plataforma(datos),
+		COLOR_TRONCO, COLOR_MUSGO, "Tronco", "Musgo")
