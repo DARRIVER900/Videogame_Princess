@@ -70,7 +70,9 @@ Este repositorio documentará nuestro proceso de creación, desde la conceptuali
    godot --path godot
    ```
 
-La escena principal es `escenas/arena_movimiento.tscn`: una **arena mínima para probar los controles** (OUFW-2), el combate (OUFW-3), la carga (OUFW-9) y la FSM del rival (OUFW-11), no el nivel del juego. Ese es OUFW-6.
+La escena principal es `escenas/menu_principal.tscn` (OUFW-17): desde ahí eliges princesa (Dulcecito / Chocolatito) y pulsas **Jugar** para entrar al combate. La arena `escenas/arena_movimiento.tscn` es la **arena mínima para probar los controles** (OUFW-2), el combate (OUFW-3), la carga (OUFW-9) y la FSM del rival (OUFW-11), no el nivel del juego. Ese es OUFW-6.
+
+Al morir cualquiera de las dos princesas, el combate termina y se despliega la pantalla de **Victoria** o **Game Over** (OUFW-16) con los botones **Reintentar** y **Menú Principal**.
 
 **Controles:** `A` / `D` moverse · `W + A` / `W + D` salto diagonal · `S` agachar · `S + A` / `S + D` derrape · `K` golpe normal · `L` golpe fuerte · `J` carga pesada (mantener para acumular, soltar para golpear y romper guardia).
 
@@ -85,6 +87,8 @@ godot --headless --path godot --script res://tests/test_movimiento.gd   # OUFW-2
 godot --headless --path godot --script res://tests/test_combate.gd      # OUFW-3
 godot --headless --path godot --script res://tests/test_carga.gd        # OUFW-9
 godot --headless --path godot --script res://tests/test_bot.gd          # OUFW-11
+godot --headless --path godot --script res://tests/test_menu.gd         # OUFW-17
+godot --headless --path godot --script res://tests/test_fin_combate.gd  # OUFW-16
 godot --headless --path godot --script res://tests/test_escenas.gd      # integración
 ```
 

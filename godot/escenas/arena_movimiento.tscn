@@ -1,47 +1,48 @@
-[gd_scene format=3]
+[gd_scene load_steps=10 format=3]
 
-[ext_resource type="Script" path="res://scripts/arena_movimiento.gd" id="1_qjpyg"]
-[ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="2_afhrj"]
-[ext_resource type="Script" path="res://scripts/personaje/princesa_dulcecito.gd" id="3_o1wae"]
-[ext_resource type="Script" path="res://scripts/personaje/controlador_jugador.gd" id="4_80epw"]
-[ext_resource type="PackedScene" path="res://escenas/princesa_chocolatito.tscn" id="5_iku6b"]
-[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="6_bwkvl"]
-[ext_resource type="Script" path="res://scripts/personaje/controlador_bot.gd" id="7_8x6ev"]
+[ext_resource type="Script" path="res://scripts/arena_movimiento.gd" id="1_afhrj"]
+[ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="2_o1wae"]
+[ext_resource type="Script" path="res://scripts/personaje/princesa_dulcecito.gd" id="3_80epw"]
+[ext_resource type="Script" path="res://scripts/personaje/controlador_jugador.gd" id="4_iku6b"]
+[ext_resource type="PackedScene" path="res://escenas/princesa_chocolatito.tscn" id="5_bwkvl"]
+[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="6_8x6ev"]
+[ext_resource type="Script" path="res://scripts/personaje/controlador_bot.gd" id="7_a21yx"]
+[ext_resource type="Script" path="res://scripts/ui/gestor_combate.gd" id="8_5onb8"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_a21yx"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_a6d6d"]
 size = Vector2(2400, 200)
 
 [node name="Arena" type="Node2D"]
-script = ExtResource("1_qjpyg")
+script = ExtResource("1_afhrj")
 
 [node name="Suelo" type="StaticBody2D" parent="."]
 
 [node name="Colision" type="CollisionShape2D" parent="Suelo"]
 position = Vector2(0, 100)
-shape = SubResource("RectangleShape2D_a21yx")
+shape = SubResource("RectangleShape2D_a6d6d")
 
-[node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("2_afhrj")]
+[node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("2_o1wae")]
 position = Vector2(-160, -32)
-script = ExtResource("3_o1wae")
+script = ExtResource("3_80epw")
 nombre = "Princesa Dulcecito"
 id_skin_activa = "SKIN_CANDYR_DEFAULT"
 nodo_sprite = NodePath("Sprite")
 
 [node name="Controlador" type="Node" parent="Jugadora" node_paths=PackedStringArray("personaje", "rival")]
-script = ExtResource("4_80epw")
+script = ExtResource("4_iku6b")
 personaje = NodePath("..")
 rival = NodePath("../../Rival")
 
-[node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("5_iku6b")]
+[node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("5_bwkvl")]
 position = Vector2(160, -32)
-script = ExtResource("6_bwkvl")
+script = ExtResource("6_8x6ev")
 nombre = "Princesa Chocolatito"
 id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"
 modset_clase = 1
 nodo_sprite = NodePath("Sprite")
 
 [node name="Bot" type="Node" parent="Rival" node_paths=PackedStringArray("personaje", "rival")]
-script = ExtResource("7_8x6ev")
+script = ExtResource("7_a21yx")
 personaje = NodePath("..")
 rival = NodePath("../../Jugadora")
 
@@ -56,3 +57,50 @@ offset_top = 8.0
 offset_right = 12.0
 offset_bottom = 8.0
 theme_override_font_sizes/font_size = 14
+
+[node name="GestorCombate" type="CanvasLayer" parent="." node_paths=PackedStringArray("jugadora", "rival", "controlador")]
+layer = 10
+script = ExtResource("8_5onb8")
+jugadora = NodePath("../Jugadora")
+rival = NodePath("../Rival")
+controlador = NodePath("../Jugadora/Controlador")
+
+[node name="Panel" type="Control" parent="GestorCombate"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Fondo" type="ColorRect" parent="GestorCombate/Panel"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.62)
+
+[node name="Titulo" type="Label" parent="GestorCombate/Panel"]
+custom_minimum_size = Vector2(960, 0)
+layout_mode = 0
+offset_top = 150.0
+offset_bottom = 150.0
+theme_override_font_sizes/font_size = 48
+text = "VICTORIA"
+horizontal_alignment = 1
+
+[node name="BotonReintentar" type="Button" parent="GestorCombate/Panel"]
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 0
+offset_left = 390.0
+offset_top = 260.0
+offset_right = 390.0
+offset_bottom = 260.0
+text = "Reintentar"
+
+[node name="BotonMenu" type="Button" parent="GestorCombate/Panel"]
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 0
+offset_left = 390.0
+offset_top = 320.0
+offset_right = 390.0
+offset_bottom = 320.0
+text = "Menu Principal"

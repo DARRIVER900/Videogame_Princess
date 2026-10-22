@@ -1,0 +1,59 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/menu_principal.gd" id="1_37xja"]
+
+[node name="MenuPrincipal" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_37xja")
+
+[node name="Fondo" type="ColorRect" parent="."]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.168627, 0.105882, 0.227451, 1)
+
+[node name="Titulo" type="Label" parent="."]
+custom_minimum_size = Vector2(960, 0)
+layout_mode = 0
+offset_top = 90.0
+offset_bottom = 90.0
+theme_override_font_sizes/font_size = 40
+text = "Once Upon a Final War"
+horizontal_alignment = 1
+
+[node name="Panel" type="VBoxContainer" parent="."]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 0
+offset_left = 360.0
+offset_top = 210.0
+offset_right = 360.0
+offset_bottom = 210.0
+
+[node name="EtiquetaSeleccion" type="Label" parent="Panel"]
+layout_mode = 2
+text = "Elige tu princesa"
+horizontal_alignment = 1
+
+[node name="BotonDulcecito" type="Button" parent="Panel"]
+custom_minimum_size = Vector2(240, 48)
+layout_mode = 2
+toggle_mode = true
+text = "Princesa Dulcecito"
+
+[node name="BotonChocolatito" type="Button" parent="Panel"]
+custom_minimum_size = Vector2(240, 48)
+layout_mode = 2
+toggle_mode = true
+text = "Princesa Chocolatito"
+
+[node name="@Control@2" type="Control" parent="Panel"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+
+[node name="BotonJugar" type="Button" parent="Panel"]
+custom_minimum_size = Vector2(240, 48)
+layout_mode = 2
+text = "Jugar"

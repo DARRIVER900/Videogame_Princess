@@ -13,7 +13,7 @@ config_version=5
 config/name="Once Upon a Final War"
 config/description="Juego de pelea tactica 2D estilo pixel-art Dark-Cute.
 Dos princesas rivales libran duelos a muerte tras el asesinato de sus hermanos."
-run/main_scene="res://escenas/arena_movimiento.tscn"
+run/main_scene="res://escenas/menu_principal.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 
 [display]
