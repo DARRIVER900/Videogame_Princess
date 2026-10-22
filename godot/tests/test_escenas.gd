@@ -81,8 +81,8 @@ func _prueba_escenas_cargan() -> void:
 		str(sprite_base.texture))
 	sprite_base.free()
 
-	_comprobar("la arena es la escena principal",
-		ProjectSettings.get_setting("application/run/main_scene", "") == RUTA_ARENA,
+	_comprobar("el menu es la escena principal (OUFW-17)",
+		ProjectSettings.get_setting("application/run/main_scene", "") == "res://escenas/menu_principal.tscn",
 		str(ProjectSettings.get_setting("application/run/main_scene", "")))
 
 	var p := load("res://escenas/princesa_dulcecito.tscn").instantiate() as Personaje
