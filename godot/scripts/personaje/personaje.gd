@@ -18,18 +18,34 @@ enum Modset { AGIL_DISTANCIA, PESADO_PESA }
 ## Tipos de ataque del moveset base. El mapeo de teclas vive en la seccion [code][input]
 ## de [code]project.godot[/code] y lo consumen [ControladorJugador] (OUFW-2) y los
 ## sistemas de hitbox (OUFW-3); aqui solo se declara el tipo para que
-## [method recibir_dano] pueda differentiate.
+## [method recibir_dano] pueda diferenciar.
 enum TipoAtaque { GOLPE_NORMAL, GOLPE_FUERTE, VENENO, SUPER_PESADO_CARGA }
 
 ## Poses del cuerpo. Las dos ultimas rebajan la altura del personaje y son la senal
 ## que OUFW-3 necesita para encoger la Hurtbox (GDD seccion 5: `S` y `S + A/D`).
 enum Locomocion { DE_PIE, AGACHADO, DERRAPE }
 
-## Capas 2D del sistema de combate (OUFW-3): la Hurtbox detecta hitboxes y el
-## Hitbox detecta hurtboxes. Valores en bruto a proposito: la matriz de capas con
-## NOMBRES la configura OUFW-6 ("Physics Layer Matrix configurados correctamente").
+## Capas 2D del proyecto. UNICA fuente de verdad de los valores en bruto: [Hitbox],
+## [Hurtbox] y las escenas leen estas constantes. El numero de capa N corresponde al
+## valor 2^(N-1); los NOMBRES de la matriz viven en project.godot y se generan con
+## [code]tools/configurar_capas_fisica.gd[/code] (OUFW-6).
+##   1 Ground (suelo y paredes), 2 Hurtbox, 3 Hitbox, 4 Personajes.
+const CAPA_GROUND := 1
 const CAPA_HURTBOX := 2
 const CAPA_HITBOX := 4
+const CAPA_PERSONAJE := 8
+
+## Altura (px, respecto al centro del cuerpo) a la que nace el volumen de un golpe,
+## a la altura del torso. Antes era un -24.0 escrito a mano en [method _ejecutar_ataque].
+const ALTURA_GOLPE := -24.0
+
+## Motivos por los que [method usar_pocion] puede negarse (OUFW-10). El HUD (OUFW-5)
+## los usa para mostrar el feedback correcto (parpadeo del contador, sonido de error).
+enum MotivoBloqueoPocion { NINGUNO, SIN_POCIONES, VIDA_COMPLETA, MUERTO }
+
+## Estados alterados que puede sufrir una princesa (OUFW-8). Solo hay uno activo a la
+## vez; el HUD (OUFW-5) muestra su texto con [method texto_estado].
+enum EstadoAlterado { NINGUNO, ENVENENADO }
 
 ## Equivalente a `OnHealthChanged` en OUFW-1. Lo consume el HUD (OUFW-5).
 signal health_changed(current_hp: int, hp_max: int)
@@ -66,6 +82,20 @@ signal carga_cambiada(nivel: float)
 ## (1.0 = soltada al instante, [member multiplicador_carga_max] = carga llena).
 signal carga_liberada(multiplicador: float)
 
+## Se consumio una pocion (OUFW-10). [param pociones_restantes] es el inventario que
+## queda y [param hp_recuperada] la vida que de verdad se curo (puede ser menor que
+## [member curacion_pocion] si el personaje estaba cerca del tope).
+signal pocion_usada(pociones_restantes: int, hp_recuperada: int)
+
+## Se intento usar una pocion y se nego (OUFW-10). No se consume nada.
+signal pocion_bloqueada(motivo: MotivoBloqueoPocion)
+
+## El estado alterado cambio (OUFW-8): paso a [constant EstadoAlterado.ENVENENADO] al
+## recibir veneno, o volvio a [constant EstadoAlterado.NINGUNO] al acabarse el efecto o
+## morir. NO se vuelve a emitir al refrescar un veneno que ya estaba activo. Es la senal
+## a la que se engancha el indicador textual del HUD.
+signal estado_alterado_cambiado(estado: EstadoAlterado)
+
 @export_group("Identidad")
 ## Nombre mostrable en la interfaz y en los dialogos de novela visual.
 @export var nombre: String = ""
@@ -77,8 +107,10 @@ signal carga_liberada(multiplicador: float)
 @export var hp_max: int = 100
 ## Escalador aplicado al dano de cada ataque. 1.0 = dano base, >1 = glass cannon.
 @export var multiplicador_dano: float = 1.0
-## Unidades de pocion disponibles. El consumo se implementa en OUFW-10.
+## Unidades de pocion disponibles. El consumo lo hace [method usar_pocion] (OUFW-10).
 @export var cantidad_pociones: int = 3
+## Vida que restaura cada pocion (OUFW-10). Cada uso consume 1 unidad del inventario.
+@export var curacion_pocion: int = 15
 ## Perfil de combate que define el moveset disponible.
 @export var modset_clase: Modset = Modset.AGIL_DISTANCIA
 ## Dano base del golpe normal (K): el boton rapido del moveset, sin empuje.
@@ -99,6 +131,18 @@ signal carga_liberada(multiplicador: float)
 @export var duracion_hitbox_golpe_normal: float = 0.12
 ## Ventana activa del golpe fuerte: algo mas generosa que la del normal.
 @export var duracion_hitbox_golpe_fuerte: float = 0.18
+## Veneno (OUFW-8, tecla `U`). Danio por segundo (DoT) del estado Envenenado, ANTES del
+## [member multiplicador_dano]. Cada segundo completo descuenta esta cantidad de vida.
+@export var dano_veneno_por_segundo: int = 4
+## Segundos que dura el veneno desde el ultimo impacto (a 4 por segundo y 5 s son 20 HP).
+@export var duracion_veneno: float = 5.0
+## Alcance del ataque de veneno: largo y delgado, es la habilidad a distancia del
+## moveset [constant Modset.AGIL_DISTANCIA].
+@export var alcance_veneno: Vector2 = Vector2(260.0, 56.0)
+## Cooldown tras lanzar el veneno: mas largo que el de los golpes para que no se spamee.
+@export var cooldown_veneno: float = 1.2
+## Segundos que el volumen del ataque de veneno queda activo.
+@export var duracion_hitbox_veneno: float = 0.15
 
 @export_group("Carga (OUFW-9)")
 ## Dano base de la carga pesada (`J`) soltada al instante. Se multiplica por el
@@ -224,6 +268,28 @@ var _buffer_restante: float = 0.0
 ## Estado de suelo del frame anterior, para detectar el aterrizaje.
 var _estaba_en_suelo: bool = false
 
+# --- OUFW-15: dificultad ---
+
+## Atributos base del personaje, capturados en [_ready] tras
+## [method _configurar_atributos_por_defecto]. Sobre ellos se calculan los
+## multiplicadores de dificultad, de modo que aplicarlos varias veces no los acumula.
+var _hp_max_base: int = 0
+var _multiplicador_dano_base: float = 1.0
+
+# --- OUFW-8: estado alterado ---
+
+## Intervalo entre cobros del veneno: 1 s, porque el DoT es "danio por segundo".
+const VENENO_INTERVALO_TICK := 1.0
+## Tolerancia para que 60 pasos de 1/60 s (que suman 0.99999...) cuenten como 1 s.
+const VENENO_EPSILON := 0.0001
+
+## Estado alterado actual. Lectura publica para HUD y pruebas.
+var estado_alterado: EstadoAlterado = EstadoAlterado.NINGUNO
+
+var _veneno_dps: int = 0
+var _veneno_ticks_restantes: int = 0
+var _veneno_acumulador: float = 0.0
+
 # --- OUFW-3: estado de combate ---
 
 ## Hurtbox de este personaje, creada en [_ready] (no vive en las escenas).
@@ -241,6 +307,8 @@ var _contador_hitboxes: int = 0
 ## despues se deriva [member current_hp] de ese [member hp_max].
 func _ready() -> void:
 	_configurar_atributos_por_defecto()
+	_hp_max_base = hp_max
+	_multiplicador_dano_base = multiplicador_dano
 	current_hp = hp_max
 	esta_muerto = false
 	if nodo_sprite == null:
@@ -273,6 +341,9 @@ func _configurar_atributos_por_defecto() -> void:
 @warning_ignore("unused_parameter")
 func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL,
 		empuje: float = 0.0, direccion_empuje: int = 0) -> void:
+@warning_ignore("unused_parameter")
+func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL,
+		empuje: float = 0.0, direccion_empuje: int = 0) -> void:
 	if esta_muerto or cantidad <= 0:
 		return
 
@@ -284,7 +355,25 @@ func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL,
 
 	if current_hp <= 0:
 		esta_muerto = true
-		cancelar_carga()
+## Llamado por los controladores para consumir una pocion (OUFW-10). Solo el jugador
+## llama este metodo desde [ControladorJugador]; el bot gestiona sus pociones por
+## cuenta propia en su FSM. El metodo aplica las reglas (sin pociones / vida al tope),
+## cura y emite [signal pocion_usada] o [signal pocion_bloqueada].
+func usar_pocion() -> void:
+	if esta_muerto:
+		pocion_bloqueada.emit(MotivoBloqueoPocion.MUERTO)
+		return
+	if cantidad_pociones <= 0:
+		pocion_bloqueada.emit(MotivoBloqueoPocion.SIN_POCIONES)
+		return
+	if current_hp >= hp_max:
+		pocion_bloqueada.emit(MotivoBloqueoPocion.VIDA_AL_TOPE)
+		return
+	var hp_antes := current_hp
+	aplicar_curacion(curacion_pocion)
+	var hp_recuperada := current_hp - hp_antes
+	cantidad_pociones -= 1
+	pocion_usada.emit(cantidad_pociones, hp_recuperada)
 		died.emit()
 
 
@@ -308,6 +397,181 @@ func aplicar_curacion(hp_restaurada: int) -> int:
 	return current_hp - vida_previa
 
 
+# --- OUFW-15: dificultad por capitulo ---
+
+## Escala vida y dano respecto a los atributos BASE de la princesa (OUFW-15).
+##
+## Pensado para el bot enemigo al empezar un combate: lo deja a vida completa con el
+## nuevo [member hp_max], y notifica [signal health_changed] para que el HUD redibuje
+## la barra. Es idempotente: [param mult_hp] y [param mult_dano] siempre se multiplican
+## por los valores base, nunca por los ya escalados.
+##
+## IMPORTANTE: llamarlo DESPUES de [method _ready]. [method _ready] reescribe
+## [member hp_max] con los valores de la subclase y pisaria cualquier ajuste anterior.
+## No hace nada en un personaje muerto. Normalmente se invoca via [DificultadCapitulo].
+func aplicar_multiplicadores_dificultad(mult_hp: float, mult_dano: float) -> void:
+	if esta_muerto:
+		return
+	# Si se llama antes de _ready, se toman como base los valores actuales.
+	if _hp_max_base <= 0:
+		_hp_max_base = hp_max
+		_multiplicador_dano_base = multiplicador_dano
+
+	hp_max = maxi(1, roundi(_hp_max_base * maxf(mult_hp, 0.0)))
+	multiplicador_dano = _multiplicador_dano_base * maxf(mult_dano, 0.0)
+	current_hp = hp_max
+	health_changed.emit(current_hp, hp_max)
+
+
+# --- OUFW-10: pociones ---
+
+## Por que no se podria usar una pocion ahora mismo, o [constant MotivoBloqueoPocion.NINGUNO]
+## si se puede. Orden de prioridad: muerto, sin pociones, vida completa.
+func motivo_bloqueo_pocion() -> MotivoBloqueoPocion:
+	if esta_muerto:
+		return MotivoBloqueoPocion.MUERTO
+	if cantidad_pociones <= 0:
+		return MotivoBloqueoPocion.SIN_POCIONES
+	if current_hp >= hp_max:
+		return MotivoBloqueoPocion.VIDA_COMPLETA
+	return MotivoBloqueoPocion.NINGUNO
+
+
+## [return] Si [method usar_pocion] tendria efecto. Lo consulta el HUD para atenuar el icono.
+func puede_usar_pocion() -> bool:
+	return motivo_bloqueo_pocion() == MotivoBloqueoPocion.NINGUNO
+
+
+## Consume 1 pocion y restaura [member curacion_pocion] HP (OUFW-10, tecla `E`).
+##
+## Se BLOQUEA, sin gastar nada, si [member cantidad_pociones] es 0 o si la vida ya esta
+## al 100%: nadie pierde una pocion curandose sin necesidad. La curacion respeta el
+## techo de [member hp_max] (la ultima pocion puede curar menos de 15) pero igualmente
+## gasta la unidad. Delega la vida en [method aplicar_curacion], que emite
+## [signal health_changed].
+## [return] Si la pocion se consumio.
+func usar_pocion() -> bool:
+	var motivo := motivo_bloqueo_pocion()
+	if motivo != MotivoBloqueoPocion.NINGUNO:
+		pocion_bloqueada.emit(motivo)
+		return false
+
+	var recuperada := aplicar_curacion(curacion_pocion)
+	cantidad_pociones -= 1
+	pocion_usada.emit(cantidad_pociones, recuperada)
+	return true
+
+
+# --- OUFW-8: veneno ---
+
+## Si esta princesa tiene la habilidad de veneno (`U`). Es del moveset
+## [constant Modset.AGIL_DISTANCIA]; si el GDD la reparte distinto, este es el UNICO
+## sitio que hay que cambiar.
+func tiene_habilidad_veneno() -> bool:
+	return modset_clase == Modset.AGIL_DISTANCIA
+
+
+## Ataque de veneno (`U`): lanza un volumen largo que NO hace danio directo pero, si
+## toca a una [Hurtbox] rival, la deja Envenenada ([method aplicar_veneno]) con
+## [member dano_veneno_por_segundo] x [member multiplicador_dano] durante
+## [member duracion_veneno] s. Respeta el cooldown compartido de los ataques. Si la
+## princesa no tiene la habilidad ([method tiene_habilidad_veneno]) no hace nada.
+func ataque_veneno() -> void:
+	if not tiene_habilidad_veneno():
+		return
+	_ejecutar_ataque(
+		0,
+		TipoAtaque.VENENO,
+		alcance_veneno,
+		0.0,
+		cooldown_veneno,
+		duracion_hitbox_veneno,
+		maxi(1, roundi(dano_veneno_por_segundo * multiplicador_dano)),
+		duracion_veneno
+	)
+
+
+## Deja a esta princesa Envenenada: [param dps] de vida por segundo durante
+## [param duracion] segundos. Lo invoca la [Hurtbox] cuando recibe un golpe de veneno.
+##
+## Reglas si ya estaba envenenada: NO se apila. Se refresca la duracion (nunca se acorta
+## una mas larga) y se queda el mayor de los dos [param dps]. El reloj del siguiente cobro
+## no se reinicia, asi que reaplicar el veneno cada segundo no lo "congela".
+## [return] Si se aplico (false si esta muerta o los datos no son validos).
+func aplicar_veneno(dps: int, duracion: float) -> bool:
+	if esta_muerto or dps <= 0 or duracion <= 0.0:
+		return false
+
+	var ticks := maxi(1, roundi(duracion / VENENO_INTERVALO_TICK))
+	if estado_alterado == EstadoAlterado.ENVENENADO:
+		_veneno_dps = maxi(_veneno_dps, dps)
+		_veneno_ticks_restantes = maxi(_veneno_ticks_restantes, ticks)
+	else:
+		_veneno_dps = dps
+		_veneno_ticks_restantes = ticks
+		_veneno_acumulador = 0.0
+		_fijar_estado_alterado(EstadoAlterado.ENVENENADO)
+	return true
+
+
+func esta_envenenado() -> bool:
+	return estado_alterado == EstadoAlterado.ENVENENADO
+
+
+## Texto del estado para el indicador del HUD: "Normal" o "Envenenado" (OUFW-8).
+func texto_estado() -> String:
+	match estado_alterado:
+		EstadoAlterado.ENVENENADO:
+			return "Envenenado"
+		_:
+			return "Normal"
+
+
+## Segundos de veneno que le quedan (0 si no esta envenenada).
+func segundos_veneno_restantes() -> float:
+	if not esta_envenenado():
+		return 0.0
+	return maxf(0.0, _veneno_ticks_restantes * VENENO_INTERVALO_TICK - _veneno_acumulador)
+
+
+## Dano por segundo del veneno activo (0 si no esta envenenada).
+func dps_veneno_actual() -> int:
+	return _veneno_dps if esta_envenenado() else 0
+
+
+## Cobra los segundos completos transcurridos. Si [param delta] es grande (un tirón de
+## frames) cobra todos los ticks que correspondan, sin adelantarse ni saltarse ninguno.
+func _actualizar_veneno(delta: float) -> void:
+	if not esta_envenenado() or esta_muerto:
+		return
+
+	_veneno_acumulador += delta
+	while _veneno_ticks_restantes > 0 \
+			and _veneno_acumulador >= VENENO_INTERVALO_TICK - VENENO_EPSILON:
+		_veneno_acumulador = maxf(0.0, _veneno_acumulador - VENENO_INTERVALO_TICK)
+		_veneno_ticks_restantes -= 1
+		recibir_dano(_veneno_dps, TipoAtaque.VENENO)
+		if esta_muerto:
+			return  # recibir_dano ya limpio el estado al morir
+
+	if _veneno_ticks_restantes <= 0:
+		_terminar_veneno()
+
+
+func _terminar_veneno() -> void:
+	_veneno_dps = 0
+	_veneno_ticks_restantes = 0
+	_veneno_acumulador = 0.0
+	_fijar_estado_alterado(EstadoAlterado.NINGUNO)
+
+
+func _fijar_estado_alterado(nuevo: EstadoAlterado) -> void:
+	if nuevo == estado_alterado:
+		return
+	estado_alterado = nuevo
+	estado_alterado_cambiado.emit(nuevo)
+
+
 # --- OUFW-3: hitbox/hurtbox (combate) ---
 
 ## Descuenta el cooldown entre ataques y acumula la carga pesada en curso (OUFW-9).
@@ -316,12 +580,16 @@ func aplicar_curacion(hp_restaurada: int) -> int:
 func _physics_process(delta: float) -> void:
 	if _cooldown_ataque > 0.0:
 		_cooldown_ataque = maxf(0.0, _cooldown_ataque - delta)
-	if cargando:
-		var nivel_previo := carga_nivel()
-		tiempo_carga = minf(tiempo_carga + delta, tiempo_carga_max)
-		if not is_equal_approx(nivel_previo, carga_nivel()):
-			_actualizar_escalado_carga()
-			carga_cambiada.emit(carga_nivel())
+## Inicia la acumulacion de la carga pesada (OUFW-9). Solo tiene efecto si el
+## personaje puede atacar/cargar en este estado.
+func iniciar_carga() -> void:
+	if esta_muerto or esta_bloqueado or esta_cargando:
+		return
+	if cooldown_ataque > 0.0:
+		return
+	esta_cargando = true
+	carga_actual = 0.0
+	carga_iniciada.emit()
 
 
 ## Golpe normal (`K`): rapido, corto y sin empuje. Es el pilar del moveset base y
@@ -436,7 +704,9 @@ func _restaurar_escala_sprite() -> void:
 ## [param rompe_guardia] marca el golpe con [member Hitbox.rompe_guardia]: el
 ## disparador de la rotura de guardia de OUFW-9.
 func _ejecutar_ataque(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: float,
-		cooldown: float, duracion: float, rompe_guardia: bool = false) -> void:
+func _lanzar_hitbox(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: float,
+		cooldown: float, duracion: float, rompe_guardia: bool = false,
+		veneno_dps: int = 0, veneno_duracion: float = 0.0) -> void:
 	if esta_muerto or _cooldown_ataque > 0.0 or not is_inside_tree():
 		return
 
@@ -446,8 +716,10 @@ func _ejecutar_ataque(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: floa
 	hitbox.name = "Hitbox_%d" % _contador_hitboxes
 	_contador_hitboxes += 1
 	add_child(hitbox)
+	# Un golpe de danio 0 es valido (el veneno solo aplica estado): no se sube a 1.
+	var dano_final := 0 if dano <= 0 else maxi(1, roundi(dano * multiplicador_dano))
 	hitbox.iniciar(
-		maxi(1, roundi(dano * multiplicador_dano)),
+		dano_final,
 		tipo,
 		tamano,
 		empuje,
@@ -459,7 +731,9 @@ func _ejecutar_ataque(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: floa
 	# El golpe nace a alcance corto del cuerpo (media del tamano + 8 px) para no
 	# "nacer adentro" del rival: la superposicion se produce cuando el golpe entra
 	# en rango, y la hurtbox lo detecta con su area_entered ese mismo frame.
-	hitbox.position = Vector2(float(_signo_mirada()) * (tamano.x * 0.5 + 8.0), -24.0)
+	hitbox.position = Vector2(float(_signo_mirada()) * (tamano.x * 0.5 + 8.0), ALTURA_GOLPE)
+	hitbox.veneno_dps = veneno_dps
+	hitbox.veneno_duracion = veneno_duracion
 
 	ataque_ejecutado.emit(tipo)
 
@@ -737,4 +1011,3 @@ func _invertir_por_movimiento(direccion: float) -> void:
 	if is_zero_approx(direccion):
 		return
 	_fijar_mirando(direccion > 0.0)
-

@@ -168,12 +168,25 @@ func _process(_delta: float) -> void:
 	var hurtbox_ok := _jugadora.get_node_or_null("Hurtbox") != null
 
 	_etiqueta.text = "\n".join([
-		"OUFW-2/3/9/11 - arena de pruebas (no es OUFW-6)",
+
 		"",
 		"A / D      moverse        W + A / D  salto diagonal",
 		"S          agachar        S + A/D    derrape",
 		"K          golpe normal   L          golpe fuerte",
-		"J          carga pesada   (mantener para acumular, soltar para golpear)",
+func _actualizar_ui_carga(jugador: Node) -> void:
+	if not is_instance_valid(jugador): return
+	var barra := $UI/CargaBarra
+	var etiqueta := $UI/CargaEtiqueta
+	if barra == null or etiqueta == null: return
+	if jugador.esta_cargando:
+		var n := clampf(jugador.carga_actual, 0.0, 1.0)
+		barra.value = n * 100.0
+		barra.visible = true
+		etiqueta.text = "CARGA %.0f%%" % (n * 100.0)
+		etiqueta.visible = true
+	else:
+		barra.visible = false
+		etiqueta.visible = false
 		"",
 		"locomocion  %s   (hurtbox x%.2f)" % [
 			_NOMBRES_LOCOMOCION.get(_jugadora.estado_locomocion, "?"),
@@ -189,7 +202,7 @@ func _process(_delta: float) -> void:
 			ControladorBot.nombre_estado(_bot.estado_actual) if _bot != null else "sin bot",
 		],
 		"hitboxes    %d activas" % hitboxes,
-		"HP          yo %d/%d   rival %d/%d (pociones %d)" % [
+
 			_jugadora.current_hp, _jugadora.hp_max,
 			_rival.current_hp if _rival != null else 0,
 			_rival.hp_max if _rival != null else 0,
@@ -198,12 +211,14 @@ func _process(_delta: float) -> void:
 	])
 
 
-## Linea de la carga pesada (OUFW-9): nivel de acumulacion y escala del sprite.
-func _texto_carga() -> String:
-	if not _jugadora.esta_cargando():
-		return "sin acumular"
-	return "x%.2f  (+%d%% de dano, sprite x%.2f)" % [
-		_jugadora.carga_nivel(),
-		roundi((_jugadora.carga_nivel() * (_jugadora.multiplicador_carga_max - 1.0)) * 100.0),
-		_jugadora.nodo_sprite.scale.x if _jugadora.nodo_sprite != null else 1.0,
-	]
+func _actualizar_ui_carga(jugador: Node) -> void:
+	if not is_instance_valid(jugador): return
+	var barra := $UI/CargaBarra
+	var etiqueta := $UI/CargaEtiqueta
+	if barra == null or etiqueta == null: return
+	if jugador.esta_cargando:
+		var n := clampf(jugador.carga_actual, 0.0, 1.0)
+		barra.value = n*100.0; barra.visible=true
+		etiqueta.text="CARGA %.0f%%" % (n*100.0); etiqueta.visible=true
+	else:
+		barra.visible=false; etiqueta.visible=false

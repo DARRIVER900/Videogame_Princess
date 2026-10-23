@@ -16,8 +16,7 @@ extends Area2D
 ## rutas de deteccion (su propio `area_entered` y el barrido del [Hitbox]). Ignora
 ## los golpes propios y los ya consumidos: ahi se corta el *multi-hitting*.
 
-## Capa 2D en la que vive la hurtbox. Valor en bruto a proposito (ver [Hitbox]).
-const CAPA_HURTBOX := 2
+## Capas: se leen de [Personaje] (CAPA_HURTBOX / CAPA_HITBOX), fuente unica de verdad.
 
 ## Altura de pie de la capsula en px. Coincide con la colision del cuerpo.
 const ALTURA_PIE := 64.0
@@ -46,7 +45,7 @@ func _ready() -> void:
 	if personaje == null:
 		personaje = _buscar_personaje_ancestro()
 
-	collision_layer = CAPA_HURTBOX
+	collision_layer = Personaje.CAPA_HURTBOX
 	collision_mask = Personaje.CAPA_HITBOX
 
 	_forma = CapsuleShape2D.new()
@@ -112,8 +111,36 @@ func recibir_golpe(hitbox: Hitbox) -> void:
 		hitbox.empuje,
 		hitbox.direccion_empuje
 	)
-	if hitbox.rompe_guardia:
-		guardia_rota.emit(hitbox)
+		# El golpe traia la marca [member Hitbox.rompe_guardia] (OUFW-9). Cuando
+		# la rompe, el [Personaje] debe romper su guardia y quedar vulnerable (critico).
+		# El flujo detallado lo completa el propio Personaje segun sus estados.
+		if hitbox.rompe_guardia and propietario != dueno:
+			dueno.recibir_ataque_rompe_guardia(hitbox)
+			# Si era bloqueando y se rompe, se aplica el dano del golpe aunque sea
+			# menor; el empuje sigue al personaje para conservar la sensacion.
+			if dueno.esta_bloqueando:
+				var dano := hitbox.dano
+				var empuje := hitbox.empuje
+				var dir := hitbox.direccion_empuje
+				if dano > 0:
+					dueno.recibir_dano(dano, hitbox.tipo_ataque, empuje, dir)
+				# Aplicar veneno si viene con el golpe rompe-guardia
+				if hitbox.veneno_dps > 0 and hitbox.veneno_duracion > 0.0 and propietario != dueno:
+					dueno.aplicar_veneno(hitbox.veneno_dps, hitbox.veneno_duracion, propietario)
+				# El multi-hit ya se filtro arriba con _golpes_recibidos_ids.
+				return
+
+		# Bloqueo activo (OUFW-3 + futuras reglas): si esta bloqueando, reduce el dano
+		# segun el tipo y aplica poco empuje. La rotura la gestiona arriba.
+		if dueno.esta_bloqueando and propietario != dueno:
+			var dano_b := int(round(hitbox.dano * 0.25))
+			if dano_b > 0:
+				dueno.recibir_dano(dano_b, hitbox.tipo_ataque, 0.0, 0)
+			# El bloqueo con veneno? segun reglas, se puede aplicar veneno incluso con bloqueo
+			# si viene del golpe, pero aqui solo se aplica si no es rompe-guardia
+			if hitbox.veneno_dps > 0 and hitbox.veneno_duracion > 0.0 and propietario != dueno:
+				dueno.aplicar_veneno(hitbox.veneno_dps, hitbox.veneno_duracion, propietario)
+			return
 	golpe_recibido.emit(hitbox)
 
 

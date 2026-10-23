@@ -14,20 +14,21 @@ extends Area2D
 ## chequeo explicito con [method get_overlapping_areas] cada frame activo. La doble
 ## deteccion es inofensiva porque el consumo se resuelve antes que nada.
 
-## Capa 2D en la que vive el hitbox. Valor en bruto a proposito: la matriz de capas
-## con NOMBRES la configura OUFW-6 ("Physics Layer Matrix configurados
-## correctamente"); aqui solo importa que hurtbox y hitbox se encuentren.
-const CAPA_HITBOX := 4
+## Capas: se leen de [Personaje] (CAPA_HITBOX / CAPA_HURTBOX), fuente unica de verdad.
 
 ## Dano que inflige. Lo fija [method iniciar] desde los exports de [Personaje].
 var dano: int = 0
-## Tipo de ataque que genero este golpe (el moveset lo amplia OUFW-8).
+## Tipo de ataque que genero este golpe.
 var tipo_ataque: Personaje.TipoAtaque = Personaje.TipoAtaque.GOLPE_NORMAL
 ## Empuje horizontal (knockback) en px/s que aplica al impactar. 0 = sin empuje.
 var empuje: float = 0.0
 ## Direccion del empuje: +1 hacia la derecha, -1 hacia la izquierda. Es la mirada
 ## del dueno en el momento del golpe, no la direccion en que "vuela" el rival.
 var direccion_empuje: int = 1
+## Veneno que aplica al impactar (OUFW-8). 0 = el golpe no envenena. Solo se aplica si
+## [member tipo_ataque] es VENENO; lo rellena [method Personaje._ejecutar_ataque].
+var veneno_dps: int = 0
+var veneno_duracion: float = 0.0
 ## Princesa que lanzo el golpe. Su propia hurtbox ignora a este hitbox.
 var dueno: Personaje = null
 ## Una vez la hurtbox rival consume el golpe, ya no puede herir a nadie mas.
@@ -64,8 +65,15 @@ func iniciar(p_dano: int, p_tipo: Personaje.TipoAtaque, tamano: Vector2,
 	direccion_empuje = p_direccion
 	dueno = p_dueno
 	_tiempo_activo = duracion
-	rompe_guardia = p_rompe_guardia
-	collision_layer = CAPA_HITBOX
+## Tipo de ataque que genero este golpe (el moveset lo amplia OUFW-8).
+var tipo_ataque: int = 0
+## true si este golpe rompe la defensa/bloqueo enemigo (OUFW-9): la carga pesada
+## es el ejemplo canonico.
+var rompe_guardia: bool = false
+## DPS del veneno que aplica este golpe (OUFW-8). 0 = sin veneno.
+var veneno_dps: int = 0
+## Duracion en segundos del veneno aplicado (OUFW-8).
+var veneno_duracion: float = 0.0
 	collision_mask = Personaje.CAPA_HURTBOX
 
 	var colision := CollisionShape2D.new()

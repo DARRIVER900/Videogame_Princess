@@ -1,0 +1,39 @@
+[gd_scene format=3]
+
+[node name="Ambientacion" type="Node2D"]
+
+[node name="Cielo" type="ColorRect" parent="."]
+offset_left = -480.0
+offset_top = -330.0
+offset_right = 480.0
+color = Color(0.96862745, 0.7882353, 0.8862745, 1)
+
+[node name="Nubes" type="ColorRect" parent="."]
+offset_left = -480.0
+offset_top = -230.0
+offset_right = 480.0
+offset_bottom = -170.0
+color = Color(0.99215686, 0.9019608, 0.94509804, 1)
+
+[node name="CumbresLejanas" type="Polygon2D" parent="."]
+color = Color(0.9098039, 0.7058824, 0.84705883, 1)
+polygon = PackedVector2Array(-480, -40, -330, -260, -150, -90, 100, -300, 250, -100, 350, -230, 480, -40)
+
+[node name="CumbreCercanaIzquierda" type="Polygon2D" parent="."]
+color = Color(0.8509804, 0.5568628, 0.7529412, 1)
+polygon = PackedVector2Array(-430, 0, -300, -150, -170, 0)
+
+[node name="CumbreCercanaDerecha" type="Polygon2D" parent="."]
+color = Color(0.8509804, 0.5568628, 0.7529412, 1)
+polygon = PackedVector2Array(150, 0, 270, -170, 400, 0)
+
+[node name="Azucar" type="ColorRect" parent="."]
+offset_left = -480.0
+offset_right = 480.0
+offset_bottom = 210.0
+color = Color(0.9529412, 0.8509804, 0.9019608, 1)
+
+[node name="Glaseado" type="ColorRect" parent="."]
+offset_left = -480.0
+offset_right = 480.0
+offset_bottom = 18.0
