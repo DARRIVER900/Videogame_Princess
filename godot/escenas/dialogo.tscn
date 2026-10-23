@@ -1,0 +1,79 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/dialogo_ui.gd" id="1_l0sow"]
+
+[node name="DialogoUI" type="CanvasLayer"]
+layer = 20
+visible = false
+script = ExtResource("1_l0sow")
+
+[node name="Raiz" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Fondo" type="ColorRect" parent="Raiz"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.01, 0.04, 0.45)
+
+[node name="Panel" type="ColorRect" parent="Raiz"]
+layout_mode = 0
+anchor_top = 0.62
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.07, 0.04, 0.1, 0.94)
+
+[node name="Borde" type="ColorRect" parent="Raiz/Panel"]
+layout_mode = 0
+anchor_right = 1.0
+offset_bottom = 3.0
+color = Color(0.90588236, 0.5411765, 0.7647059, 1)
+
+[node name="Nombre" type="Label" parent="Raiz"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 346.0
+offset_right = 48.0
+offset_bottom = 346.0
+theme_override_colors/font_color = Color(0.9490196, 0.654902, 0.8156863, 1)
+theme_override_font_sizes/font_size = 26
+
+[node name="Texto" type="RichTextLabel" parent="Raiz"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 386.0
+offset_right = 648.0
+offset_bottom = 512.0
+theme_override_font_sizes/normal_font_size = 20
+fit_content = true
+scroll_active = false
+
+[node name="Retrato" type="TextureRect" parent="Raiz"]
+layout_mode = 0
+offset_left = 650.0
+offset_top = 18.0
+offset_right = 942.0
+offset_bottom = 344.0
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Indicador" type="Label" parent="Raiz"]
+layout_mode = 0
+offset_left = 790.0
+offset_top = 506.0
+offset_right = 790.0
+offset_bottom = 506.0
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "Espacio / clic  >"
+
+[node name="Contador" type="Label" parent="Raiz"]
+layout_mode = 0
+offset_left = 880.0
+offset_top = 10.0
+offset_right = 880.0
+offset_bottom = 10.0
+theme_override_font_sizes/font_size = 14

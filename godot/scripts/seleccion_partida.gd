@@ -28,6 +28,10 @@ static var princesa_jugable: String = DULCECITO
 ## conservar sus princesas de prueba y el bot inactivo.
 static var partida_iniciada: bool = false
 
+## true cuando ya se mostro la intro del capitulo en esta partida. Evita repetirla
+## al pulsar "Reintentar" tras un Game Over; el menu la reinicia al empezar de nuevo.
+static var intro_vista: bool = false
+
 
 ## [return] La ruta de escena correspondiente a [param clave].
 static func ruta_de(clave: String) -> String:

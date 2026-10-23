@@ -164,6 +164,12 @@ func _crear_nivel() -> bool:
 	gestor.owner = nivel
 	_construir_panel_fin(gestor, nivel)
 
+	# --- Dialogo de novela visual (OUFW-13): oculto hasta que arranca la partida ---
+	var dialogo: CanvasLayer = load("res://escenas/dialogo.tscn").instantiate()
+	dialogo.name = "Dialogo"
+	nivel.add_child(dialogo)
+	dialogo.owner = nivel
+
 	# --- Camara: sus limites son el encuadre del nivel ---
 	var camara := Camera2D.new()
 	camara.name = "Camara"

@@ -3,7 +3,7 @@
 ## Repository layout
 - Playable project: `godot/` (Godot 4.7.2, GL Compatibility). Run all commands from the repo root.
 - Root docs are coursework/design material: `README.md`, `Pract_1.md` (GDD), `Ale/`, `Barbie/`, `Carlita/`.
-- Main scene: `res://escenas/menu_principal.tscn` → selection menu → `arena_movimiento.tscn`.
+- Main scene: `res://escenas/menu_principal.tscn` → selection menu → `nivel_1_frontera.tscn` (intro de dialogo + combate).
 - `arena_movimiento.tscn` is the test harness for movement/combat/bot issues (OUFW-2/3/9/11/16/17), **not** the production chapter level (that is OUFW-6).
 
 ## Commands
@@ -12,7 +12,7 @@ godot --headless --import --path godot   # mandatory once after a fresh clone; r
 godot --path godot                       # run the game
 godot --headless --path godot --script res://tests/test_<suite>.gd
 ```
-- Test suites are standalone `SceneTree` scripts in `godot/tests/` (`test_personaje`, `test_movimiento`, `test_combate`, `test_carga`, `test_bot`, `test_menu`, `test_fin_combate`, `test_escenas`). There is no test runner framework; run the suite matching the issue you touched. Exit code `0` means pass.
+- Test suites are standalone `SceneTree` scripts in `godot/tests/` (`test_personaje`, `test_movimiento`, `test_combate`, `test_carga`, `test_bot`, `test_pociones`, `test_veneno`, `test_dificultad`, `test_menu`, `test_fin_combate`, `test_escenas`, `test_nivel_1`, `test_nivel_2`, `test_nivel_3`, `test_dialogos`, `test_dialogo_ui`). There is no test runner framework; run the suite matching the issue you touched. Exit code `0` means pass.
 - No CI, linter, formatter, or separate typechecker exists. The headless suites are the verification step.
 - Without the initial `--import`, class references fail with `Could not find type Personaje`.
 

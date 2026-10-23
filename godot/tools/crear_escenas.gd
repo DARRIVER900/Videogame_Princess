@@ -40,6 +40,7 @@ func _generar_tarde() -> void:
 	_crear_escenas_de_princesa(PrincesaChocolatito, "princesa_chocolatito", Color("#a9744f"))
 	_crear_arena_de_prueba()
 	_crear_menu_principal()
+	_crear_dialogo_ui()
 	_fijar_escena_principal()
 
 	if _textura_pendiente:
@@ -340,6 +341,95 @@ func _crear_menu_principal() -> void:
 	root.remove_child(menu)
 	_guardar(menu, "%s/menu_principal.tscn" % DIR_ESCENAS)
 	menu.free()
+
+
+## Construye el cuadro de dialogo de novela visual (OUFW-13). Nace oculto; el
+## nivel lo arranca con DialogoUI.iniciar() y se cierra solo al acabar el guion.
+func _crear_dialogo_ui() -> void:
+	var ui := CanvasLayer.new()
+	ui.name = "DialogoUI"
+	ui.layer = 20
+	ui.visible = false
+	ui.set_script(load("res://scripts/ui/dialogo_ui.gd"))
+	root.add_child(ui)
+
+	var raiz := Control.new()
+	raiz.name = "Raiz"
+	raiz.set_anchors_preset(Control.PRESET_FULL_RECT)
+	raiz.mouse_filter = Control.MOUSE_FILTER_STOP
+	ui.add_child(raiz)
+	raiz.owner = ui
+
+	var fondo := ColorRect.new()
+	fondo.name = "Fondo"
+	fondo.color = Color(0.02, 0.01, 0.04, 0.45)
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	raiz.add_child(fondo)
+	fondo.owner = ui
+
+	var panel := ColorRect.new()
+	panel.name = "Panel"
+	panel.color = Color(0.07, 0.04, 0.1, 0.94)
+	panel.anchor_top = 0.62
+	panel.anchor_right = 1.0
+	panel.anchor_bottom = 1.0
+	raiz.add_child(panel)
+	panel.owner = ui
+
+	var borde := ColorRect.new()
+	borde.name = "Borde"
+	borde.color = Color("#e78ac3")
+	borde.anchor_right = 1.0
+	borde.offset_bottom = 3.0
+	panel.add_child(borde)
+	borde.owner = ui
+
+	var nombre := Label.new()
+	nombre.name = "Nombre"
+	nombre.position = Vector2(48.0, 346.0)
+	nombre.add_theme_font_size_override("font_size", 26)
+	nombre.add_theme_color_override("font_color", Color("#f2a7d0"))
+	raiz.add_child(nombre)
+	nombre.owner = ui
+
+	var texto := RichTextLabel.new()
+	texto.name = "Texto"
+	texto.position = Vector2(48.0, 386.0)
+	texto.size = Vector2(600.0, 126.0)
+	texto.fit_content = true
+	texto.scroll_active = false
+	texto.add_theme_font_size_override("normal_font_size", 20)
+	raiz.add_child(texto)
+	texto.owner = ui
+
+	var retrato := TextureRect.new()
+	retrato.name = "Retrato"
+	retrato.position = Vector2(650.0, 18.0)
+	retrato.size = Vector2(292.0, 326.0)
+	retrato.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	retrato.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	raiz.add_child(retrato)
+	retrato.owner = ui
+
+	var indicador := Label.new()
+	indicador.name = "Indicador"
+	indicador.position = Vector2(790.0, 506.0)
+	indicador.text = "Espacio / clic  >"
+	indicador.add_theme_font_size_override("font_size", 14)
+	indicador.add_theme_color_override("font_color", Color(0.85, 0.85, 0.9))
+	raiz.add_child(indicador)
+	indicador.owner = ui
+
+	var contador := Label.new()
+	contador.name = "Contador"
+	contador.position = Vector2(880.0, 10.0)
+	contador.add_theme_font_size_override("font_size", 14)
+	raiz.add_child(contador)
+	contador.owner = ui
+
+	root.remove_child(ui)
+	_guardar(ui, "%s/dialogo.tscn" % DIR_ESCENAS)
+	ui.free()
 
 
 func _fijar_escena_principal() -> void:

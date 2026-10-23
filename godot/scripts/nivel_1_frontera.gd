@@ -21,6 +21,7 @@ var _jugadora: Personaje
 var _rival: Personaje
 var _controlador: ControladorJugador
 var _bot: ControladorBot
+var _dialogo: DialogoUI
 
 
 func _ready() -> void:
@@ -30,6 +31,38 @@ func _ready() -> void:
 	var gestor := get_node_or_null("GestorCombate")
 	if gestor != null and gestor.has_method("reiniciar_escucha"):
 		gestor.reiniciar_escucha()
+	_arrancar_intro()
+
+
+## Muestra la intro de novela visual (OUFW-13) solo al entrar desde el menu y una
+## sola vez por partida: el combate queda congelado hasta que el jugador avanza
+## todas las lineas con Espacio o clic.
+func _arrancar_intro() -> void:
+	_dialogo = get_node_or_null("Dialogo") as DialogoUI
+	if _dialogo == null or not SeleccionPartida.partida_iniciada:
+		return
+	if SeleccionPartida.intro_vista:
+		return
+	if not _dialogo.iniciar(DialogoUI.RUTA_INTRO):
+		return
+	SeleccionPartida.intro_vista = true
+	_dialogo.terminado.connect(_on_intro_terminada)
+	_congelar_para_intro(true)
+
+
+func _on_intro_terminada() -> void:
+	_congelar_para_intro(false)
+
+
+func _congelar_para_intro(congelar: bool) -> void:
+	if _controlador != null:
+		_controlador.activo = not congelar
+		if congelar:
+			_controlador.soltar_controles()
+	if _bot != null:
+		_bot.activo = not congelar
+	if _jugadora != null:
+		_jugadora.velocity.x = 0.0
 
 
 func _resolver_nodos() -> void:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3]
+[gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/arena_movimiento.gd" id="1_afhrj"]
 [ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="2_o1wae"]
@@ -23,6 +23,8 @@ shape = SubResource("RectangleShape2D_a6d6d")
 
 [node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("2_o1wae")]
 position = Vector2(-160, -32)
+collision_layer = 8
+collision_mask = 9
 script = ExtResource("3_80epw")
 nombre = "Princesa Dulcecito"
 id_skin_activa = "SKIN_CANDYR_DEFAULT"
@@ -35,6 +37,8 @@ rival = NodePath("../../Rival")
 
 [node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("5_bwkvl")]
 position = Vector2(160, -32)
+collision_layer = 8
+collision_mask = 9
 script = ExtResource("6_8x6ev")
 nombre = "Princesa Chocolatito"
 id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"

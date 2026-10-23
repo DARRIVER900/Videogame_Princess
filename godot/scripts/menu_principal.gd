@@ -76,4 +76,5 @@ func _on_boton_jugar_pressed() -> void:
 		# Red de seguridad: sin seleccion valida no se arranca una arena rota.
 		SeleccionPartida.princesa_jugable = SeleccionPartida.DULCECITO
 	SeleccionPartida.partida_iniciada = true
+	SeleccionPartida.intro_vista = false
 	get_tree().change_scene_to_file(ESCENA_COMBATE)
