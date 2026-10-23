@@ -15,6 +15,32 @@ extends CharacterBody2D
 ## Perfil de combate (moveset). GDD seccion 8 "Fichas de Personajes".
 enum Modset { AGIL_DISTANCIA, PESADO_PESA }
 
+## Estados de skin que activan diferentes sprites (OUFW-21).
+enum SkinState { NORMAL, COMBO_ALTO, DAÑADO, GOLPE_CRITICO, NO_JUGADOR }
+
+## Claves de skin válidas (deben coincidir con [member id_skin_activa] en cada princesa).
+const SKIN_CANDYR_DEFAULT: String = "SKIN_CANDYR_DEFAULT"
+const SKIN_CHOCOLATE_DEFAULT: String = "SKIN_CHOCOLATE_DEFAULT"
+
+## Mapeo de skins a rutas de texturas. Usa strings como claves porque los enums
+## no son expresiones constantes válidas en diccionarios const en GDScript.
+var RUTAS_SPRITES: Dictionary = {
+	SKIN_CANDYR_DEFAULT: {
+		"NORMAL": "res://recursos/Dulcecito-removebg-preview.png",
+		"COMBO_ALTO": "res://recursos/Dulcecito-removebg-preview.png",
+		"DAÑADO": "res://recursos/Dulcecito-removebg-preview.png",
+		"GOLPE_CRITICO": "res://recursos/Dulcecito-removebg-preview.png",
+		"NO_JUGADOR": "res://recursos/placeholder_dulcecito.png"
+	},
+	SKIN_CHOCOLATE_DEFAULT: {
+		"NORMAL": "res://recursos/chocolatito-removebg-preview.png",
+		"COMBO_ALTO": "res://recursos/chocolatito-removebg-preview.png",
+		"DAÑADO": "res://recursos/chocolatito-removebg-preview.png",
+		"GOLPE_CRITICO": "res://recursos/chocolatito-removebg-preview.png",
+		"NO_JUGADOR": "res://recursos/placeholder_chocolatito.png"
+	}
+}
+
 ## Tipos de ataque del moveset base. El mapeo de teclas vive en la seccion [code][input]
 ## de [code]project.godot[/code] y lo consumen [ControladorJugador] (OUFW-2) y los
 ## sistemas de hitbox (OUFW-3); aqui solo se declara el tipo para que
@@ -72,6 +98,62 @@ signal aterrizaje
 signal ataque_ejecutado(tipo: TipoAtaque)
 
 ## Se empezo a acumular la carga pesada (OUFW-9, tecla `J`).
+
+## Escala base del sprite (capturada en _ready desde la escena).
+## Se usa para restaurar la escala correcta tras efectos visuales.
+var _escala_base_sprite: Vector2 = Vector2.ONE
+
+## Aplica el sprite correspondiente al estado actual de skin (OUFW-21).
+func _aplicar_sprite_por_skin_estado(nuevo_estado: SkinState) -> void:
+	if nuevo_estado == skin_estado:
+		return
+	skin_estado = nuevo_estado
+	if nodo_sprite == null:
+		return
+	var estado_str: String = _skin_state_to_string(skin_estado)
+	var ruta_textura: String = RUTAS_SPRITES.get(id_skin_activa, {}).get(estado_str)
+	if ruta_textura == null:
+		return
+	nodo_sprite.texture = load(ruta_textura)
+	skin_cambiada.emit(skin_estado)
+
+
+## Convierte un valor de SkinState a su nombre en string (GDScript no permite .name en enums).
+func _skin_state_to_string(estado: SkinState) -> String:
+	match estado:
+		SkinState.NORMAL:
+			return "NORMAL"
+		SkinState.COMBO_ALTO:
+			return "COMBO_ALTO"
+		SkinState.DAÑADO:
+			return "DAÑADO"
+		SkinState.GOLPE_CRITICO:
+			return "GOLPE_CRITICO"
+		SkinState.NO_JUGADOR:
+			return "NO_JUGADOR"
+		_:
+			return "NORMAL"
+
+
+## Establece el estado de skin a NORMAL (base street fighter) (OUFW-21).
+func establecer_skin_normal() -> void:
+	_aplicar_sprite_por_skin_estado(SkinState.NORMAL)
+
+## Establece el estado de skin a COMBO_ALTO (sprites de combo) (OUFW-21).
+func establecer_skin_combo_alto() -> void:
+	_aplicar_sprite_por_skin_estado(SkinState.COMBO_ALTO)
+
+## Establece el estado de skin a DAÑADO (sprites de daño) (OUFW-21).
+func establecer_skin_dañado() -> void:
+	_aplicar_sprite_por_skin_estado(SkinState.DAÑADO)
+
+## Establece el estado de skin a GOLPE_CRITICO (sprites de golpe crítico) (OUFW-21).
+func establecer_skin_golpe_critico() -> void:
+	_aplicar_sprite_por_skin_estado(SkinState.GOLPE_CRITICO)
+
+## Establece el estado de skin a NO_JUGADOR (sprite placeholder) (OUFW-21).
+func establecer_skin_no_jugador() -> void:
+	_aplicar_sprite_por_skin_estado(SkinState.NO_JUGADOR)
 signal carga_iniciada
 
 ## Nivel de carga actual (0.0..1.0) en cada frame de acumulacion. El HUD dibuja la
@@ -218,6 +300,9 @@ signal estado_alterado_cambiado(estado: EstadoAlterado)
 ## [Sprite2D] o [AnimatedSprite2D], que es la convencion de las escenas de OUFW-6.
 @export var nodo_sprite: CanvasItem
 
+## Estado actual de skin que determina qué sprite usar (OUFW-21).
+@export var skin_estado: SkinState = SkinState.NORMAL
+
 ## Vida actual. La inicializa [_ready] a partir de [member hp_max] y solo se
 ## modifica mediante [method recibir_dano] o [method aplicar_curacion].
 var current_hp: int = 0
@@ -237,6 +322,9 @@ var mirando_a_la_derecha: bool = true
 ## Marca que otro sistema (el controlador del jugador) ya decidio la mirada de este
 ## frame. La consume [method avanzar_movimiento] para no sobreescribirla con el input.
 var mirada_externa: bool = false
+
+## Señal que se emite cuando el estado de skin cambia (OUFW-21).
+signal skin_cambiada(estado: SkinState)
 
 ## Segundos que le quedan al derrape en curso.
 var tiempo_derrape: float = 0.0
@@ -308,16 +396,25 @@ var _contador_hitboxes: int = 0
 func _ready() -> void:
 	collision_layer = CAPA_PERSONAJE
 	collision_mask = CAPA_GROUND | CAPA_PERSONAJE
+	# Buscar sprite ANTES de configurar atributos, para que establecer_skin_normal()
+	# en _configurar_atributos_por_defecto() funcione correctamente.
+	if nodo_sprite == null:
+		nodo_sprite = _buscar_sprite()
+	# Guardar la escala base del sprite (definida en la escena) para restaurarla
+	# correctamente tras efectos visuales (carga, etc.).
+	if nodo_sprite != null:
+		_escala_base_sprite = nodo_sprite.scale
 	_configurar_atributos_por_defecto()
 	_hp_max_base = hp_max
 	_multiplicador_dano_base = multiplicador_dano
 	current_hp = hp_max
 	esta_muerto = false
-	if nodo_sprite == null:
-		nodo_sprite = _buscar_sprite()
 	_estaba_en_suelo = en_suelo()
 	_aplicar_flip()
 	_crear_hurtbox()
+	# _aplicar_sprite_por_skin_estado ya se llamó desde _configurar_atributos_por_defecto()
+	# vía establecer_skin_normal() en las subclases, pero nos aseguramos aquí también.
+	_aplicar_sprite_por_skin_estado(SkinState.NORMAL)
 
 
 ## Punto de extension donde cada princesa declara su identidad y sus atributos
@@ -664,13 +761,13 @@ func esta_cargando() -> bool:
 func _actualizar_escalado_carga() -> void:
 	if nodo_sprite == null:
 		return
-	var escala := 1.0 + factor_escala_carga * carga_nivel()
-	nodo_sprite.scale = Vector2(escala, escala)
+	var escala_mult := 1.0 + factor_escala_carga * carga_nivel()
+	nodo_sprite.scale = _escala_base_sprite * escala_mult
 
 
 func _restaurar_escala_sprite() -> void:
 	if nodo_sprite != null:
-		nodo_sprite.scale = Vector2.ONE
+		nodo_sprite.scale = _escala_base_sprite
 
 
 ## Crea un [Hitbox] frontal como hijo (viaja con el personaje) y lo posiciona a la

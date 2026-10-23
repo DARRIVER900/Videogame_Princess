@@ -6,7 +6,7 @@ extends SceneTree
 ##
 ## Cubre lo que las suites por sistema no ven:
 ##   - El InputMap generado conserva TODAS las acciones jugables (incluidas E y U).
-##   - El HUD explica las teclas que existen de verdad.
+##   - El HUD explica las teclas que existen de verdad y usa corazones/pociones.
 ##   - Menu y Fin de Juego caben en el encuadre y tienen foco util.
 ##   - El timeout congela a AMBOS combatientes y no deja al bot golpeando
 ##     detras del panel de Game Over.
@@ -101,6 +101,34 @@ func _prueba_hud() -> void:
 	for tecla in ["K", "L", "J", "E", "U"]:
 		_comprobar("la ayuda del HUD menciona la tecla %s" % tecla, texto.contains(tecla))
 	_comprobar("el HUD muestra el temporizador", nivel.get_node_or_null("HUD/Temporizador") != null)
+	var hud := nivel.get_node_or_null("HUD/Combate") as HudCombate
+	_comprobar("el HUD tiene el panel visual de combate", hud != null)
+	if hud != null:
+		var jugadora := nivel.get_node("Jugadora") as Personaje
+		var rival := nivel.get_node("Rival") as Personaje
+		var corazones := hud.get_node("PanelJugador/Corazones")
+		_comprobar("la vida se dibuja con un corazon por cada 10 HP",
+			corazones.get_child_count() == hud.corazones_para(jugadora.hp_max),
+			"%d corazones" % corazones.get_child_count())
+		_comprobar("cada corazon usa los sprites lleno/vacio",
+			(corazones.get_child(0) as TextureProgressBar).texture_progress != null
+			and (corazones.get_child(0) as TextureProgressBar).texture_under != null)
+		var pociones := hud.get_node("PanelJugador/Pociones")
+		_comprobar("las pociones tienen su sprite y contador",
+			(pociones.get_node("Pocion0") as TextureRect).texture != null
+			and (pociones.get_node("Cantidad") as Label).text == "x%d" % jugadora.cantidad_pociones)
+		var rect_rival := hud.rect_panel_rival()
+		_comprobar("el panel rival esta arriba a la derecha",
+			rect_rival.position.x > 480.0 and rect_rival.position.y < 120.0
+			and rect_rival.end.x <= 960.0,
+			"x=%.0f y=%.0f" % [rect_rival.position.x, rect_rival.position.y])
+		_comprobar("el panel rival no tapa el temporizador",
+			rect_rival.position.x >= 504.0)
+		_comprobar("los corazones escalan con la vida del jefe",
+			HudCombate.corazones_para(125) == 13 and HudCombate.corazones_para(150) == 15)
+		_comprobar("la fila de corazones del rival existe",
+			hud.get_node("PanelRival/Corazones").get_child_count()
+			== hud.corazones_para(rival.hp_max))
 	nivel.queue_free()
 	await _pasos(1)
 

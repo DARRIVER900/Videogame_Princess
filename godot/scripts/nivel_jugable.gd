@@ -24,14 +24,15 @@ const _NOMBRES_LOCOMOCION := {
 ## Guion de intro que se muestra antes de combatir. Vacio = sin intro.
 @export var intro: String = ""
 
-var _etiqueta: Label
 var _jugadora: Personaje
 var _rival: Personaje
 var _controlador: ControladorJugador
 var _bot: ControladorBot
 var _dialogo: DialogoUI
 var _temporizador: TemporizadorCombate
+var _hud: HudCombate
 var _gestor
+var _panel_controles
 
 
 func _ready() -> void:
@@ -45,13 +46,22 @@ func _ready() -> void:
 
 
 func _resolver_nodos() -> void:
-	_etiqueta = get_node_or_null("HUD/Estado")
 	_jugadora = get_node_or_null("Jugadora") as Personaje
 	_rival = get_node_or_null("Rival") as Personaje
 	_controlador = get_node_or_null("Jugadora/Controlador") as ControladorJugador
 	_bot = get_node_or_null("Rival/Bot") as ControladorBot
 	_dialogo = get_node_or_null("Dialogo") as DialogoUI
 	_temporizador = get_node_or_null("HUD/Temporizador") as TemporizadorCombate
+	_hud = get_node_or_null("HUD/Combate") as HudCombate
+	if _hud == null:
+		var capa := get_node_or_null("HUD")
+		if capa != null:
+			_hud = HudCombate.new()
+			_hud.name = "Combate"
+			capa.add_child(_hud)
+	if _hud != null:
+		_hud.configurar(_jugadora, _rival, numero_nivel)
+	_crear_panel_controles()
 
 
 ## El gestor de fin de combate (OUFW-16) conoce la escena siguiente para que
@@ -111,9 +121,14 @@ func _reemplazar_personaje(nombre: String, clave: String, posicion: Vector2) -> 
 	if ctrl != null:
 		actual.remove_child(ctrl)
 
+	# Guardar nodo_sprite del personaje actual para pasarlo al nuevo
+	var nodo_sprite_path := actual.nodo_sprite
+
 	var nueva := load(SeleccionPartida.ruta_de(clave)).instantiate() as Personaje
 	nueva.name = nombre
 	nueva.position = posicion
+	# Copiar nodo_sprite al nuevo personaje (el PackedScene no lo trae)
+	nueva.nodo_sprite = nodo_sprite_path
 	actual.name = nombre + "_anterior"
 	remove_child(actual)
 	add_child(nueva)
@@ -191,48 +206,88 @@ func _detener_temporizador() -> void:
 
 
 func _process(_delta: float) -> void:
-	if _etiqueta == null or _jugadora == null:
-		return
+	# Solo mantener la caja de controles visible (sin debug info)
+	# La caja se crea en _ready y solo se actualiza si es necesario
+	pass
 
-	var rival_cableado := _controlador != null and is_instance_valid(_controlador.rival)
-	var hitboxes := 0
-	for hijo in _jugadora.get_children():
-		if hijo is Hitbox and not hijo.consumida:
-			hitboxes += 1
 
-	var hurtbox_ok := _jugadora.get_node_or_null("Hurtbox") != null
-	_etiqueta.text = "\n".join([
-		"Nivel %d   Jugadora HP %d/%d   pociones %d   %s" % [
-			numero_nivel, _jugadora.current_hp, _jugadora.hp_max,
-			_jugadora.cantidad_pociones, _jugadora.texto_estado(),
-		],
-		"Rival     HP %d/%d   pociones %d   %s" % [
-			_rival.current_hp if _rival != null else 0,
-			_rival.hp_max if _rival != null else 0,
-			_rival.cantidad_pociones if _rival != null else 0,
-			_rival.texto_estado() if _rival != null else "Normal",
-		],
-		"",
-		"A / D      moverse        W + A / D  salto diagonal",
-		"S          agachar        S + A/D    derrape",
-		"K          golpe normal   L          golpe fuerte",
-		"J          carga (mantener y soltar)   E  pocion   U  veneno",
-		"",
-		"locomocion  %s   (hurtbox x%.2f)" % [
-			_NOMBRES_LOCOMOCION.get(_jugadora.estado_locomocion, "?"),
-			_jugadora.factor_altura_cuerpo(),
-		],
-		"carga       %s" % _texto_carga(),
-		"velocidad   vx=%6.1f   vy=%6.1f" % [_jugadora.velocity.x, _jugadora.velocity.y],
-		"en suelo    %s" % ("si" if _jugadora.en_suelo() else "no"),
-		"mirando     %s" % ("derecha" if _jugadora.mirando_a_la_derecha else "izquierda"),
-		"rival       %s   hurtbox %s   FSM %s" % [
-			"cableado" if rival_cableado else "SIN CABLEAR",
-			"si" if hurtbox_ok else "NO",
-			ControladorBot.nombre_estado(_bot.estado_actual) if _bot != null else "sin bot",
-		],
-		"hitboxes    %d activas" % hitboxes,
-	])
+func _crear_panel_controles() -> void:
+	var ancho := NivelArena.ANCHO_PANTALLA
+	var alto := NivelArena.ALTO_PANTALLA
+	var margen := 12.0
+	var ancho_panel := 350.0
+	var alto_panel := 200.0
+
+	_panel_controles = Panel.new()
+	_panel_controles.name = "PanelControles"
+	_panel_controles.size = Vector2(ancho_panel, alto_panel)
+	_panel_controles.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var estilo := StyleBoxFlat.new()
+	estilo.bg_color = Color(0.08, 0.03, 0.08, 0.85)
+	estilo.border_color = Color(1.0, 0.72, 0.82, 0.6)
+	estilo.set_border_width_all(2)
+	estilo.set_corner_radius_all(10)
+	estilo.content_margin_left = 12.0
+	estilo.content_margin_right = 12.0
+	estilo.content_margin_top = 8.0
+	estilo.content_margin_bottom = 8.0
+	_panel_controles.add_theme_stylebox_override("panel", estilo)
+
+	# Agregar al HUD CanvasLayer para que este en coordenadas de pantalla
+	var hud_capa := get_node_or_null("HUD")
+	if hud_capa != null:
+		hud_capa.add_child(_panel_controles)
+	else:
+		add_child(_panel_controles)
+
+	# Posicionar en esquina inferior izquierda (coordenadas de pantalla)
+	_panel_controles.position = Vector2(margen, alto - margen - alto_panel)
+
+	# Titulo
+	var titulo := Label.new()
+	titulo.name = "Titulo"
+	titulo.position = Vector2(8.0, 4.0)
+	titulo.size = Vector2(ancho_panel - 20.0, 24.0)
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	titulo.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	titulo.add_theme_font_size_override("font_size", 16)
+	titulo.add_theme_color_override("font_color", Color(1.0, 0.94, 0.97))
+	titulo.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+	titulo.add_theme_constant_override("shadow_offset_x", 1)
+	titulo.add_theme_constant_override("shadow_offset_y", 1)
+	titulo.text = "CONTROLES"
+	titulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_panel_controles.add_child(titulo)
+
+	# Lista de controles
+	var controles := [
+		"A / D       Moverse",
+		"W + A / D   Salto diagonal",
+		"S           Agachar",
+		"S + A / D   Derrape",
+		"K           Golpe normal",
+		"L           Golpe fuerte",
+		"J           Carga (mantener y soltar)",
+		"E           Pocion",
+		"U           Veneno",
+	]
+
+	var y_pos := 32.0
+	for texto in controles:
+		var etiqueta := Label.new()
+		etiqueta.position = Vector2(8.0, y_pos)
+		etiqueta.size = Vector2(ancho_panel - 20.0, 20.0)
+		etiqueta.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		etiqueta.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		etiqueta.add_theme_font_size_override("font_size", 13)
+		etiqueta.add_theme_color_override("font_color", Color(1.0, 0.94, 0.97))
+		etiqueta.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.8))
+		etiqueta.add_theme_constant_override("shadow_offset_x", 1)
+		etiqueta.add_theme_constant_override("shadow_offset_y", 1)
+		etiqueta.text = texto
+		etiqueta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_panel_controles.add_child(etiqueta)
+		y_pos += 18.0
 
 
 func _texto_carga() -> String:

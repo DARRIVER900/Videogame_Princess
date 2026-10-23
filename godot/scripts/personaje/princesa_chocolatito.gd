@@ -17,3 +17,5 @@ func _configurar_atributos_por_defecto() -> void:
 	hp_max = 100
 	multiplicador_dano = 1.0
 	cantidad_pociones = 3
+
+	establecer_skin_normal()
