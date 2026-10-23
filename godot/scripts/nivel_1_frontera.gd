@@ -1,52 +1,161 @@
-extends Node2D
-## Nivel 1 "La Frontera Despejada" (OUFW-6): graybox del Capitulo 1.
+class_name Nivel1Frontera
+extends NivelArena
+## Nivel 1 "La Frontera Despejada" (OUFW-6): graybox jugable del Capitulo 1.
 ##
-## Solo guarda las medidas del escenario. La escena se genera con
-## tools/crear_nivel_1.gd, asi que cada numero vive aqui y en ningun otro lado.
+## Reutiliza las medidas de [NivelArena] (encuadre, paredes, suelo y spawns) y
+## anade el flujo de partida: instala las princesas elegidas en el menu (OUFW-17),
+## activa la FSM del rival (OUFW-11) y mantiene el HUD de combate (OUFW-5).
+##
+## La escena se genera con tools/crear_nivel_1.gd, asi que cada numero vive aqui y
+## en ningun otro lado. Abrir el nivel directamente (suites de OUFW-6) conserva las
+## princesas de la escena y deja al bot inactivo para no interferir con las pruebas.
 
-## Encuadre de la camara (igual al viewport de project.godot).
-const ANCHO_PANTALLA := 960.0
-const ALTO_PANTALLA := 540.0
-const POSICION_CAMARA := Vector2(0.0, -60.0)
+const _NOMBRES_LOCOMOCION := {
+	Personaje.Locomocion.DE_PIE: "DE PIE",
+	Personaje.Locomocion.AGACHADO: "AGACHADO",
+	Personaje.Locomocion.DERRAPE: "DERRAPE",
+}
 
-## Medio ancho del sprite de una princesa: las paredes dejan este margen para
-## que ningun sprite se salga del encuadre.
-const MARGEN_PARED := 24.0
-## Distancia entre las caras interiores de las paredes invisibles.
-const ANCHO_JUGABLE := ANCHO_PANTALLA - 2.0 * MARGEN_PARED
-const GROSOR_PARED := 40.0
-## Mucho mayor que el salto (~85 px): no se puede saltar por encima.
-const ALTO_PARED := 800.0
-
-## La superficie del suelo esta en y = 0. Los pies de una princesa (capsula de
-## 64 px) tocan el suelo con position.y = -32.
-const GROSOR_SUELO := 200.0
-const Y_APARICION := -32.0
-## Separacion horizontal de cada princesa respecto al centro al empezar. Deja
-## sitio detras para un derrape y un salto atras sin tocar la pared, y las
-## deja fuera del alcance del golpe fuerte (ver tests/test_nivel_1.gd).
-const X_APARICION := 140.0
-
-## Capitulo al que pertenece este nivel (1 a 3). Define la dificultad del rival
-## (OUFW-15): ver [DificultadCapitulo]. Los niveles de los capitulos 2 y 3 reutilizan
-## este script, o uno propio, cambiando solo este valor en el inspector.
-@export_range(1, 3) var capitulo: int = 1
+var _etiqueta: Label
+var _jugadora: Personaje
+var _rival: Personaje
+var _controlador: ControladorJugador
+var _bot: ControladorBot
 
 
-## Ajusta al rival al capitulo. Se hace aqui y no en la escena porque
-## [method Personaje._ready] reescribe vida y dano: los multiplicadores tienen que
-## entrar DESPUES del `_ready` del rival, y el de un padre corre despues del de sus hijos.
 func _ready() -> void:
-	var rival := get_node_or_null("Rival") as Personaje
-	if rival != null:
-		DificultadCapitulo.aplicar(rival, capitulo)
+	_instalar_seleccion()
+	super._ready()
+	_resolver_nodos()
+	var gestor := get_node_or_null("GestorCombate")
+	if gestor != null and gestor.has_method("reiniciar_escucha"):
+		gestor.reiniciar_escucha()
 
 
-## X de la cara interior de la pared izquierda.
-func limite_izquierdo() -> float:
-	return -ANCHO_JUGABLE * 0.5
+func _resolver_nodos() -> void:
+	_etiqueta = get_node_or_null("HUD/Estado")
+	_jugadora = get_node_or_null("Jugadora") as Personaje
+	_rival = get_node_or_null("Rival") as Personaje
+	_controlador = get_node_or_null("Jugadora/Controlador") as ControladorJugador
+	_bot = get_node_or_null("Rival/Bot") as ControladorBot
 
 
-## X de la cara interior de la pared derecha.
-func limite_derecho() -> float:
-	return ANCHO_JUGABLE * 0.5
+## Solo al entrar desde el menu. Abrir la escena directamente deja el nivel en su
+## estado de prueba (princesas fijas y bot inactivo).
+func _instalar_seleccion() -> void:
+	if not SeleccionPartida.partida_iniciada:
+		return
+	if not get_node_or_null("Jugadora") or not get_node_or_null("Rival"):
+		return
+
+	var ctrl := _reemplazar_personaje("Jugadora", SeleccionPartida.princesa_jugable,
+		Vector2(-X_APARICION, Y_APARICION))
+	var bot := _reemplazar_personaje("Rival", SeleccionPartida.clave_rival(),
+		Vector2(X_APARICION, Y_APARICION))
+
+	_montar_controlador(ctrl, "Jugadora", "Controlador", "Rival")
+	_montar_controlador(bot, "Rival", "Bot", "Jugadora")
+
+
+func _reemplazar_personaje(nombre: String, clave: String, posicion: Vector2) -> Node:
+	var actual := get_node_or_null(nombre) as Personaje
+	if actual == null:
+		return null
+
+	if _clave_de(actual) == clave:
+		actual.position = posicion
+		if actual.get_node_or_null("Controlador") != null:
+			return actual.get_node_or_null("Controlador")
+		return actual.get_node_or_null("Bot")
+
+	var indice := actual.get_index()
+	var ctrl := actual.get_node_or_null("Controlador")
+	if ctrl == null:
+		ctrl = actual.get_node_or_null("Bot")
+	if ctrl != null:
+		actual.remove_child(ctrl)
+
+	var nueva := load(SeleccionPartida.ruta_de(clave)).instantiate() as Personaje
+	nueva.name = nombre
+	nueva.position = posicion
+	actual.name = nombre + "_anterior"
+	remove_child(actual)
+	add_child(nueva)
+	move_child(nueva, indice)
+	actual.queue_free()
+	return ctrl
+
+
+func _montar_controlador(ctrl: Node, nombre: String, nombre_nodo: String, objetivo: String) -> void:
+	var p := get_node_or_null(nombre) as Personaje
+	if p == null:
+		return
+	if ctrl == null:
+		ctrl = ControladorJugador.new() if nombre_nodo == "Controlador" else ControladorBot.new()
+		ctrl.name = nombre_nodo
+		p.add_child(ctrl)
+	elif ctrl.get_parent() != p:
+		p.add_child(ctrl)
+	ctrl.personaje = p
+	ctrl.rival = get_node_or_null(objetivo)
+	if ctrl is ControladorBot:
+		(ctrl as ControladorBot).activo = SeleccionPartida.partida_iniciada
+
+
+func _clave_de(p: Personaje) -> String:
+	if p is PrincesaDulcecito:
+		return SeleccionPartida.DULCECITO
+	if p is PrincesaChocolatito:
+		return SeleccionPartida.CHOCOLATITO
+	return ""
+
+
+func _process(_delta: float) -> void:
+	if _etiqueta == null or _jugadora == null:
+		return
+
+	var rival_cableado := _controlador != null and is_instance_valid(_controlador.rival)
+	var hitboxes := 0
+	for hijo in _jugadora.get_children():
+		if hijo is Hitbox and not hijo.consumida:
+			hitboxes += 1
+
+	var hurtbox_ok := _jugadora.get_node_or_null("Hurtbox") != null
+	_etiqueta.text = "\n".join([
+		"Jugadora  HP %d/%d   pociones %d   %s" % [
+			_jugadora.current_hp, _jugadora.hp_max,
+			_jugadora.cantidad_pociones, _jugadora.texto_estado(),
+		],
+		"Rival     HP %d/%d   pociones %d   %s" % [
+			_rival.current_hp if _rival != null else 0,
+			_rival.hp_max if _rival != null else 0,
+			_rival.cantidad_pociones if _rival != null else 0,
+			_rival.texto_estado() if _rival != null else "Normal",
+		],
+		"",
+		"A / D      moverse        W + A / D  salto diagonal",
+		"S          agachar        S + A/D    derrape",
+		"K          golpe normal   L          golpe fuerte",
+		"J          carga (mantener y soltar)   E  pocion   U  veneno",
+		"",
+		"locomocion  %s   (hurtbox x%.2f)" % [
+			_NOMBRES_LOCOMOCION.get(_jugadora.estado_locomocion, "?"),
+			_jugadora.factor_altura_cuerpo(),
+		],
+		"carga       %s" % _texto_carga(),
+		"velocidad   vx=%6.1f   vy=%6.1f" % [_jugadora.velocity.x, _jugadora.velocity.y],
+		"en suelo    %s" % ("si" if _jugadora.en_suelo() else "no"),
+		"mirando     %s" % ("derecha" if _jugadora.mirando_a_la_derecha else "izquierda"),
+		"rival       %s   hurtbox %s   FSM %s" % [
+			"cableado" if rival_cableado else "SIN CABLEAR",
+			"si" if hurtbox_ok else "NO",
+			ControladorBot.nombre_estado(_bot.estado_actual) if _bot != null else "sin bot",
+		],
+		"hitboxes    %d activas" % hitboxes,
+	])
+
+
+func _texto_carga() -> String:
+	if _jugadora != null and _jugadora.esta_cargando():
+		return "acumulando %d%%" % roundi(_jugadora.carga_nivel() * 100.0)
+	return "lista"

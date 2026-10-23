@@ -12,9 +12,9 @@ extends Control
 ##
 ## Referencia: GDD, flujo "Menu -> Seleccion -> Combate -> Fin de combate".
 
-## Escena de combate a la que lleva "Jugar". Cuando exista el graybox de OUFW-6 la
-## ruta apuntara alli; hoy es la arena de movimiento/combate.
-const ESCENA_COMBATE := "res://escenas/arena_movimiento.tscn"
+## Escena de combate a la que lleva "Jugar": el graybox jugable del Capitulo 1
+## (OUFW-6). La arena de movimiento sigue existiendo como harness de pruebas.
+const ESCENA_COMBATE := "res://escenas/nivel_1_frontera.tscn"
 
 ## Botones de seleccion, emparejados con su clave en [SeleccionPartida].
 const OPCIONES := {
@@ -75,4 +75,5 @@ func _on_boton_jugar_pressed() -> void:
 	if not SeleccionPartida.es_clave_valida(SeleccionPartida.princesa_jugable):
 		# Red de seguridad: sin seleccion valida no se arranca una arena rota.
 		SeleccionPartida.princesa_jugable = SeleccionPartida.DULCECITO
+	SeleccionPartida.partida_iniciada = true
 	get_tree().change_scene_to_file(ESCENA_COMBATE)

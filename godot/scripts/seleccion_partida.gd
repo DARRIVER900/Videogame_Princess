@@ -23,6 +23,11 @@ const CHOCOLATITO := "chocolatito"
 ## Princesa elegida por el jugador. El rival de la arena sera la OTRA.
 static var princesa_jugable: String = DULCECITO
 
+## true cuando el jugador pulsa "Jugar". Distingue la partida real (menu -> nivel)
+## de abrir una escena directamente en las suites headless, donde el nivel debe
+## conservar sus princesas de prueba y el bot inactivo.
+static var partida_iniciada: bool = false
+
 
 ## [return] La ruta de escena correspondiente a [param clave].
 static func ruta_de(clave: String) -> String:

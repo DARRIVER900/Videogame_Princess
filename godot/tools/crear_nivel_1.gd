@@ -113,12 +113,16 @@ func _crear_nivel() -> bool:
 	var jugadora: Personaje = load("%s/princesa_dulcecito.tscn" % DIR_ESCENAS).instantiate()
 	jugadora.name = "Jugadora"
 	jugadora.position = pos_jugadora
+	jugadora.collision_layer = Personaje.CAPA_PERSONAJE
+	jugadora.collision_mask = Personaje.CAPA_GROUND | Personaje.CAPA_PERSONAJE
 	nivel.add_child(jugadora)
 	jugadora.owner = nivel
 
 	var rival: Personaje = load("%s/princesa_chocolatito.tscn" % DIR_ESCENAS).instantiate()
 	rival.name = "Rival"
 	rival.position = pos_rival
+	rival.collision_layer = Personaje.CAPA_PERSONAJE
+	rival.collision_mask = Personaje.CAPA_GROUND | Personaje.CAPA_PERSONAJE
 	nivel.add_child(rival)
 	rival.owner = nivel
 
@@ -129,6 +133,36 @@ func _crear_nivel() -> bool:
 	ctrl.rival = rival
 	jugadora.add_child(ctrl)
 	ctrl.owner = nivel
+
+	# --- FSM del rival (OUFW-11): inactiva al abrir el nivel directamente para no
+	# interferir con las suites de OUFW-6. El menu la activa al empezar la partida. ---
+	var bot := ControladorBot.new()
+	bot.name = "Bot"
+	bot.personaje = rival
+	bot.rival = jugadora
+	bot.activo = false
+	rival.add_child(bot)
+	bot.owner = nivel
+
+	# --- HUD y gestor de fin de combate (OUFW-5/OUFW-16) ---
+	var capa := CanvasLayer.new()
+	capa.name = "HUD"
+	var etiqueta := Label.new()
+	etiqueta.name = "Estado"
+	etiqueta.position = Vector2(12.0, 8.0)
+	etiqueta.add_theme_font_size_override("font_size", 14)
+	capa.add_child(etiqueta)
+	nivel.add_child(capa)
+	etiqueta.owner = nivel
+	capa.owner = nivel
+
+	var gestor := CanvasLayer.new()
+	gestor.name = "GestorCombate"
+	gestor.layer = 10
+	gestor.set_script(load("res://scripts/ui/gestor_combate.gd"))
+	nivel.add_child(gestor)
+	gestor.owner = nivel
+	_construir_panel_fin(gestor, nivel)
 
 	# --- Camara: sus limites son el encuadre del nivel ---
 	var camara := Camera2D.new()
@@ -146,6 +180,50 @@ func _crear_nivel() -> bool:
 	var ok := _guardar(nivel, RUTA_NIVEL)
 	nivel.free()
 	return ok
+
+
+## Monta el panel de Victoria/Game Over dentro del [CanvasLayer] del gestor.
+## Todos los nodos nuevos llevan [code]owner = raiz[/code] para que se serialicen.
+func _construir_panel_fin(gestor: CanvasLayer, raiz: Node) -> void:
+	var panel := Control.new()
+	panel.name = "Panel"
+	panel.visible = false
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gestor.add_child(panel)
+	panel.owner = raiz
+
+	var fondo := ColorRect.new()
+	fondo.name = "Fondo"
+	fondo.color = Color(0, 0, 0, 0.62)
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(fondo)
+	fondo.owner = raiz
+
+	var titulo := Label.new()
+	titulo.name = "Titulo"
+	titulo.text = "VICTORIA"
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	titulo.position = Vector2(0, 150.0)
+	titulo.custom_minimum_size = Vector2(960.0, 0.0)
+	titulo.add_theme_font_size_override("font_size", 48)
+	panel.add_child(titulo)
+	titulo.owner = raiz
+
+	var reintentar := Button.new()
+	reintentar.name = "BotonReintentar"
+	reintentar.text = "Reintentar"
+	reintentar.position = Vector2(390.0, 260.0)
+	reintentar.custom_minimum_size = Vector2(180.0, 44.0)
+	panel.add_child(reintentar)
+	reintentar.owner = raiz
+
+	var menu := Button.new()
+	menu.name = "BotonMenu"
+	menu.text = "Menu Principal"
+	menu.position = Vector2(390.0, 320.0)
+	menu.custom_minimum_size = Vector2(180.0, 44.0)
+	panel.add_child(menu)
+	menu.owner = raiz
 
 
 ## Cuerpo estatico en la capa Ground, sin mascara: no detecta nada, solo es detectado.

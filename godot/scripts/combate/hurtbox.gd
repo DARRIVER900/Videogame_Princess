@@ -30,7 +30,7 @@ signal golpe_recibido(hitbox: Hitbox)
 
 ## El golpe recibido traia la marca [member Hitbox.rompe_guardia] (OUFW-9). Cuando
 ## exista el sistema de defensa/bloqueo, esta senal es el enganche para romperlo:
-## el daño ya entro; aqui solo se notifica que la guardia no valió de nada.
+## el daño ya entro; aqui solo se notifica que la guardia no valio de nada.
 signal guardia_rota(hitbox: Hitbox)
 
 ## Princesa duena de esta hurtbox. Se resuelve sola en [_ready]; en runtime lo fija
@@ -111,36 +111,12 @@ func recibir_golpe(hitbox: Hitbox) -> void:
 		hitbox.empuje,
 		hitbox.direccion_empuje
 	)
-		# El golpe traia la marca [member Hitbox.rompe_guardia] (OUFW-9). Cuando
-		# la rompe, el [Personaje] debe romper su guardia y quedar vulnerable (critico).
-		# El flujo detallado lo completa el propio Personaje segun sus estados.
-		if hitbox.rompe_guardia and propietario != dueno:
-			dueno.recibir_ataque_rompe_guardia(hitbox)
-			# Si era bloqueando y se rompe, se aplica el dano del golpe aunque sea
-			# menor; el empuje sigue al personaje para conservar la sensacion.
-			if dueno.esta_bloqueando:
-				var dano := hitbox.dano
-				var empuje := hitbox.empuje
-				var dir := hitbox.direccion_empuje
-				if dano > 0:
-					dueno.recibir_dano(dano, hitbox.tipo_ataque, empuje, dir)
-				# Aplicar veneno si viene con el golpe rompe-guardia
-				if hitbox.veneno_dps > 0 and hitbox.veneno_duracion > 0.0 and propietario != dueno:
-					dueno.aplicar_veneno(hitbox.veneno_dps, hitbox.veneno_duracion, propietario)
-				# El multi-hit ya se filtro arriba con _golpes_recibidos_ids.
-				return
-
-		# Bloqueo activo (OUFW-3 + futuras reglas): si esta bloqueando, reduce el dano
-		# segun el tipo y aplica poco empuje. La rotura la gestiona arriba.
-		if dueno.esta_bloqueando and propietario != dueno:
-			var dano_b := int(round(hitbox.dano * 0.25))
-			if dano_b > 0:
-				dueno.recibir_dano(dano_b, hitbox.tipo_ataque, 0.0, 0)
-			# El bloqueo con veneno? segun reglas, se puede aplicar veneno incluso con bloqueo
-			# si viene del golpe, pero aqui solo se aplica si no es rompe-guardia
-			if hitbox.veneno_dps > 0 and hitbox.veneno_duracion > 0.0 and propietario != dueno:
-				dueno.aplicar_veneno(hitbox.veneno_dps, hitbox.veneno_duracion, propietario)
-			return
+	if hitbox.rompe_guardia:
+		guardia_rota.emit(hitbox)
+	# Veneno (OUFW-8): el golpe puede tener danio directo 0, asi que el estado no
+	# depende de que recibir_dano haya descontado vida.
+	if hitbox.tipo_ataque == Personaje.TipoAtaque.VENENO and hitbox.veneno_dps > 0:
+		personaje.aplicar_veneno(hitbox.veneno_dps, hitbox.veneno_duracion)
 	golpe_recibido.emit(hitbox)
 
 

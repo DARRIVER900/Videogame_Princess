@@ -13,9 +13,10 @@ extends CanvasLayer
 ## Escena del menu principal a la que lleva "Menu Principal".
 const ESCENA_MENU := "res://escenas/menu_principal.tscn"
 
-## Escena de combate recargada por "Reintentar". Es la misma arena que el menu usa
-## para jugar; reintentar reejecuta exactamente esa partida.
-const ESCENA_COMBATE := "res://escenas/arena_movimiento.tscn"
+## Escena de combate recargada por "Reintentar" si el arbol no expone la escena
+## actual (por ejemplo en las suites headless). Reintentar reejecuta exactamente
+## esa partida, sea la arena de pruebas o el nivel de produccion (OUFW-6).
+const ESCENA_COMBATE := "res://escenas/nivel_1_frontera.tscn"
 
 ## Personaje del jugador. Si se deja vacio se busca "Jugadora" en la arena.
 @export var jugadora: Personaje
@@ -129,7 +130,9 @@ func _mostrar_panel(victoria: bool) -> void:
 ## jugador persiste en [SeleccionPartida], asi que se vuelve a jugar con la misma
 ## princesa.
 func _on_reintentar_pressed() -> void:
-	get_tree().change_scene_to_file(ESCENA_COMBATE)
+	var actual := get_tree().current_scene
+	var ruta := actual.scene_file_path if actual != null else ""
+	get_tree().change_scene_to_file(ruta if ruta != "" else ESCENA_COMBATE)
 
 
 ## "Menu Principal": vuelve al menu de seleccion (OUFW-17).

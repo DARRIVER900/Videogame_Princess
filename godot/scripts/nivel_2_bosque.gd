@@ -15,9 +15,6 @@ extends NivelArena
 ##     con ~20 px de margen). Es la
 ##     posicion de ventaja del nivel y obliga a ganarsela moviendose.
 
-## Grosor visual y de colision de cada plataforma, en px.
-const GROSOR_PLATAFORMA := 12.0
-
 ## Plataformas del nivel. [code]altura[/code] es la distancia de la SUPERFICIE superior al
 ## suelo (y = 0), siempre positiva hacia arriba. [code]centro_x[/code] y [code]ancho[/code]
 ## estan en px respecto al centro de la arena. Orden: de fuera hacia dentro.

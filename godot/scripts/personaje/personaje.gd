@@ -131,18 +131,6 @@ signal estado_alterado_cambiado(estado: EstadoAlterado)
 @export var duracion_hitbox_golpe_normal: float = 0.12
 ## Ventana activa del golpe fuerte: algo mas generosa que la del normal.
 @export var duracion_hitbox_golpe_fuerte: float = 0.18
-## Veneno (OUFW-8, tecla `U`). Danio por segundo (DoT) del estado Envenenado, ANTES del
-## [member multiplicador_dano]. Cada segundo completo descuenta esta cantidad de vida.
-@export var dano_veneno_por_segundo: int = 4
-## Segundos que dura el veneno desde el ultimo impacto (a 4 por segundo y 5 s son 20 HP).
-@export var duracion_veneno: float = 5.0
-## Alcance del ataque de veneno: largo y delgado, es la habilidad a distancia del
-## moveset [constant Modset.AGIL_DISTANCIA].
-@export var alcance_veneno: Vector2 = Vector2(260.0, 56.0)
-## Cooldown tras lanzar el veneno: mas largo que el de los golpes para que no se spamee.
-@export var cooldown_veneno: float = 1.2
-## Segundos que el volumen del ataque de veneno queda activo.
-@export var duracion_hitbox_veneno: float = 0.15
 
 @export_group("Carga (OUFW-9)")
 ## Dano base de la carga pesada (`J`) soltada al instante. Se multiplica por el
@@ -163,6 +151,18 @@ signal estado_alterado_cambiado(estado: EstadoAlterado)
 ## Cuanto se "infla" el sprite con la carga llena (0.2 = +20%). Es el efecto visual
 ## de acumulacion que pide OUFW-9; el HUD puede sumar su barra con [signal carga_cambiada].
 @export var factor_escala_carga: float = 0.2
+## Veneno (OUFW-8, tecla `U`). Danio por segundo (DoT) del estado Envenenado, ANTES del
+## [member multiplicador_dano]. Cada segundo completo descuenta esta cantidad de vida.
+@export var dano_veneno_por_segundo: int = 4
+## Segundos que dura el veneno desde el ultimo impacto (a 4 por segundo y 5 s son 20 HP).
+@export var duracion_veneno: float = 5.0
+## Alcance del ataque de veneno: largo y delgado, es la habilidad a distancia del
+## moveset [constant Modset.AGIL_DISTANCIA].
+@export var alcance_veneno: Vector2 = Vector2(260.0, 56.0)
+## Cooldown tras lanzar el veneno: mas largo que el de los golpes para que no se spamee.
+@export var cooldown_veneno: float = 1.2
+## Segundos que el volumen del ataque de veneno queda activo.
+@export var duracion_hitbox_veneno: float = 0.15
 
 @export_group("Movimiento")
 ## Velocidad objetivo en X de pie, en px/s. Es el valor al que la aceleracion lleva
@@ -306,6 +306,8 @@ var _contador_hitboxes: int = 0
 ## subclases sobrescriben para fijar su identidad y su [member hp_max]), y solo
 ## despues se deriva [member current_hp] de ese [member hp_max].
 func _ready() -> void:
+	collision_layer = CAPA_PERSONAJE
+	collision_mask = CAPA_GROUND | CAPA_PERSONAJE
 	_configurar_atributos_por_defecto()
 	_hp_max_base = hp_max
 	_multiplicador_dano_base = multiplicador_dano
@@ -332,15 +334,11 @@ func _configurar_atributos_por_defecto() -> void:
 ## marca como muerto y se emite [signal died] exactamente una vez.
 ##
 ## [param empuje] y [param direccion_empuje] entregan el knockback de los golpes
-## fuertes (OUFW-3): fijan [method velocity] en X para que el impacto "empuje" de
+## fuertes (OUFW-3): fijan [member velocity] en X para que el impacto "empuje" de
 ## verdad al rival, no solo reste vida.
 ## El parametro [param tipo] queda sin uso aqui: los modificadores por tipo de
-## ataque llegan en OUFW-8 (veneno). La rotura de guardia de OUFW-9 no vive aqui
-## sino en la marca [member Hitbox.rompe_guardia], que la [Hurtbox] convierte en
-## su senal [signal Hurtbox.guardia_rota] antes de llegar a este metodo.
-@warning_ignore("unused_parameter")
-func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL,
-		empuje: float = 0.0, direccion_empuje: int = 0) -> void:
+## ataque (rotura de guardia) llegan en OUFW-9. El veneno (OUFW-8) no necesita
+## modificar este metodo: su DoT entra por aqui como un dano mas.
 @warning_ignore("unused_parameter")
 func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL,
 		empuje: float = 0.0, direccion_empuje: int = 0) -> void:
@@ -355,25 +353,8 @@ func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL,
 
 	if current_hp <= 0:
 		esta_muerto = true
-## Llamado por los controladores para consumir una pocion (OUFW-10). Solo el jugador
-## llama este metodo desde [ControladorJugador]; el bot gestiona sus pociones por
-## cuenta propia en su FSM. El metodo aplica las reglas (sin pociones / vida al tope),
-## cura y emite [signal pocion_usada] o [signal pocion_bloqueada].
-func usar_pocion() -> void:
-	if esta_muerto:
-		pocion_bloqueada.emit(MotivoBloqueoPocion.MUERTO)
-		return
-	if cantidad_pociones <= 0:
-		pocion_bloqueada.emit(MotivoBloqueoPocion.SIN_POCIONES)
-		return
-	if current_hp >= hp_max:
-		pocion_bloqueada.emit(MotivoBloqueoPocion.VIDA_AL_TOPE)
-		return
-	var hp_antes := current_hp
-	aplicar_curacion(curacion_pocion)
-	var hp_recuperada := current_hp - hp_antes
-	cantidad_pociones -= 1
-	pocion_usada.emit(cantidad_pociones, hp_recuperada)
+		cancelar_carga()
+		_terminar_veneno()
 		died.emit()
 
 
@@ -574,22 +555,18 @@ func _fijar_estado_alterado(nuevo: EstadoAlterado) -> void:
 
 # --- OUFW-3: hitbox/hurtbox (combate) ---
 
-## Descuenta el cooldown entre ataques y acumula la carga pesada en curso (OUFW-9).
-## El combate no bloquea la locomotion: la princesa puede moverse y saltar mientras
-## el golpe esta en cooldown o mientras carga.
+## Descuenta el cooldown entre ataques. El combate no bloquea la locomotion: la
+## princesa puede moverse y saltar mientras el golpe esta en cooldown.
 func _physics_process(delta: float) -> void:
 	if _cooldown_ataque > 0.0:
 		_cooldown_ataque = maxf(0.0, _cooldown_ataque - delta)
-## Inicia la acumulacion de la carga pesada (OUFW-9). Solo tiene efecto si el
-## personaje puede atacar/cargar en este estado.
-func iniciar_carga() -> void:
-	if esta_muerto or esta_bloqueado or esta_cargando:
-		return
-	if cooldown_ataque > 0.0:
-		return
-	esta_cargando = true
-	carga_actual = 0.0
-	carga_iniciada.emit()
+	if cargando:
+		var nivel_previo := carga_nivel()
+		tiempo_carga = minf(tiempo_carga + delta, tiempo_carga_max)
+		if not is_equal_approx(nivel_previo, carga_nivel()):
+			_actualizar_escalado_carga()
+			carga_cambiada.emit(carga_nivel())
+	_actualizar_veneno(delta)
 
 
 ## Golpe normal (`K`): rapido, corto y sin empuje. Es el pilar del moveset base y
@@ -653,6 +630,8 @@ func soltar_carga() -> void:
 		empuje_carga,
 		cooldown_carga,
 		duracion_hitbox_carga,
+		0,
+		0.0,
 		true
 	)
 
@@ -701,12 +680,9 @@ func _restaurar_escala_sprite() -> void:
 ##
 ## El dano pasa por [member multiplicador_dano] (perfil "glass cannon" del GDD
 ## seccion 8); el resto del volumen y el empuje se inyectan tal cual.
-## [param rompe_guardia] marca el golpe con [member Hitbox.rompe_guardia]: el
-## disparador de la rotura de guardia de OUFW-9.
 func _ejecutar_ataque(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: float,
-func _lanzar_hitbox(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: float,
-		cooldown: float, duracion: float, rompe_guardia: bool = false,
-		veneno_dps: int = 0, veneno_duracion: float = 0.0) -> void:
+		cooldown: float, duracion: float, veneno_dps: int = 0,
+		veneno_duracion: float = 0.0, rompe_guardia: bool = false) -> void:
 	if esta_muerto or _cooldown_ataque > 0.0 or not is_inside_tree():
 		return
 

@@ -33,6 +33,7 @@ var veneno_duracion: float = 0.0
 var dueno: Personaje = null
 ## Una vez la hurtbox rival consume el golpe, ya no puede herir a nadie mas.
 var consumida: bool = false
+
 ## true si este golpe rompe la defensa/bloqueo enemigo (OUFW-9): la carga pesada
 ## ignora cualquier reduccion de dano defensiva. La [Hurtbox] lo traduce en su
 ## senal [signal Hurtbox.guardia_rota], que es el enganche del futuro sistema de guardia.
@@ -55,7 +56,6 @@ func _physics_process(delta: float) -> void:
 
 ## Configura el golpe y crea su volumen de alcance. Llamar tras anadir el nodo al
 ## arbol del dueno (necesita estar dentro para que el shape registre en fisica).
-## [param p_rompe_guardia] marca el golpe como rompe-guardia (OUFW-9).
 func iniciar(p_dano: int, p_tipo: Personaje.TipoAtaque, tamano: Vector2,
 		p_empuje: float, p_direccion: int, p_dueno: Personaje, duracion: float,
 		p_rompe_guardia: bool = false) -> void:
@@ -65,15 +65,8 @@ func iniciar(p_dano: int, p_tipo: Personaje.TipoAtaque, tamano: Vector2,
 	direccion_empuje = p_direccion
 	dueno = p_dueno
 	_tiempo_activo = duracion
-## Tipo de ataque que genero este golpe (el moveset lo amplia OUFW-8).
-var tipo_ataque: int = 0
-## true si este golpe rompe la defensa/bloqueo enemigo (OUFW-9): la carga pesada
-## es el ejemplo canonico.
-var rompe_guardia: bool = false
-## DPS del veneno que aplica este golpe (OUFW-8). 0 = sin veneno.
-var veneno_dps: int = 0
-## Duracion en segundos del veneno aplicado (OUFW-8).
-var veneno_duracion: float = 0.0
+	rompe_guardia = p_rompe_guardia
+	collision_layer = Personaje.CAPA_HITBOX
 	collision_mask = Personaje.CAPA_HURTBOX
 
 	var colision := CollisionShape2D.new()
