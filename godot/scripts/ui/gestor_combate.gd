@@ -27,6 +27,10 @@ const ESCENA_COMBATE := "res://escenas/nivel_1_frontera.tscn"
 ## vacio se busca "Jugadora/Controlador".
 @export var controlador: ControladorJugador
 
+## Escena que carga "Siguiente Nivel" al ganar (OUFW-18). Vacia = reintentar el
+## nivel actual. El nivel jugable la asigna al arrancar.
+@export var siguiente_escena: String = ""
+
 @onready var _panel: Control = get_node_or_null("Panel")
 @onready var _titulo: Label = get_node_or_null("Panel/Titulo")
 @onready var _boton_reintentar: Button = get_node_or_null("Panel/BotonReintentar")
@@ -35,6 +39,8 @@ const ESCENA_COMBATE := "res://escenas/nivel_1_frontera.tscn"
 ## Se enciende al terminar el combate. Evita que un segundo `died` (empate, doble
 ## golpe letal en el mismo frame) reprograme el fin o vuelva a mostrar el panel.
 var _terminado: bool = false
+## Resultado del combate, para saber si "Reintentar" avanza o recarga.
+var _victoria: bool = false
 
 
 func _ready() -> void:
@@ -117,8 +123,12 @@ func _congelar_combate() -> void:
 
 ## Despliega el panel de fin con el texto y el foco correctos.
 func _mostrar_panel(victoria: bool) -> void:
+	_victoria = victoria
 	if _titulo != null:
 		_titulo.text = "VICTORIA" if victoria else "GAME OVER"
+	if _boton_reintentar != null:
+		_boton_reintentar.text = "Siguiente Nivel" \
+			if victoria and siguiente_escena != "" else "Reintentar"
 	if _panel != null:
 		_panel.visible = true
 	# El foco va a "Reintentar", la accion mas probable tras perder o ganar.
@@ -130,9 +140,22 @@ func _mostrar_panel(victoria: bool) -> void:
 ## jugador persiste en [SeleccionPartida], asi que se vuelve a jugar con la misma
 ## princesa.
 func _on_reintentar_pressed() -> void:
+	if _victoria and siguiente_escena != "":
+		SeleccionPartida.nivel_actual = mini(SeleccionPartida.nivel_actual + 1, 3)
+		get_tree().change_scene_to_file(siguiente_escena)
+		return
 	var actual := get_tree().current_scene
 	var ruta := actual.scene_file_path if actual != null else ""
 	get_tree().change_scene_to_file(ruta if ruta != "" else ESCENA_COMBATE)
+
+
+## Fuerza una derrota sin combatiente muerto (tiempo agotado, OUFW-12).
+func forzar_derrota() -> void:
+	if _terminado:
+		return
+	_terminado = true
+	_congelar_combate()
+	_mostrar_panel(false)
 
 
 ## "Menu Principal": vuelve al menu de seleccion (OUFW-17).

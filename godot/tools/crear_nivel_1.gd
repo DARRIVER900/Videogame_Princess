@@ -156,6 +156,15 @@ func _crear_nivel() -> bool:
 	etiqueta.owner = nivel
 	capa.owner = nivel
 
+	var temporizador := TemporizadorCombate.new()
+	temporizador.name = "Temporizador"
+	temporizador.position = Vector2(456.0, 4.0)
+	temporizador.custom_minimum_size = Vector2(48.0, 0.0)
+	temporizador.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	temporizador.add_theme_font_size_override("font_size", 28)
+	capa.add_child(temporizador)
+	temporizador.owner = nivel
+
 	var gestor := CanvasLayer.new()
 	gestor.name = "GestorCombate"
 	gestor.layer = 10

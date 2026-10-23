@@ -41,6 +41,7 @@ func _generar_tarde() -> void:
 	_crear_arena_de_prueba()
 	_crear_menu_principal()
 	_crear_dialogo_ui()
+	_crear_fin_juego()
 	_fijar_escena_principal()
 
 	if _textura_pendiente:
@@ -430,6 +431,67 @@ func _crear_dialogo_ui() -> void:
 	root.remove_child(ui)
 	_guardar(ui, "%s/dialogo.tscn" % DIR_ESCENAS)
 	ui.free()
+
+
+## Construye la pantalla de fin de juego del core loop (OUFW-18).
+func _crear_fin_juego() -> void:
+	var fin := Control.new()
+	fin.name = "FinJuego"
+	fin.set_script(load("res://scripts/fin_juego.gd"))
+	fin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_child(fin)
+
+	var fondo := ColorRect.new()
+	fondo.name = "Fondo"
+	fondo.color = Color(0.08, 0.03, 0.12, 1.0)
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	fin.add_child(fondo)
+	fondo.owner = fin
+
+	var panel := VBoxContainer.new()
+	panel.name = "Panel"
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.custom_minimum_size = Vector2(560.0, 300.0)
+	panel.position = Vector2(200.0, 120.0)
+	panel.add_theme_constant_override("separation", 22)
+	fin.add_child(panel)
+	panel.owner = fin
+
+	var titulo := Label.new()
+	titulo.name = "Titulo"
+	titulo.text = "FIN DEL JUEGO"
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	titulo.add_theme_font_size_override("font_size", 48)
+	titulo.add_theme_color_override("font_color", Color("#f2a7d0"))
+	panel.add_child(titulo)
+	titulo.owner = fin
+
+	var resumen := Label.new()
+	resumen.name = "Resumen"
+	resumen.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	resumen.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	resumen.custom_minimum_size = Vector2(560.0, 90.0)
+	resumen.add_theme_font_size_override("font_size", 20)
+	panel.add_child(resumen)
+	resumen.owner = fin
+
+	var menu := Button.new()
+	menu.name = "BotonMenu"
+	menu.text = "Menu Principal"
+	menu.custom_minimum_size = Vector2(260.0, 48.0)
+	panel.add_child(menu)
+	menu.owner = fin
+
+	var salir := Button.new()
+	salir.name = "BotonSalir"
+	salir.text = "Salir"
+	salir.custom_minimum_size = Vector2(260.0, 48.0)
+	panel.add_child(salir)
+	salir.owner = fin
+
+	root.remove_child(fin)
+	_guardar(fin, "%s/fin_juego.tscn" % DIR_ESCENAS)
+	fin.free()
 
 
 func _fijar_escena_principal() -> void:

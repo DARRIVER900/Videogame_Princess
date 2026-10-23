@@ -1,36 +1,43 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://scripts/nivel_2_bosque.gd" id="1_rpxqq"]
-[ext_resource type="PackedScene" path="res://escenas/ambientacion_bosque.tscn" id="2_vtfqs"]
-[ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="3_xnic0"]
-[ext_resource type="Script" path="res://scripts/personaje/princesa_dulcecito.gd" id="4_5bwd8"]
-[ext_resource type="Script" path="res://scripts/personaje/controlador_jugador.gd" id="5_fxi4o"]
-[ext_resource type="PackedScene" path="res://escenas/princesa_chocolatito.tscn" id="6_cvgwv"]
-[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="7_mx30q"]
+[ext_resource type="Script" path="res://scripts/nivel_2_bosque.gd" id="1_cvgwv"]
+[ext_resource type="PackedScene" path="res://escenas/ambientacion_bosque.tscn" id="2_mx30q"]
+[ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="3_0i50g"]
+[ext_resource type="Script" path="res://scripts/personaje/princesa_dulcecito.gd" id="4_76mlx"]
+[ext_resource type="Script" path="res://scripts/personaje/controlador_jugador.gd" id="5_rg1x8"]
+[ext_resource type="PackedScene" path="res://escenas/princesa_chocolatito.tscn" id="6_jaqq6"]
+[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="7_mgket"]
+[ext_resource type="Script" path="res://scripts/personaje/controlador_bot.gd" id="8_gc1n8"]
+[ext_resource type="Script" path="res://scripts/ui/temporizador_combate.gd" id="9_uv5jw"]
+[ext_resource type="Script" path="res://scripts/ui/gestor_combate.gd" id="10_mns2h"]
+[ext_resource type="PackedScene" path="res://escenas/dialogo.tscn" id="11_kv1g4"]
+[ext_resource type="Script" path="res://scripts/ui/dialogo_ui.gd" id="12_6bmpb"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0i50g"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uif5s"]
 size = Vector2(1040, 200)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_76mlx"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ofavw"]
 size = Vector2(40, 800)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_rg1x8"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e5hpn"]
 size = Vector2(40, 800)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_jaqq6"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4nmb4"]
 size = Vector2(160, 12)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_mgket"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_rbysw"]
 size = Vector2(160, 12)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_gc1n8"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_xna1x"]
 size = Vector2(220, 12)
 
 [node name="Nivel2" type="Node2D"]
-script = ExtResource("1_rpxqq")
+script = ExtResource("1_cvgwv")
+numero_nivel = 2
+siguiente_escena = "res://escenas/nivel_3_cumbres.tscn"
 capitulo = 2
 
-[node name="Ambientacion" type="Node2D" parent="." instance=ExtResource("2_vtfqs")]
+[node name="Ambientacion" type="Node2D" parent="." instance=ExtResource("2_mx30q")]
 z_index = -10
 texture_filter = 1
 
@@ -39,21 +46,21 @@ position = Vector2(0, 100)
 collision_mask = 0
 
 [node name="Colision" type="CollisionShape2D" parent="Suelo"]
-shape = SubResource("RectangleShape2D_0i50g")
+shape = SubResource("RectangleShape2D_uif5s")
 
 [node name="ParedIzquierda" type="StaticBody2D" parent="."]
 position = Vector2(-476, -200)
 collision_mask = 0
 
 [node name="Colision" type="CollisionShape2D" parent="ParedIzquierda"]
-shape = SubResource("RectangleShape2D_76mlx")
+shape = SubResource("RectangleShape2D_ofavw")
 
 [node name="ParedDerecha" type="StaticBody2D" parent="."]
 position = Vector2(476, -200)
 collision_mask = 0
 
 [node name="Colision" type="CollisionShape2D" parent="ParedDerecha"]
-shape = SubResource("RectangleShape2D_rg1x8")
+shape = SubResource("RectangleShape2D_e5hpn")
 
 [node name="Plataformas" type="Node2D" parent="."]
 
@@ -62,7 +69,7 @@ position = Vector2(-250, -54)
 collision_mask = 0
 
 [node name="Colision" type="CollisionShape2D" parent="Plataformas/TroncoIzquierdo"]
-shape = SubResource("RectangleShape2D_jaqq6")
+shape = SubResource("RectangleShape2D_4nmb4")
 one_way_collision = true
 
 [node name="Tronco" type="ColorRect" parent="Plataformas/TroncoIzquierdo"]
@@ -84,7 +91,7 @@ position = Vector2(250, -54)
 collision_mask = 0
 
 [node name="Colision" type="CollisionShape2D" parent="Plataformas/TroncoDerecho"]
-shape = SubResource("RectangleShape2D_mgket")
+shape = SubResource("RectangleShape2D_rbysw")
 one_way_collision = true
 
 [node name="Tronco" type="ColorRect" parent="Plataformas/TroncoDerecho"]
@@ -106,7 +113,7 @@ position = Vector2(0, -114)
 collision_mask = 0
 
 [node name="Colision" type="CollisionShape2D" parent="Plataformas/RamaCentral"]
-shape = SubResource("RectangleShape2D_gc1n8")
+shape = SubResource("RectangleShape2D_xna1x")
 one_way_collision = true
 
 [node name="Tronco" type="ColorRect" parent="Plataformas/RamaCentral"]
@@ -129,25 +136,108 @@ position = Vector2(-140, -32)
 [node name="SpawnRival" type="Marker2D" parent="."]
 position = Vector2(140, -32)
 
-[node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("3_xnic0")]
+[node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("3_0i50g")]
 position = Vector2(-140, -32)
-script = ExtResource("4_5bwd8")
+collision_layer = 8
+collision_mask = 9
+script = ExtResource("4_76mlx")
 nombre = "Princesa Dulcecito"
 id_skin_activa = "SKIN_CANDYR_DEFAULT"
 nodo_sprite = NodePath("Sprite")
 
 [node name="Controlador" type="Node" parent="Jugadora" node_paths=PackedStringArray("personaje", "rival")]
-script = ExtResource("5_fxi4o")
+script = ExtResource("5_rg1x8")
 personaje = NodePath("..")
 rival = NodePath("../../Rival")
 
-[node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("6_cvgwv")]
+[node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("6_jaqq6")]
 position = Vector2(140, -32)
-script = ExtResource("7_mx30q")
+collision_layer = 8
+collision_mask = 9
+script = ExtResource("7_mgket")
 nombre = "Princesa Chocolatito"
 id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"
 modset_clase = 1
 nodo_sprite = NodePath("Sprite")
+
+[node name="Bot" type="Node" parent="Rival" node_paths=PackedStringArray("personaje", "rival")]
+script = ExtResource("8_gc1n8")
+personaje = NodePath("..")
+rival = NodePath("../../Jugadora")
+activo = false
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Estado" type="Label" parent="HUD"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 12.0
+offset_bottom = 8.0
+theme_override_font_sizes/font_size = 14
+
+[node name="Temporizador" type="Label" parent="HUD"]
+custom_minimum_size = Vector2(48, 0)
+offset_left = 456.0
+offset_top = 4.0
+offset_right = 456.0
+offset_bottom = 4.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "99"
+horizontal_alignment = 1
+script = ExtResource("9_uv5jw")
+
+[node name="GestorCombate" type="CanvasLayer" parent="." node_paths=PackedStringArray("jugadora", "rival", "controlador")]
+layer = 10
+script = ExtResource("10_mns2h")
+jugadora = NodePath("../Jugadora")
+rival = NodePath("../Rival")
+controlador = NodePath("../Jugadora/Controlador")
+
+[node name="Panel" type="Control" parent="GestorCombate"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="Fondo" type="ColorRect" parent="GestorCombate/Panel"]
+layout_mode = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.62)
+
+[node name="Titulo" type="Label" parent="GestorCombate/Panel"]
+custom_minimum_size = Vector2(960, 0)
+layout_mode = 0
+offset_top = 150.0
+offset_bottom = 150.0
+theme_override_font_sizes/font_size = 48
+text = "VICTORIA"
+horizontal_alignment = 1
+
+[node name="BotonReintentar" type="Button" parent="GestorCombate/Panel"]
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 0
+offset_left = 390.0
+offset_top = 260.0
+offset_right = 390.0
+offset_bottom = 260.0
+text = "Reintentar"
+
+[node name="BotonMenu" type="Button" parent="GestorCombate/Panel"]
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 0
+offset_left = 390.0
+offset_top = 320.0
+offset_right = 390.0
+offset_bottom = 320.0
+text = "Menu Principal"
+
+[node name="Dialogo" type="CanvasLayer" parent="." instance=ExtResource("11_kv1g4")]
+layer = 20
+visible = false
+script = ExtResource("12_6bmpb")
 
 [node name="Camara" type="Camera2D" parent="."]
 position = Vector2(0, -60)

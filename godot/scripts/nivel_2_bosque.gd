@@ -1,5 +1,5 @@
 class_name Nivel2Bosque
-extends NivelArena
+extends NivelJugable
 ## Nivel 2 "Bosque Encantado" (OUFW-14): graybox del Capitulo 2.
 ##
 ## Mismo encuadre, paredes y spawns que el resto de arenas ([NivelArena]), mas tres
@@ -41,3 +41,11 @@ static func rect_plataforma(datos: Dictionary) -> Rect2:
 ## decir, en [code]y_superficie(datos) + Y_APARICION[/code] (Y_APARICION vale -32).
 static func y_superficie(datos: Dictionary) -> float:
 	return -float(datos["altura"])
+
+const SIGUIENTE_NIVEL := "res://escenas/nivel_3_cumbres.tscn"
+
+
+func _ready() -> void:
+	numero_nivel = 2
+	siguiente_escena = SIGUIENTE_NIVEL
+	super._ready()

@@ -77,4 +77,5 @@ func _on_boton_jugar_pressed() -> void:
 		SeleccionPartida.princesa_jugable = SeleccionPartida.DULCECITO
 	SeleccionPartida.partida_iniciada = true
 	SeleccionPartida.intro_vista = false
+	SeleccionPartida.nivel_actual = 1
 	get_tree().change_scene_to_file(ESCENA_COMBATE)

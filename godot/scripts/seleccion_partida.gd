@@ -32,6 +32,10 @@ static var partida_iniciada: bool = false
 ## al pulsar "Reintentar" tras un Game Over; el menu la reinicia al empezar de nuevo.
 static var intro_vista: bool = false
 
+## Capitulo actual del core loop (OUFW-18). Cada nivel jugable lo actualiza al
+## entrar, y el menu lo reinicia a 1 al empezar una partida nueva.
+static var nivel_actual: int = 1
+
 
 ## [return] La ruta de escena correspondiente a [param clave].
 static func ruta_de(clave: String) -> String:
