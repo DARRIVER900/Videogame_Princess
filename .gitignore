@@ -1,0 +1,6 @@
+# Builds finales (OUFW-21): se regeneran con export_presets.cfg
+/build/
+
+# Basura de sistema/editor
+.DS_Store
+Thumbs.db

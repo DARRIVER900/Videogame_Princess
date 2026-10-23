@@ -70,11 +70,11 @@ Este repositorio documentará nuestro proceso de creación, desde la conceptuali
    godot --path godot
    ```
 
-La escena principal es `escenas/menu_principal.tscn` (OUFW-17): desde ahí eliges princesa (Dulcecito / Chocolatito) y pulsas **Jugar** para entrar al combate. La arena `escenas/arena_movimiento.tscn` es la **arena mínima para probar los controles** (OUFW-2), el combate (OUFW-3), la carga (OUFW-9) y la FSM del rival (OUFW-11), no el nivel del juego. Ese es OUFW-6.
+La escena principal es `escenas/menu_principal.tscn` (OUFW-17): desde ahí eliges princesa (Dulcecito / Chocolatito) y pulsas **Jugar**. La partida completa es **menú → intro de novela visual → Nivel 1 (La Frontera) → Nivel 2 (Bosque Encantado) → Nivel 3 (Cumbres de Azúcar) → Fin de Juego** (OUFW-18). La arena `escenas/arena_movimiento.tscn` es la **arena mínima para probar los controles** (OUFW-2), el combate (OUFW-3), la carga (OUFW-9) y la FSM del rival (OUFW-11), no un nivel de producción.
 
-Al morir cualquiera de las dos princesas, el combate termina y se despliega la pantalla de **Victoria** o **Game Over** (OUFW-16) con los botones **Reintentar** y **Menú Principal**.
+Cada combate tiene un temporizador de 99 s (OUFW-12); si llega a cero es **Game Over**. Al morir cualquiera de las dos princesas se despliega la pantalla de **Victoria** o **Game Over** (OUFW-16): al ganar, **Siguiente Nivel** avanza el capítulo; al perder, **Reintentar** repite el nivel actual.
 
-**Controles:** `A` / `D` moverse · `W + A` / `W + D` salto diagonal · `S` agachar · `S + A` / `S + D` derrape · `K` golpe normal · `L` golpe fuerte · `J` carga pesada (mantener para acumular, soltar para golpear y romper guardia).
+**Controles:** `A` / `D` moverse · `W + A` / `W + D` salto diagonal · `S` agachar · `S + A` / `S + D` derrape · `K` golpe normal · `L` golpe fuerte · `J` carga pesada (mantener para acumular, soltar para golpear y romper guardia) · `E` poción · `U` veneno.
 
 ### 🧪 Pruebas
 
@@ -89,6 +89,10 @@ godot --headless --path godot --script res://tests/test_carga.gd        # OUFW-9
 godot --headless --path godot --script res://tests/test_bot.gd          # OUFW-11
 godot --headless --path godot --script res://tests/test_menu.gd         # OUFW-17
 godot --headless --path godot --script res://tests/test_fin_combate.gd  # OUFW-16
+godot --headless --path godot --script res://tests/test_temporizador.gd # OUFW-12
+godot --headless --path godot --script res://tests/test_core_loop.gd    # OUFW-18
+godot --headless --path godot --script res://tests/test_balance.gd      # OUFW-19
+godot --headless --path godot --script res://tests/test_qa.gd           # OUFW-20
 godot --headless --path godot --script res://tests/test_escenas.gd      # integración
 ```
 
@@ -106,6 +110,18 @@ godot --headless --path godot --script res://tools/configurar_input_map.gd
 ```
 
 **No edites `escenas/*.tscn` ni la sección `[input]` de `project.godot` a mano:** se sobrescriben. Si hace falta cambiar un nodo o una tecla, se cambia en el script de `tools/`.
+
+### 📦 Build final
+
+El build usa `godot/export_presets.cfg` y los *export templates* oficiales de Godot 4.7.2. Desde la raíz del repo:
+
+```bash
+godot --headless --path godot --export-release "Linux/X11" ../build/linux/OnceUponAFinalWar.x86_64
+godot --headless --path godot --export-release "Windows Desktop" ../build/windows/OnceUponAFinalWar.exe
+godot --headless --path godot --export-release "Web" ../build/web/index.html
+```
+
+Los binarios llevan el `.pck` embebido (un solo archivo, sin dependencias del proyecto). El build web se sirve con cualquier servidor HTTP estático; por seguridad de WebGL no abre `index.html` con `file://`.
 
 ---
 

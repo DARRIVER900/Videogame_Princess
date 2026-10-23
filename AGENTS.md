@@ -16,6 +16,16 @@ godot --headless --path godot --script res://tests/test_<suite>.gd
 - No CI, linter, formatter, or separate typechecker exists. The headless suites are the verification step.
 - Without the initial `--import`, class references fail with `Could not find type Personaje`.
 
+## Build (OUFW-21)
+```bash
+godot --headless --path godot --export-release "Linux/X11" ../build/linux/OnceUponAFinalWar.x86_64
+godot --headless --path godot --export-release "Windows Desktop" ../build/windows/OnceUponAFinalWar.exe
+godot --headless --path godot --export-release "Web" ../build/web/index.html
+```
+- Requires Godot 4.7.2 export templates in `~/.local/share/godot/export_templates/4.7.2.stable/`.
+- `godot/export_presets.cfg` is versioned; `build/` is ignored. Runs must keep tests/tools out of the package.
+- Smoke test the Linux build with `./build/linux/OnceUponAFinalWar.x86_64 --headless --quit-after 180`; the Windows build also boots under `wine` headless.
+
 ## Generated files: edit sources, not outputs
 `escenas/*.tscn` and the `[input]` section of `project.godot` are generated. Manual edits are overwritten.
 
