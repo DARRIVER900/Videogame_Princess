@@ -2,8 +2,8 @@ extends Control
 ## Menu principal con seleccion de princesa (OUFW-17).
 ##
 ## Pantalla de arranque del juego: el jugador elige entre Dulcecito y Chocolatito
-## y pulsa "Jugar". La eleccion se guarda en [SeleccionPartida] (autoload) y se
-## cambia de escena a la arena, que lee esa eleccion para construir el combate.
+## y pulsa "Jugar". La eleccion se guarda en [SeleccionPartida] (clase estatica) y
+## se cambia de escena a la arena, que lee esa eleccion para construir el combate.
 ##
 ## Criterio de aceptacion de OUFW-17: "carga limpia de escenas entre menu y
 ## niveles". Por eso el cambio de escena se hace con [method SceneTree.change_scene_to_file]
@@ -68,8 +68,8 @@ func _actualizar_etiqueta() -> void:
 	]
 
 
-## Arranca la partida: persiste la eleccion (ya esta en el autoload) y carga el
-## combate. [method SceneTree.change_scene_to_file] libera este menu antes de
+## Arranca la partida: persiste la eleccion (ya esta en la clase estatica) y carga
+## el combate. [method SceneTree.change_scene_to_file] libera este menu antes de
 ## montar la arena: la "carga limpia" que pide el criterio.
 func _on_boton_jugar_pressed() -> void:
 	if not SeleccionPartida.es_clave_valida(SeleccionPartida.princesa_jugable):

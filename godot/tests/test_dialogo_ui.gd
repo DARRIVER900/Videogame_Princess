@@ -29,6 +29,7 @@ func _ejecutar() -> void:
 	await _prueba_inicio()
 	await _prueba_maquina_de_escribir()
 	await _prueba_avance_con_espacio()
+	await _prueba_tecla_repetida()
 	await _prueba_avance_con_clic()
 	await _prueba_cierre()
 	await _prueba_archivo_invalido()
@@ -129,6 +130,24 @@ func _prueba_avance_con_espacio() -> void:
 	_comprobar("el segundo Espacio avanza", ui.indice_actual() == 1, str(ui.indice_actual()))
 	_comprobar("cambia de hablante",
 		ui.nombre_visible() == "Princesa Chocolatito", ui.nombre_visible())
+	ui.queue_free()
+	await _pasos(1)
+
+
+## Mantener Espacio pulsado no debe encadenar lineas: los eventos con `echo` se ignoran.
+func _prueba_tecla_repetida() -> void:
+	print("-- La repeticion de tecla (echo) no salta lineas --")
+	var ui := _montar()
+	await _pasos(2)
+	ui.iniciar(RUTA_INTRO)
+	await _pasos(3)
+
+	var eco := _tecla_espacio()
+	eco.echo = true
+	ui._input(eco)
+	_comprobar("un echo no completa ni avanza la linea",
+		not ui.texto_completo() and ui.indice_actual() == 0,
+		"indice=%d" % ui.indice_actual())
 	ui.queue_free()
 	await _pasos(1)
 

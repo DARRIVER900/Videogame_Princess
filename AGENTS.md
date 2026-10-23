@@ -12,7 +12,7 @@ godot --headless --import --path godot   # mandatory once after a fresh clone; r
 godot --path godot                       # run the game
 godot --headless --path godot --script res://tests/test_<suite>.gd
 ```
-- Test suites are standalone `SceneTree` scripts in `godot/tests/` (`test_personaje`, `test_movimiento`, `test_combate`, `test_carga`, `test_bot`, `test_pociones`, `test_veneno`, `test_dificultad`, `test_menu`, `test_fin_combate`, `test_escenas`, `test_nivel_1`, `test_nivel_2`, `test_nivel_3`, `test_dialogos`, `test_dialogo_ui`, `test_temporizador`, `test_core_loop`, `test_balance`). There is no test runner framework; run the suite matching the issue you touched. Exit code `0` means pass.
+- Test suites are standalone `SceneTree` scripts in `godot/tests/` (`test_personaje`, `test_movimiento`, `test_combate`, `test_carga`, `test_bot`, `test_pociones`, `test_veneno`, `test_dificultad`, `test_menu`, `test_fin_combate`, `test_escenas`, `test_nivel_1`, `test_nivel_2`, `test_nivel_3`, `test_dialogos`, `test_dialogo_ui`, `test_temporizador`, `test_core_loop`, `test_balance`, `test_qa`). There is no test runner framework; run the suite matching the issue you touched. Exit code `0` means pass.
 - No CI, linter, formatter, or separate typechecker exists. The headless suites are the verification step.
 - Without the initial `--import`, class references fail with `Could not find type Personaje`.
 

@@ -9,8 +9,10 @@ extends SceneTree
 
 ## Acciones de juego del proyecto. Los acordes (W+A, W+D, S+A/D) NO se declaran
 ## aqui como acciones propias: se componen en codigo en Personaje porque dependen
-## de combinar el estado de varias teclas a la vez. Lo mismo vale para las teclas
-## de OUFW-8/OUFW-10 (U, E): llegan con sus issues.
+## de combinar el estado de varias teclas a la vez.
+##
+## Es la UNICA fuente de verdad del InputMap: si una accion no aparece aqui, este
+## generador la poda de project.godot (incluidas pocion y veneno).
 const ACCIONES := {
 	"mover_izquierda": [KEY_A, KEY_LEFT],
 	"mover_derecha": [KEY_D, KEY_RIGHT],
@@ -19,6 +21,8 @@ const ACCIONES := {
 	"golpe_normal": [KEY_K],
 	"golpe_fuerte": [KEY_L],
 	"carga_pesada": [KEY_J],
+	"usar_pocion": [KEY_E],
+	"ataque_veneno": [KEY_U],
 }
 
 

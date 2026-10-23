@@ -26,6 +26,9 @@ const ESCENA_COMBATE := "res://escenas/nivel_1_frontera.tscn"
 ## Controlador del jugador, para congelarlo al terminar el combate. Si se deja
 ## vacio se busca "Jugadora/Controlador".
 @export var controlador: ControladorJugador
+## FSM del rival. Se congela al terminar para que no siga golpeando detras del
+## panel cuando el combate acaba por tiempo (OUFW-12/20).
+@export var bot: ControladorBot
 
 ## Escena que carga "Siguiente Nivel" al ganar (OUFW-18). Vacia = reintentar el
 ## nivel actual. El nivel jugable la asigna al arrancar.
@@ -92,6 +95,10 @@ func _resolver_referencias(forzar: bool = false) -> void:
 		var ref_c := arena.get_node_or_null("Jugadora/Controlador") as ControladorJugador
 		if ref_c != null:
 			controlador = ref_c
+	if forzar or bot == null:
+		var ref_b := arena.get_node_or_null("Rival/Bot") as ControladorBot
+		if ref_b != null:
+			bot = ref_b
 
 
 func _conectar_botones() -> void:
@@ -119,6 +126,12 @@ func _congelar_combate() -> void:
 	if controlador != null:
 		controlador.activo = false
 		controlador.soltar_controles()
+		if controlador.personaje != null:
+			controlador.personaje.velocity.x = 0.0
+	if bot != null:
+		bot.activo = false
+		if bot.personaje != null:
+			bot.personaje.velocity.x = 0.0
 
 
 ## Despliega el panel de fin con el texto y el foco correctos.

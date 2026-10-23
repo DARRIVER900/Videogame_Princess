@@ -67,10 +67,12 @@ func _process(delta: float) -> void:
 func _input(evento: InputEvent) -> void:
 	if not _activo:
 		return
-	var quiere_avanzar := evento.is_action_pressed("ui_accept")
+	var quiere_avanzar := false
 	if evento is InputEventKey:
 		var tecla := evento as InputEventKey
-		quiere_avanzar = quiere_avanzar or (tecla.pressed and not tecla.echo and tecla.keycode == KEY_SPACE)
+		# Sin `not echo`: mantener Espacio/Enter pulsado no debe saltarse el guion.
+		if tecla.pressed and not tecla.echo:
+			quiere_avanzar = evento.is_action_pressed("ui_accept") or tecla.keycode == KEY_SPACE
 	elif evento is InputEventMouseButton:
 		var clic := evento as InputEventMouseButton
 		quiere_avanzar = clic.pressed and clic.button_index == MOUSE_BUTTON_LEFT
