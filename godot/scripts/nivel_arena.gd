@@ -42,6 +42,9 @@ func _ready() -> void:
 	var rival := get_node_or_null("Rival") as Personaje
 	if rival != null:
 		DificultadCapitulo.aplicar(rival, capitulo)
+	var bot := get_node_or_null("Rival/Bot") as ControladorBot
+	if bot != null:
+		DificultadCapitulo.aplicar_bot(bot, capitulo)
 
 
 ## X de la cara interior de la pared izquierda.

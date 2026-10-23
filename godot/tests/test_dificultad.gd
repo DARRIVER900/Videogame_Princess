@@ -153,7 +153,7 @@ func _prueba_aplicacion_al_bot() -> void:
 
 	var b := _bot()
 	DificultadCapitulo.aplicar(b, 3)
-	_comprobar("Cap 3: 100 HP base pasan a 170", b.hp_max == 170, str(b.hp_max))
+	_comprobar("Cap 3: 100 HP base pasan a 150", b.hp_max == 150, str(b.hp_max))
 	b.free()
 
 
@@ -163,10 +163,10 @@ func _prueba_idempotencia() -> void:
 	DificultadCapitulo.aplicar(bot, 3)
 	DificultadCapitulo.aplicar(bot, 3)
 	DificultadCapitulo.aplicar(bot, 3)
-	_comprobar("aplicar el Cap 3 tres veces deja 170 HP, no 100 x1.7^3",
-		bot.hp_max == 170, str(bot.hp_max))
-	_comprobar("y el dano sigue en x1.50",
-		is_equal_approx(bot.multiplicador_dano, 1.5), "%.3f" % bot.multiplicador_dano)
+	_comprobar("aplicar el Cap 3 tres veces deja 150 HP, no 100 x1.5^3",
+		bot.hp_max == 150, str(bot.hp_max))
+	_comprobar("y el dano sigue en x1.35",
+		is_equal_approx(bot.multiplicador_dano, 1.35), "%.3f" % bot.multiplicador_dano)
 
 	DificultadCapitulo.aplicar(bot, 1)
 	_comprobar("volver al Cap 1 devuelve la vida base (100)", bot.hp_max == 100,
@@ -179,7 +179,7 @@ func _prueba_idempotencia() -> void:
 ## El dano que sale en un Hitbox real ya lleva el multiplicador.
 func _prueba_golpes_reales() -> void:
 	print("-- El dano de los golpes reales sale escalado --")
-	var esperado := {1: [8, 20], 2: [11, 28], 3: [15, 38]}
+	var esperado := {1: [8, 20], 2: [11, 26], 3: [14, 34]}
 	for c in [1, 2, 3]:
 		var bot := _bot()
 		bot.nombre = "Bot"
@@ -240,7 +240,7 @@ func _prueba_casos_borde() -> void:
 	extremo.free()
 
 	_comprobar("descripcion legible",
-		DificultadCapitulo.descripcion(3) == "Cap 3: vida x1.70, dano x1.50",
+		DificultadCapitulo.descripcion(3) == "Cap 3: vida x1.50, dano x1.35",
 		DificultadCapitulo.descripcion(3))
 
 
@@ -263,9 +263,9 @@ func _prueba_nivel() -> void:
 	n3.set("capitulo", 3)
 	root.add_child(n3)
 	var r3 := n3.get_node("Rival") as Personaje
-	_comprobar("Nivel con capitulo = 3: rival a 170 HP, dano x1.50",
-		r3.hp_max == 170 and is_equal_approx(r3.multiplicador_dano, 1.5)
-		and r3.current_hp == 170,
+	_comprobar("Nivel con capitulo = 3: rival a 150 HP, dano x1.35",
+		r3.hp_max == 150 and is_equal_approx(r3.multiplicador_dano, 1.35)
+		and r3.current_hp == 150,
 		"hp=%d/%d dano=%.2f" % [r3.current_hp, r3.hp_max, r3.multiplicador_dano])
 	_comprobar("el rival del Nivel 3 es mas duro que el del Nivel 1",
 		r3.hp_max > r1.hp_max and r3.multiplicador_dano > r1.multiplicador_dano)

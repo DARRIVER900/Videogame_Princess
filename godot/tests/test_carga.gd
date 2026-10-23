@@ -331,7 +331,7 @@ func _prueba_rompe_guardia() -> void:
 		"golpes=%d" % golpes[0])
 
 	# La carga SI la rompe.
-	await _pasos(11)  # esperar el cooldown del golpe normal
+	await _pasos(int(atacante.cooldown_golpe_normal * 60.0) + 5)
 	atacante.iniciar_carga()
 	atacante.soltar_carga()
 	await _pasos(2)

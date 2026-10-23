@@ -124,9 +124,9 @@ signal estado_alterado_cambiado(estado: EstadoAlterado)
 ## Empuje horizontal (knockback) en px/s del golpe fuerte. El golpe normal no empuja.
 @export var empuje_golpe_fuerte: float = 300.0
 ## Pausa entre golpes normales. Corta el spam de tecla mantenida.
-@export var cooldown_golpe_normal: float = 0.15
+@export var cooldown_golpe_normal: float = 0.22
 ## Pausa entre golpes fuertes: mas lenta por dano y alcance.
-@export var cooldown_golpe_fuerte: float = 0.35
+@export var cooldown_golpe_fuerte: float = 0.48
 ## Ventana de frames activos ("active frames") del hitbox del golpe normal.
 @export var duracion_hitbox_golpe_normal: float = 0.12
 ## Ventana activa del golpe fuerte: algo mas generosa que la del normal.
@@ -145,7 +145,7 @@ signal estado_alterado_cambiado(estado: EstadoAlterado)
 ## Empuje (knockback) de la carga: sacude mas que el golpe fuerte.
 @export var empuje_carga: float = 420.0
 ## Pausa tras soltar la carga. El golpe es lento a proposito: es un gancho leible.
-@export var cooldown_carga: float = 0.6
+@export var cooldown_carga: float = 0.80
 ## Ventana activa del hitbox de carga.
 @export var duracion_hitbox_carga: float = 0.25
 ## Cuanto se "infla" el sprite con la carga llena (0.2 = +20%). Es el efecto visual
@@ -160,7 +160,7 @@ signal estado_alterado_cambiado(estado: EstadoAlterado)
 ## moveset [constant Modset.AGIL_DISTANCIA].
 @export var alcance_veneno: Vector2 = Vector2(260.0, 56.0)
 ## Cooldown tras lanzar el veneno: mas largo que el de los golpes para que no se spamee.
-@export var cooldown_veneno: float = 1.2
+@export var cooldown_veneno: float = 1.40
 ## Segundos que el volumen del ataque de veneno queda activo.
 @export var duracion_hitbox_veneno: float = 0.15
 
