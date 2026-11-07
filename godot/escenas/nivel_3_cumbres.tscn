@@ -1,17 +1,15 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://d3a1yqpgcqswq"]
 
-[ext_resource type="Script" path="res://scripts/nivel_3_cumbres.gd" id="1_7v5yo"]
+[ext_resource type="Script" uid="uid://c0k7qmwncfk1u" path="res://scripts/nivel_3_cumbres.gd" id="1_7v5yo"]
 [ext_resource type="PackedScene" path="res://escenas/ambientacion_cumbres.tscn" id="2_iynoa"]
-[ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="3_uydt1"]
-[ext_resource type="Script" path="res://scripts/personaje/princesa_dulcecito.gd" id="4_c4bwq"]
-[ext_resource type="Script" path="res://scripts/personaje/controlador_jugador.gd" id="5_evbhr"]
-[ext_resource type="PackedScene" path="res://escenas/princesa_chocolatito.tscn" id="6_42nfx"]
-[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="7_4e5qu"]
-[ext_resource type="Script" path="res://scripts/personaje/controlador_bot.gd" id="8_ojd3c"]
-[ext_resource type="Script" path="res://scripts/ui/temporizador_combate.gd" id="9_yw5fc"]
-[ext_resource type="Script" path="res://scripts/ui/gestor_combate.gd" id="10_r8gsi"]
+[ext_resource type="Texture2D" uid="uid://cf7kyi1j07ef7" path="res://recursos/Pixel Art Mountain.jpeg" id="3_aldx8"]
+[ext_resource type="PackedScene" uid="uid://dcydil2sdp2y" path="res://escenas/princesa_dulcecito.tscn" id="3_uydt1"]
+[ext_resource type="Script" uid="uid://iqcgclvjmqo8" path="res://scripts/personaje/controlador_jugador.gd" id="5_evbhr"]
+[ext_resource type="PackedScene" uid="uid://d2v8wwsqmblwa" path="res://escenas/princesa_chocolatito.tscn" id="6_42nfx"]
+[ext_resource type="Script" uid="uid://dmwi57bdus5bn" path="res://scripts/personaje/controlador_bot.gd" id="8_ojd3c"]
+[ext_resource type="Script" uid="uid://lvkvy6angpwa" path="res://scripts/ui/temporizador_combate.gd" id="9_yw5fc"]
+[ext_resource type="Script" uid="uid://cp7luh7oe1fqp" path="res://scripts/ui/gestor_combate.gd" id="10_r8gsi"]
 [ext_resource type="PackedScene" path="res://escenas/dialogo.tscn" id="11_q5tml"]
-[ext_resource type="Script" path="res://scripts/ui/dialogo_ui.gd" id="12_50asc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fshd6"]
 size = Vector2(1040, 200)
@@ -37,190 +35,184 @@ size = Vector2(140, 12)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_10t4i"]
 size = Vector2(140, 12)
 
-[node name="Nivel3" type="Node2D"]
+[node name="Nivel3" type="Node2D" unique_id=1592740146]
 script = ExtResource("1_7v5yo")
 numero_nivel = 3
 siguiente_escena = "res://escenas/fin_juego.tscn"
 capitulo = 3
 
-[node name="Ambientacion" type="Node2D" parent="." instance=ExtResource("2_iynoa")]
+[node name="Ambientacion" parent="." unique_id=1326714674 instance=ExtResource("2_iynoa")]
 z_index = -10
 texture_filter = 1
 
-[node name="Suelo" type="StaticBody2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="Ambientacion" unique_id=1314334055]
+position = Vector2(0.9999771, -58.999992)
+scale = Vector2(1.3061224, 1.2809525)
+texture = ExtResource("3_aldx8")
+
+[node name="Suelo" type="StaticBody2D" parent="." unique_id=44674218]
 position = Vector2(0, 100)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="Suelo"]
+[node name="Colision" type="CollisionShape2D" parent="Suelo" unique_id=1388454599]
 shape = SubResource("RectangleShape2D_fshd6")
 
-[node name="ParedIzquierda" type="StaticBody2D" parent="."]
+[node name="ParedIzquierda" type="StaticBody2D" parent="." unique_id=2124412203]
 position = Vector2(-476, -200)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="ParedIzquierda"]
+[node name="Colision" type="CollisionShape2D" parent="ParedIzquierda" unique_id=400221615]
 shape = SubResource("RectangleShape2D_fksts")
 
-[node name="ParedDerecha" type="StaticBody2D" parent="."]
+[node name="ParedDerecha" type="StaticBody2D" parent="." unique_id=1060881884]
 position = Vector2(476, -200)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="ParedDerecha"]
+[node name="Colision" type="CollisionShape2D" parent="ParedDerecha" unique_id=1193182075]
 shape = SubResource("RectangleShape2D_6xbgy")
 
-[node name="Plataformas" type="Node2D" parent="."]
+[node name="Plataformas" type="Node2D" parent="." unique_id=631727473]
 
-[node name="TerronBajoIzquierdo" type="StaticBody2D" parent="Plataformas"]
+[node name="TerronBajoIzquierdo" type="StaticBody2D" parent="Plataformas" unique_id=1955498687]
 position = Vector2(-300, -54)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="Plataformas/TerronBajoIzquierdo"]
+[node name="Colision" type="CollisionShape2D" parent="Plataformas/TerronBajoIzquierdo" unique_id=1038812676]
 shape = SubResource("RectangleShape2D_38x2b")
 one_way_collision = true
 
-[node name="Terron" type="ColorRect" parent="Plataformas/TerronBajoIzquierdo"]
+[node name="Terron" type="ColorRect" parent="Plataformas/TerronBajoIzquierdo" unique_id=94904266]
 offset_left = -70.0
 offset_top = -6.0
 offset_right = 70.0
 offset_bottom = 6.0
 color = Color(0.9411765, 0.56078434, 0.70980394, 1)
 
-[node name="Glaseado" type="ColorRect" parent="Plataformas/TerronBajoIzquierdo"]
+[node name="Glaseado" type="ColorRect" parent="Plataformas/TerronBajoIzquierdo" unique_id=1622590911]
 offset_left = -70.0
 offset_top = -6.0
 offset_right = 70.0
 offset_bottom = -2.0
 
-[node name="TerronBajoDerecho" type="StaticBody2D" parent="Plataformas"]
+[node name="TerronBajoDerecho" type="StaticBody2D" parent="Plataformas" unique_id=1672609713]
 position = Vector2(300, -54)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="Plataformas/TerronBajoDerecho"]
+[node name="Colision" type="CollisionShape2D" parent="Plataformas/TerronBajoDerecho" unique_id=712333357]
 shape = SubResource("RectangleShape2D_utq2q")
 one_way_collision = true
 
-[node name="Terron" type="ColorRect" parent="Plataformas/TerronBajoDerecho"]
+[node name="Terron" type="ColorRect" parent="Plataformas/TerronBajoDerecho" unique_id=607576173]
 offset_left = -70.0
 offset_top = -6.0
 offset_right = 70.0
 offset_bottom = 6.0
 color = Color(0.9411765, 0.56078434, 0.70980394, 1)
 
-[node name="Glaseado" type="ColorRect" parent="Plataformas/TerronBajoDerecho"]
+[node name="Glaseado" type="ColorRect" parent="Plataformas/TerronBajoDerecho" unique_id=1630605660]
 offset_left = -70.0
 offset_top = -6.0
 offset_right = 70.0
 offset_bottom = -2.0
 
-[node name="TerronMedioIzquierdo" type="StaticBody2D" parent="Plataformas"]
+[node name="TerronMedioIzquierdo" type="StaticBody2D" parent="Plataformas" unique_id=108300407]
 position = Vector2(-160, -114)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="Plataformas/TerronMedioIzquierdo"]
+[node name="Colision" type="CollisionShape2D" parent="Plataformas/TerronMedioIzquierdo" unique_id=867077938]
 shape = SubResource("RectangleShape2D_7hv7k")
 one_way_collision = true
 
-[node name="Terron" type="ColorRect" parent="Plataformas/TerronMedioIzquierdo"]
+[node name="Terron" type="ColorRect" parent="Plataformas/TerronMedioIzquierdo" unique_id=1436181211]
 offset_left = -70.0
 offset_top = -6.0
 offset_right = 70.0
 offset_bottom = 6.0
 color = Color(0.9411765, 0.56078434, 0.70980394, 1)
 
-[node name="Glaseado" type="ColorRect" parent="Plataformas/TerronMedioIzquierdo"]
+[node name="Glaseado" type="ColorRect" parent="Plataformas/TerronMedioIzquierdo" unique_id=740335218]
 offset_left = -70.0
 offset_top = -6.0
 offset_right = 70.0
 offset_bottom = -2.0
 
-[node name="TerronMedioDerecho" type="StaticBody2D" parent="Plataformas"]
+[node name="TerronMedioDerecho" type="StaticBody2D" parent="Plataformas" unique_id=1182331141]
 position = Vector2(160, -114)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="Plataformas/TerronMedioDerecho"]
+[node name="Colision" type="CollisionShape2D" parent="Plataformas/TerronMedioDerecho" unique_id=1730055028]
 shape = SubResource("RectangleShape2D_5ofe0")
 one_way_collision = true
 
-[node name="Terron" type="ColorRect" parent="Plataformas/TerronMedioDerecho"]
+[node name="Terron" type="ColorRect" parent="Plataformas/TerronMedioDerecho" unique_id=2138629556]
 offset_left = -70.0
 offset_top = -6.0
 offset_right = 70.0
 offset_bottom = 6.0
 color = Color(0.9411765, 0.56078434, 0.70980394, 1)
 
-[node name="Glaseado" type="ColorRect" parent="Plataformas/TerronMedioDerecho"]
+[node name="Glaseado" type="ColorRect" parent="Plataformas/TerronMedioDerecho" unique_id=1742338642]
 offset_left = -70.0
 offset_top = -6.0
 offset_right = 70.0
 offset_bottom = -2.0
 
-[node name="TerronCima" type="StaticBody2D" parent="Plataformas"]
+[node name="TerronCima" type="StaticBody2D" parent="Plataformas" unique_id=1467290906]
 position = Vector2(0, -174)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="Plataformas/TerronCima"]
+[node name="Colision" type="CollisionShape2D" parent="Plataformas/TerronCima" unique_id=1100650534]
 shape = SubResource("RectangleShape2D_10t4i")
 one_way_collision = true
 
-[node name="Terron" type="ColorRect" parent="Plataformas/TerronCima"]
+[node name="Terron" type="ColorRect" parent="Plataformas/TerronCima" unique_id=902396633]
 offset_left = -70.0
 offset_top = -6.0
 offset_right = 70.0
 offset_bottom = 6.0
 color = Color(0.9411765, 0.56078434, 0.70980394, 1)
 
-[node name="Glaseado" type="ColorRect" parent="Plataformas/TerronCima"]
+[node name="Glaseado" type="ColorRect" parent="Plataformas/TerronCima" unique_id=1927082267]
 offset_left = -70.0
 offset_top = -6.0
 offset_right = 70.0
 offset_bottom = -2.0
 
-[node name="SpawnJugadora" type="Marker2D" parent="."]
+[node name="SpawnJugadora" type="Marker2D" parent="." unique_id=1998676631]
 position = Vector2(-140, -32)
 
-[node name="SpawnRival" type="Marker2D" parent="."]
+[node name="SpawnRival" type="Marker2D" parent="." unique_id=768989763]
 position = Vector2(140, -32)
 
-[node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("3_uydt1")]
+[node name="Jugadora" parent="." unique_id=1898544006 node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("3_uydt1")]
 position = Vector2(-140, -32)
-collision_layer = 8
-collision_mask = 9
-script = ExtResource("4_c4bwq")
-nombre = "Princesa Dulcecito"
-id_skin_activa = "SKIN_CANDYR_DEFAULT"
 nodo_sprite = NodePath("Sprite")
 
-[node name="Controlador" type="Node" parent="Jugadora" node_paths=PackedStringArray("personaje", "rival")]
+[node name="Controlador" type="Node" parent="Jugadora" unique_id=1392855462 node_paths=PackedStringArray("personaje", "rival")]
 script = ExtResource("5_evbhr")
 personaje = NodePath("..")
 rival = NodePath("../../Rival")
 
-[node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("6_42nfx")]
+[node name="Rival" parent="." unique_id=320040037 node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("6_42nfx")]
 position = Vector2(140, -32)
-collision_layer = 8
-collision_mask = 9
-script = ExtResource("7_4e5qu")
-nombre = "Princesa Chocolatito"
-id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"
-modset_clase = 1
 nodo_sprite = NodePath("Sprite")
 
-[node name="Bot" type="Node" parent="Rival" node_paths=PackedStringArray("personaje", "rival")]
+[node name="Bot" type="Node" parent="Rival" unique_id=584709436 node_paths=PackedStringArray("personaje", "rival")]
 script = ExtResource("8_ojd3c")
 personaje = NodePath("..")
 rival = NodePath("../../Jugadora")
 activo = false
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=1795965231]
 
-[node name="Estado" type="Label" parent="HUD"]
+[node name="Estado" type="Label" parent="HUD" unique_id=1219004189]
 offset_left = 12.0
 offset_top = 8.0
 offset_right = 12.0
 offset_bottom = 8.0
 theme_override_font_sizes/font_size = 14
 
-[node name="Temporizador" type="Label" parent="HUD"]
+[node name="Temporizador" type="Label" parent="HUD" unique_id=482966162]
 custom_minimum_size = Vector2(48, 0)
 offset_left = 456.0
 offset_top = 4.0
@@ -232,27 +224,29 @@ text = "99"
 horizontal_alignment = 1
 script = ExtResource("9_yw5fc")
 
-[node name="GestorCombate" type="CanvasLayer" parent="." node_paths=PackedStringArray("jugadora", "rival", "controlador")]
+[node name="GestorCombate" type="CanvasLayer" parent="." unique_id=261932311 node_paths=PackedStringArray("jugadora", "rival", "controlador")]
 layer = 10
 script = ExtResource("10_r8gsi")
 jugadora = NodePath("../Jugadora")
 rival = NodePath("../Rival")
 controlador = NodePath("../Jugadora/Controlador")
 
-[node name="Panel" type="Control" parent="GestorCombate"]
+[node name="Panel" type="Control" parent="GestorCombate" unique_id=1042386062]
 visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="Fondo" type="ColorRect" parent="GestorCombate/Panel"]
+[node name="Fondo" type="ColorRect" parent="GestorCombate/Panel" unique_id=537232631]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0, 0, 0, 0.62)
 
-[node name="Titulo" type="Label" parent="GestorCombate/Panel"]
+[node name="Titulo" type="Label" parent="GestorCombate/Panel" unique_id=1121129917]
 custom_minimum_size = Vector2(960, 0)
 layout_mode = 0
 offset_top = 150.0
@@ -261,7 +255,7 @@ theme_override_font_sizes/font_size = 48
 text = "VICTORIA"
 horizontal_alignment = 1
 
-[node name="BotonReintentar" type="Button" parent="GestorCombate/Panel"]
+[node name="BotonReintentar" type="Button" parent="GestorCombate/Panel" unique_id=1052085434]
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 0
 offset_left = 390.0
@@ -270,7 +264,7 @@ offset_right = 390.0
 offset_bottom = 260.0
 text = "Reintentar"
 
-[node name="BotonMenu" type="Button" parent="GestorCombate/Panel"]
+[node name="BotonMenu" type="Button" parent="GestorCombate/Panel" unique_id=1354615180]
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 0
 offset_left = 390.0
@@ -279,12 +273,9 @@ offset_right = 390.0
 offset_bottom = 320.0
 text = "Menu Principal"
 
-[node name="Dialogo" type="CanvasLayer" parent="." instance=ExtResource("11_q5tml")]
-layer = 20
-visible = false
-script = ExtResource("12_50asc")
+[node name="Dialogo" parent="." unique_id=708957265 instance=ExtResource("11_q5tml")]
 
-[node name="Camara" type="Camera2D" parent="."]
+[node name="Camara" type="Camera2D" parent="." unique_id=779474158]
 position = Vector2(0, -60)
 limit_left = -480
 limit_top = -330

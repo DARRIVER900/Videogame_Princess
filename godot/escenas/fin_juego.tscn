@@ -1,21 +1,24 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bxrljigvg4aw4"]
 
-[ext_resource type="Script" path="res://scripts/fin_juego.gd" id="1_mv1cv"]
+[ext_resource type="Script" uid="uid://c1mcc7g1xxv7v" path="res://scripts/fin_juego.gd" id="1_mv1cv"]
+[ext_resource type="Texture2D" uid="uid://l2obh2rp6p26" path="res://recursos/Gemini_Generated_Image_4pnjxm4pnjxm4pnj.jpeg" id="2_4mrpl"]
+[ext_resource type="FontFile" uid="uid://c66yivdtye5rb" path="res://recursos/VCR_OSD_MONO_1.001.ttf" id="3_exvn8"]
 
-[node name="FinJuego" type="Control"]
+[node name="FinJuego" type="Control" unique_id=2120242892]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_mv1cv")
 
-[node name="Fondo" type="ColorRect" parent="."]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color(0.08, 0.03, 0.12, 1)
+[node name="Fondo" type="Sprite2D" parent="." unique_id=390839439]
+position = Vector2(484.5, 276.5)
+scale = Vector2(0.6853693, 0.71744794)
+texture = ExtResource("2_4mrpl")
 
-[node name="Panel" type="VBoxContainer" parent="."]
+[node name="Panel" type="VBoxContainer" parent="." unique_id=823176333]
 custom_minimum_size = Vector2(560, 300)
 layout_mode = 0
 anchor_left = 0.5
@@ -28,26 +31,21 @@ offset_right = 280.0
 offset_bottom = 150.0
 theme_override_constants/separation = 22
 
-[node name="Titulo" type="Label" parent="Panel"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9490196, 0.654902, 0.8156863, 1)
-theme_override_font_sizes/font_size = 48
-text = "FIN DEL JUEGO"
-horizontal_alignment = 1
-
-[node name="Resumen" type="Label" parent="Panel"]
+[node name="Resumen" type="Label" parent="Panel" unique_id=1804951606]
 custom_minimum_size = Vector2(560, 90)
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
 horizontal_alignment = 1
 autowrap_mode = 3
 
-[node name="BotonMenu" type="Button" parent="Panel"]
+[node name="BotonMenu" type="Button" parent="Panel" unique_id=332843803]
 custom_minimum_size = Vector2(260, 48)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_exvn8")
 text = "Menu Principal"
 
-[node name="BotonSalir" type="Button" parent="Panel"]
+[node name="BotonSalir" type="Button" parent="Panel" unique_id=1125445155]
 custom_minimum_size = Vector2(260, 48)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_exvn8")
 text = "Salir"

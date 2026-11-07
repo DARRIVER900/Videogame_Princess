@@ -12,6 +12,9 @@ extends CharacterBody2D
 ##
 ## Referencia: OUFW-1 "Implementar Clase Base Personaje (POO)".
 
+#referencia al nodo de animación al inicio del archivo
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+
 ## Perfil de combate (moveset). GDD seccion 8 "Fichas de Personajes".
 enum Modset { AGIL_DISTANCIA, PESADO_PESA }
 
@@ -415,6 +418,10 @@ func _ready() -> void:
 	# _aplicar_sprite_por_skin_estado ya se llamó desde _configurar_atributos_por_defecto()
 	# vía establecer_skin_normal() en las subclases, pero nos aseguramos aquí también.
 	_aplicar_sprite_por_skin_estado(SkinState.NORMAL)
+	# === CONEXIÓN DE ANIMACIONES ===
+	ataque_ejecutado.connect(_on_ataque_ejecutado_anim)
+	health_changed.connect(_on_health_changed_anim)
+	died.connect(_on_died_anim)
 
 
 ## Punto de extension donde cada princesa declara su identidad y sus atributos
@@ -860,10 +867,28 @@ func avanzar_movimiento(delta: float, direccion: float, quiere_saltar: bool = fa
 	if is_inside_tree():
 		move_and_slide()
 
+# --- LLAMADA A LA ANIMACIÓN DE MOVIMIENTO ---
+	_actualizar_animacion_movimiento()
+
 	var suelo_final := en_suelo()
 	if suelo_final and not _estaba_en_suelo:
 		aterrizaje.emit()
 	_estaba_en_suelo = suelo_final
+	
+# Función para actualizar el movimiento
+func _actualizar_animacion_movimiento() -> void:
+	if not has_node("AnimationPlayer"):
+		return
+		
+	var anim := $AnimationPlayer
+	# Si se está ejecutando un ataque, daño o muerte, evitamos interrumpirla con la caminata
+	if anim.is_playing() and anim.current_animation in ["attack", "hurt", "dead"]:
+		return
+
+	if velocity.x != 0 and en_suelo():
+		anim.play("walk")
+	elif en_suelo():
+		anim.play("idle")
 
 
 ## Traduce `S` y `S + A/D` a la pose del cuerpo (GDD seccion 5).
@@ -1084,3 +1109,19 @@ func _invertir_por_movimiento(direccion: float) -> void:
 	if is_zero_approx(direccion):
 		return
 	_fijar_mirando(direccion > 0.0)
+
+# Funciones controladoras de animación conectadas a las señales:
+
+func _on_ataque_ejecutado_anim(_tipo: TipoAtaque) -> void:
+	if has_node("AnimationPlayer"):
+		$AnimationPlayer.play("attack")
+
+func _on_health_changed_anim(current: int, _max_hp: int) -> void:
+	# Si la vida bajó y no está muerto, reproduce la animación de recibir daño
+	if current < current_hp and not esta_muerto:
+		if has_node("AnimationPlayer"):
+			$AnimationPlayer.play("hurt")
+
+func _on_died_anim() -> void:
+	if has_node("AnimationPlayer"):
+		$AnimationPlayer.play("dead")

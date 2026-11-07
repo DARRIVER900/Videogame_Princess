@@ -1,17 +1,15 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://d1fx47anhdhw3"]
 
-[ext_resource type="Script" path="res://scripts/nivel_1_frontera.gd" id="1_r2c0c"]
+[ext_resource type="Script" uid="uid://b72cg52anng8p" path="res://scripts/nivel_1_frontera.gd" id="1_r2c0c"]
 [ext_resource type="PackedScene" path="res://escenas/ambientacion_frontera.tscn" id="2_k42hg"]
-[ext_resource type="PackedScene" path="res://escenas/princesa_dulcecito.tscn" id="3_b4ami"]
-[ext_resource type="Script" path="res://scripts/personaje/princesa_dulcecito.gd" id="4_0cn83"]
-[ext_resource type="Script" path="res://scripts/personaje/controlador_jugador.gd" id="5_mpvjj"]
-[ext_resource type="PackedScene" path="res://escenas/princesa_chocolatito.tscn" id="6_kigti"]
-[ext_resource type="Script" path="res://scripts/personaje/princesa_chocolatito.gd" id="7_cf32p"]
-[ext_resource type="Script" path="res://scripts/personaje/controlador_bot.gd" id="8_orrhg"]
-[ext_resource type="Script" path="res://scripts/ui/temporizador_combate.gd" id="9_fh1ga"]
-[ext_resource type="Script" path="res://scripts/ui/gestor_combate.gd" id="10_gawvx"]
+[ext_resource type="Texture2D" uid="uid://beept58r5136c" path="res://recursos/1119989001060050450.jpeg" id="3_1pmh2"]
+[ext_resource type="PackedScene" uid="uid://dcydil2sdp2y" path="res://escenas/princesa_dulcecito.tscn" id="3_b4ami"]
+[ext_resource type="Script" uid="uid://iqcgclvjmqo8" path="res://scripts/personaje/controlador_jugador.gd" id="5_mpvjj"]
+[ext_resource type="PackedScene" uid="uid://d2v8wwsqmblwa" path="res://escenas/princesa_chocolatito.tscn" id="6_kigti"]
+[ext_resource type="Script" uid="uid://dmwi57bdus5bn" path="res://scripts/personaje/controlador_bot.gd" id="8_orrhg"]
+[ext_resource type="Script" uid="uid://lvkvy6angpwa" path="res://scripts/ui/temporizador_combate.gd" id="9_fh1ga"]
+[ext_resource type="Script" uid="uid://cp7luh7oe1fqp" path="res://scripts/ui/gestor_combate.gd" id="10_gawvx"]
 [ext_resource type="PackedScene" path="res://escenas/dialogo.tscn" id="11_hyynt"]
-[ext_resource type="Script" path="res://scripts/ui/dialogo_ui.gd" id="12_13jnc"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c0ibu"]
 size = Vector2(1040, 200)
@@ -22,82 +20,76 @@ size = Vector2(40, 800)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cxoul"]
 size = Vector2(40, 800)
 
-[node name="Nivel1" type="Node2D"]
+[node name="Nivel1" type="Node2D" unique_id=942646402]
 script = ExtResource("1_r2c0c")
 siguiente_escena = "res://escenas/nivel_2_bosque.tscn"
 intro = "res://datos/dialogos/cap1_intro.json"
 
-[node name="Ambientacion" type="Node2D" parent="." instance=ExtResource("2_k42hg")]
+[node name="Ambientacion" parent="." unique_id=1132118032 instance=ExtResource("2_k42hg")]
 z_index = -10
 texture_filter = 1
 
-[node name="Suelo" type="StaticBody2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="Ambientacion" unique_id=531530008]
+position = Vector2(6.499977, -61)
+scale = Vector2(1.5296874, 1.3550001)
+texture = ExtResource("3_1pmh2")
+
+[node name="Suelo" type="StaticBody2D" parent="." unique_id=1772776639]
 position = Vector2(0, 100)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="Suelo"]
+[node name="Colision" type="CollisionShape2D" parent="Suelo" unique_id=2035359541]
 shape = SubResource("RectangleShape2D_c0ibu")
 
-[node name="ParedIzquierda" type="StaticBody2D" parent="."]
+[node name="ParedIzquierda" type="StaticBody2D" parent="." unique_id=386116200]
 position = Vector2(-476, -200)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="ParedIzquierda"]
+[node name="Colision" type="CollisionShape2D" parent="ParedIzquierda" unique_id=425631390]
 shape = SubResource("RectangleShape2D_2jq76")
 
-[node name="ParedDerecha" type="StaticBody2D" parent="."]
+[node name="ParedDerecha" type="StaticBody2D" parent="." unique_id=1858420833]
 position = Vector2(476, -200)
 collision_mask = 0
 
-[node name="Colision" type="CollisionShape2D" parent="ParedDerecha"]
+[node name="Colision" type="CollisionShape2D" parent="ParedDerecha" unique_id=20229689]
 shape = SubResource("RectangleShape2D_cxoul")
 
-[node name="SpawnJugadora" type="Marker2D" parent="."]
+[node name="SpawnJugadora" type="Marker2D" parent="." unique_id=981850052]
 position = Vector2(-140, -32)
 
-[node name="SpawnRival" type="Marker2D" parent="."]
+[node name="SpawnRival" type="Marker2D" parent="." unique_id=165734425]
 position = Vector2(140, -32)
 
-[node name="Jugadora" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("3_b4ami")]
+[node name="Jugadora" parent="." unique_id=757147215 node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("3_b4ami")]
 position = Vector2(-140, -32)
-collision_layer = 8
-collision_mask = 9
-script = ExtResource("4_0cn83")
-nombre = "Princesa Dulcecito"
-id_skin_activa = "SKIN_CANDYR_DEFAULT"
 nodo_sprite = NodePath("Sprite")
 
-[node name="Controlador" type="Node" parent="Jugadora" node_paths=PackedStringArray("personaje", "rival")]
+[node name="Controlador" type="Node" parent="Jugadora" unique_id=114423048 node_paths=PackedStringArray("personaje", "rival")]
 script = ExtResource("5_mpvjj")
 personaje = NodePath("..")
 rival = NodePath("../../Rival")
 
-[node name="Rival" type="CharacterBody2D" parent="." node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("6_kigti")]
+[node name="Rival" parent="." unique_id=1156954848 node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("6_kigti")]
 position = Vector2(140, -32)
-collision_layer = 8
-collision_mask = 9
-script = ExtResource("7_cf32p")
-nombre = "Princesa Chocolatito"
-id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"
-modset_clase = 1
 nodo_sprite = NodePath("Sprite")
 
-[node name="Bot" type="Node" parent="Rival" node_paths=PackedStringArray("personaje", "rival")]
+[node name="Bot" type="Node" parent="Rival" unique_id=756380565 node_paths=PackedStringArray("personaje", "rival")]
 script = ExtResource("8_orrhg")
 personaje = NodePath("..")
 rival = NodePath("../../Jugadora")
 activo = false
 
-[node name="HUD" type="CanvasLayer" parent="."]
+[node name="HUD" type="CanvasLayer" parent="." unique_id=587688664]
 
-[node name="Estado" type="Label" parent="HUD"]
+[node name="Estado" type="Label" parent="HUD" unique_id=748146418]
 offset_left = 12.0
 offset_top = 8.0
 offset_right = 12.0
 offset_bottom = 8.0
 theme_override_font_sizes/font_size = 14
 
-[node name="Temporizador" type="Label" parent="HUD"]
+[node name="Temporizador" type="Label" parent="HUD" unique_id=237995576]
 custom_minimum_size = Vector2(48, 0)
 offset_left = 456.0
 offset_top = 4.0
@@ -109,27 +101,29 @@ text = "99"
 horizontal_alignment = 1
 script = ExtResource("9_fh1ga")
 
-[node name="GestorCombate" type="CanvasLayer" parent="." node_paths=PackedStringArray("jugadora", "rival", "controlador")]
+[node name="GestorCombate" type="CanvasLayer" parent="." unique_id=1961307625 node_paths=PackedStringArray("jugadora", "rival", "controlador")]
 layer = 10
 script = ExtResource("10_gawvx")
 jugadora = NodePath("../Jugadora")
 rival = NodePath("../Rival")
 controlador = NodePath("../Jugadora/Controlador")
 
-[node name="Panel" type="Control" parent="GestorCombate"]
+[node name="Panel" type="Control" parent="GestorCombate" unique_id=1282054638]
 visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="Fondo" type="ColorRect" parent="GestorCombate/Panel"]
+[node name="Fondo" type="ColorRect" parent="GestorCombate/Panel" unique_id=1700286905]
 layout_mode = 0
 anchor_right = 1.0
 anchor_bottom = 1.0
 color = Color(0, 0, 0, 0.62)
 
-[node name="Titulo" type="Label" parent="GestorCombate/Panel"]
+[node name="Titulo" type="Label" parent="GestorCombate/Panel" unique_id=2021526945]
 custom_minimum_size = Vector2(960, 0)
 layout_mode = 0
 offset_top = 150.0
@@ -138,7 +132,7 @@ theme_override_font_sizes/font_size = 48
 text = "VICTORIA"
 horizontal_alignment = 1
 
-[node name="BotonReintentar" type="Button" parent="GestorCombate/Panel"]
+[node name="BotonReintentar" type="Button" parent="GestorCombate/Panel" unique_id=235888959]
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 0
 offset_left = 390.0
@@ -147,7 +141,7 @@ offset_right = 390.0
 offset_bottom = 260.0
 text = "Reintentar"
 
-[node name="BotonMenu" type="Button" parent="GestorCombate/Panel"]
+[node name="BotonMenu" type="Button" parent="GestorCombate/Panel" unique_id=1768413204]
 custom_minimum_size = Vector2(180, 44)
 layout_mode = 0
 offset_left = 390.0
@@ -156,12 +150,9 @@ offset_right = 390.0
 offset_bottom = 320.0
 text = "Menu Principal"
 
-[node name="Dialogo" type="CanvasLayer" parent="." instance=ExtResource("11_hyynt")]
-layer = 20
-visible = false
-script = ExtResource("12_13jnc")
+[node name="Dialogo" parent="." unique_id=1945028042 instance=ExtResource("11_hyynt")]
 
-[node name="Camara" type="Camera2D" parent="."]
+[node name="Camara" type="Camera2D" parent="." unique_id=1516033675]
 position = Vector2(0, -60)
 limit_left = -480
 limit_top = -330
