@@ -1,26 +1,30 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://5sp8oeydvtsi"]
 
-[node name="Ambientacion" type="Node2D"]
+[node name="Ambientacion" type="Node2D" unique_id=1552920310]
 
-[node name="Cielo" type="ColorRect" parent="."]
+[node name="Cielo" type="ColorRect" parent="." unique_id=1554493876]
+visible = false
 offset_left = -480.0
 offset_top = -330.0
 offset_right = 480.0
 color = Color(0.60784316, 0.84313726, 0.93333334, 1)
 
-[node name="Pradera" type="ColorRect" parent="."]
+[node name="Pradera" type="ColorRect" parent="." unique_id=2086143264]
+visible = false
 offset_left = -480.0
 offset_top = -60.0
 offset_right = 480.0
 color = Color(0.54901963, 0.8117647, 0.43529412, 1)
 
-[node name="Tierra" type="ColorRect" parent="."]
+[node name="Tierra" type="ColorRect" parent="." unique_id=695926317]
+visible = false
 offset_left = -480.0
 offset_right = 480.0
 offset_bottom = 210.0
 color = Color(0.5411765, 0.3529412, 0.23137255, 1)
 
-[node name="Pasto" type="ColorRect" parent="."]
+[node name="Pasto" type="ColorRect" parent="." unique_id=384182966]
+visible = false
 offset_left = -480.0
 offset_right = 480.0
 offset_bottom = 18.0
