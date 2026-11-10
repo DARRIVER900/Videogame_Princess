@@ -10,7 +10,7 @@ const TEX_CORAZON_LLENO := preload("res://recursos/Corazon_lleno-removebg-previe
 const TEX_CORAZON_VACIO := preload("res://recursos/Corazon vacio(1).png")
 const TEX_POCION := preload("res://recursos/pocion.svg")
 
-const HP_POR_CORAZON := 25
+const HP_POR_CORAZON := 10
 const ANCHO_PANEL := 350.0
 const ALTO_PANEL := 96.0
 const MARGEN := 12.0

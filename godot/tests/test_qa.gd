@@ -80,6 +80,17 @@ func _tiene_tecla(accion: String, tecla: int) -> bool:
 	return false
 
 
+## Concatena el texto de todas las etiquetas del HUD (ayuda de controles, estado y
+## temporizador), sin depender de que vivan en un nodo concreto.
+func _texto_del_hud(raiz: Node) -> String:
+	var partes: Array[String] = []
+	for hijo in raiz.get_children():
+		if hijo is Label:
+			partes.append((hijo as Label).text)
+		partes.append(_texto_del_hud(hijo))
+	return " ".join(partes)
+
+
 func _prueba_input_map() -> void:
 	print("-- InputMap: ninguna accion jugable se pierde al regenerar --")
 	var faltantes: Array[String] = []
@@ -97,7 +108,9 @@ func _prueba_hud() -> void:
 	var nivel: Node = load(RUTA_NIVEL).instantiate()
 	root.add_child(nivel)
 	await _pasos(2)
-	var texto := (nivel.get_node("HUD/Estado") as Label).text
+	# La ayuda vive en el panel de controles del HUD; se recorre todo el CanvasLayer
+	# para no atarse a un nodo concreto (antes era HUD/Estado).
+	var texto := _texto_del_hud(nivel.get_node("HUD"))
 	for tecla in ["K", "L", "J", "E", "U"]:
 		_comprobar("la ayuda del HUD menciona la tecla %s" % tecla, texto.contains(tecla))
 	_comprobar("el HUD muestra el temporizador", nivel.get_node_or_null("HUD/Temporizador") != null)
