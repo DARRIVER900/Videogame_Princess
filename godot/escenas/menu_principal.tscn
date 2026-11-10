@@ -1,30 +1,24 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dbsupwqv3s4f2"]
 
-[ext_resource type="Script" path="res://scripts/menu_principal.gd" id="1_37xja"]
+[ext_resource type="Script" uid="uid://cek8hxflalobv" path="res://scripts/menu_principal.gd" id="1_37xja"]
+[ext_resource type="Texture2D" uid="uid://bd5mrw12crqkh" path="res://recursos/Gemini_Generated_Image_7nr6r27nr6r27nr6.jpeg" id="2_qf1q6"]
+[ext_resource type="FontFile" uid="uid://c66yivdtye5rb" path="res://recursos/VCR_OSD_MONO_1.001.ttf" id="3_p8sbp"]
 
-[node name="MenuPrincipal" type="Control"]
+[node name="MenuPrincipal" type="Control" unique_id=132719415]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource("1_37xja")
 
-[node name="Fondo" type="ColorRect" parent="."]
-layout_mode = 0
-anchor_right = 1.0
-anchor_bottom = 1.0
-color = Color(0.16862746, 0.105882354, 0.22745098, 1)
+[node name="Fondo" type="Sprite2D" parent="." unique_id=243621563]
+position = Vector2(478, 266)
+scale = Vector2(0.6832386, 0.7135417)
+texture = ExtResource("2_qf1q6")
 
-[node name="Titulo" type="Label" parent="."]
-custom_minimum_size = Vector2(960, 0)
-layout_mode = 0
-offset_top = 90.0
-offset_bottom = 90.0
-theme_override_font_sizes/font_size = 40
-text = "Once Upon a Final War"
-horizontal_alignment = 1
-
-[node name="Panel" type="VBoxContainer" parent="."]
+[node name="Panel" type="VBoxContainer" parent="." unique_id=8483035]
 custom_minimum_size = Vector2(240, 0)
 layout_mode = 0
 offset_left = 360.0
@@ -32,28 +26,32 @@ offset_top = 210.0
 offset_right = 360.0
 offset_bottom = 210.0
 
-[node name="EtiquetaSeleccion" type="Label" parent="Panel"]
+[node name="EtiquetaSeleccion" type="Label" parent="Panel" unique_id=850094271]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_p8sbp")
 text = "Elige tu princesa"
 horizontal_alignment = 1
 
-[node name="BotonDulcecito" type="Button" parent="Panel"]
+[node name="BotonDulcecito" type="Button" parent="Panel" unique_id=1460857377]
 custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_p8sbp")
 toggle_mode = true
 text = "Princesa Dulcecito"
 
-[node name="BotonChocolatito" type="Button" parent="Panel"]
+[node name="BotonChocolatito" type="Button" parent="Panel" unique_id=690995011]
 custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_p8sbp")
 toggle_mode = true
 text = "Princesa Chocolatito"
 
-[node name="@Control@2" type="Control" parent="Panel"]
+[node name="@Control@2" type="Control" parent="Panel" unique_id=1649251782]
 custom_minimum_size = Vector2(0, 16)
 layout_mode = 2
 
-[node name="BotonJugar" type="Button" parent="Panel"]
+[node name="BotonJugar" type="Button" parent="Panel" unique_id=777150733]
 custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
+theme_override_fonts/font = ExtResource("3_p8sbp")
 text = "Jugar"
