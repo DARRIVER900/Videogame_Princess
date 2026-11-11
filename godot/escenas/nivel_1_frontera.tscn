@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://d1fx47anhdhw3"]
 
 [ext_resource type="Script" uid="uid://b72cg52anng8p" path="res://scripts/nivel_1_frontera.gd" id="1_r2c0c"]
-[ext_resource type="PackedScene" path="res://escenas/ambientacion_frontera.tscn" id="2_k42hg"]
-[ext_resource type="Texture2D" uid="uid://beept58r5136c" path="res://recursos/1119989001060050450.jpeg" id="3_1pmh2"]
+[ext_resource type="PackedScene" uid="uid://5sp8oeydvtsi" path="res://escenas/ambientacion_frontera.tscn" id="2_k42hg"]
+[ext_resource type="Texture2D" uid="uid://c24cuni65cxou" path="res://recursos/Gemini_Generated_Image_8dopks8dopks8dop.jpeg" id="3_1pmh2"]
 [ext_resource type="PackedScene" uid="uid://dcydil2sdp2y" path="res://escenas/princesa_dulcecito.tscn" id="3_b4ami"]
 [ext_resource type="Script" uid="uid://iqcgclvjmqo8" path="res://scripts/personaje/controlador_jugador.gd" id="5_mpvjj"]
 [ext_resource type="PackedScene" uid="uid://d2v8wwsqmblwa" path="res://escenas/princesa_chocolatito.tscn" id="6_kigti"]
@@ -30,8 +30,8 @@ z_index = -10
 texture_filter = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="Ambientacion" unique_id=531530008]
-position = Vector2(6.499977, -61)
-scale = Vector2(1.5296874, 1.3550001)
+position = Vector2(1.5500488, -61.660034)
+scale = Vector2(0.6824574, 0.70744807)
 texture = ExtResource("3_1pmh2")
 
 [node name="Suelo" type="StaticBody2D" parent="." unique_id=1772776639]
