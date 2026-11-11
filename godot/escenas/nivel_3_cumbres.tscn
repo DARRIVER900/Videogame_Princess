@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://d3a1yqpgcqswq"]
 
 [ext_resource type="Script" uid="uid://c0k7qmwncfk1u" path="res://scripts/nivel_3_cumbres.gd" id="1_7v5yo"]
-[ext_resource type="PackedScene" path="res://escenas/ambientacion_cumbres.tscn" id="2_iynoa"]
-[ext_resource type="Texture2D" uid="uid://cf7kyi1j07ef7" path="res://recursos/Pixel Art Mountain.jpeg" id="3_aldx8"]
+[ext_resource type="PackedScene" uid="uid://cu7if16ssks0i" path="res://escenas/ambientacion_cumbres.tscn" id="2_iynoa"]
+[ext_resource type="Texture2D" uid="uid://c24cuni65cxou" path="res://recursos/Gemini_Generated_Image_8dopks8dopks8dop.jpeg" id="3_aldx8"]
 [ext_resource type="PackedScene" uid="uid://dcydil2sdp2y" path="res://escenas/princesa_dulcecito.tscn" id="3_uydt1"]
 [ext_resource type="Script" uid="uid://iqcgclvjmqo8" path="res://scripts/personaje/controlador_jugador.gd" id="5_evbhr"]
 [ext_resource type="PackedScene" uid="uid://d2v8wwsqmblwa" path="res://escenas/princesa_chocolatito.tscn" id="6_42nfx"]
@@ -46,8 +46,8 @@ z_index = -10
 texture_filter = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="Ambientacion" unique_id=1314334055]
-position = Vector2(0.9999771, -58.999992)
-scale = Vector2(1.3061224, 1.2809525)
+position = Vector2(-0.25506592, -61.44287)
+scale = Vector2(0.6864419, 0.70427835)
 texture = ExtResource("3_aldx8")
 
 [node name="Suelo" type="StaticBody2D" parent="." unique_id=44674218]
@@ -74,6 +74,7 @@ shape = SubResource("RectangleShape2D_6xbgy")
 [node name="Plataformas" type="Node2D" parent="." unique_id=631727473]
 
 [node name="TerronBajoIzquierdo" type="StaticBody2D" parent="Plataformas" unique_id=1955498687]
+visible = false
 position = Vector2(-300, -54)
 collision_mask = 0
 
@@ -95,6 +96,7 @@ offset_right = 70.0
 offset_bottom = -2.0
 
 [node name="TerronBajoDerecho" type="StaticBody2D" parent="Plataformas" unique_id=1672609713]
+visible = false
 position = Vector2(300, -54)
 collision_mask = 0
 
@@ -116,6 +118,7 @@ offset_right = 70.0
 offset_bottom = -2.0
 
 [node name="TerronMedioIzquierdo" type="StaticBody2D" parent="Plataformas" unique_id=108300407]
+visible = false
 position = Vector2(-160, -114)
 collision_mask = 0
 
@@ -137,6 +140,7 @@ offset_right = 70.0
 offset_bottom = -2.0
 
 [node name="TerronMedioDerecho" type="StaticBody2D" parent="Plataformas" unique_id=1182331141]
+visible = false
 position = Vector2(160, -114)
 collision_mask = 0
 
@@ -158,6 +162,7 @@ offset_right = 70.0
 offset_bottom = -2.0
 
 [node name="TerronCima" type="StaticBody2D" parent="Plataformas" unique_id=1467290906]
+visible = false
 position = Vector2(0, -174)
 collision_mask = 0
 

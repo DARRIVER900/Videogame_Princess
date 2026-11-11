@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://bdoenvlgn8ehw"]
 
 [ext_resource type="Script" uid="uid://cw7pajdvuow37" path="res://scripts/nivel_2_bosque.gd" id="1_cvgwv"]
-[ext_resource type="PackedScene" path="res://escenas/ambientacion_bosque.tscn" id="2_mx30q"]
+[ext_resource type="PackedScene" uid="uid://x6v17muf1ytj" path="res://escenas/ambientacion_bosque.tscn" id="2_mx30q"]
 [ext_resource type="PackedScene" uid="uid://dcydil2sdp2y" path="res://escenas/princesa_dulcecito.tscn" id="3_0i50g"]
-[ext_resource type="Texture2D" uid="uid://by24rx0taq5ot" path="res://recursos/Pixel art forest #3.jpeg" id="3_5bwd8"]
+[ext_resource type="Texture2D" uid="uid://oyd2igl0y68m" path="res://recursos/Gemini_Generated_Image_8dopks8dopks8dop(1).jpeg" id="3_5bwd8"]
 [ext_resource type="Script" uid="uid://iqcgclvjmqo8" path="res://scripts/personaje/controlador_jugador.gd" id="5_rg1x8"]
 [ext_resource type="PackedScene" uid="uid://d2v8wwsqmblwa" path="res://escenas/princesa_chocolatito.tscn" id="6_jaqq6"]
 [ext_resource type="Script" uid="uid://dmwi57bdus5bn" path="res://scripts/personaje/controlador_bot.gd" id="8_gc1n8"]
@@ -40,8 +40,8 @@ z_index = -10
 texture_filter = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="Ambientacion" unique_id=1896601456]
-position = Vector2(-2.4999733, -60.500004)
-scale = Vector2(1.3029891, 1.459239)
+position = Vector2(-1.1521912, -58.67389)
+scale = Vector2(0.68487525, 0.7126925)
 texture = ExtResource("3_5bwd8")
 
 [node name="Suelo" type="StaticBody2D" parent="." unique_id=1725574825]
@@ -68,6 +68,7 @@ shape = SubResource("RectangleShape2D_e5hpn")
 [node name="Plataformas" type="Node2D" parent="." unique_id=1294472411]
 
 [node name="TroncoIzquierdo" type="StaticBody2D" parent="Plataformas" unique_id=1189096742]
+visible = false
 position = Vector2(-250, -54)
 collision_mask = 0
 
@@ -90,6 +91,7 @@ offset_bottom = -2.0
 color = Color(0.543487, 0.12025798, 0.6214808, 1)
 
 [node name="TroncoDerecho" type="StaticBody2D" parent="Plataformas" unique_id=1706529895]
+visible = false
 position = Vector2(250, -54)
 collision_mask = 0
 
@@ -112,6 +114,7 @@ offset_bottom = -2.0
 color = Color(0.54509807, 0.12156863, 0.61960787, 1)
 
 [node name="RamaCentral" type="StaticBody2D" parent="Plataformas" unique_id=972736308]
+visible = false
 position = Vector2(0, -114)
 collision_mask = 0
 
