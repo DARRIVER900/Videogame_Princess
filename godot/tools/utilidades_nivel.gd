@@ -89,6 +89,104 @@ static func plataforma_una_via(padre: Node, nombre: String, rect: Rect2,
 	return cuerpo
 
 
+## Monta los nodos de partida que comparten los niveles 1-3: FSM del rival
+## (OUFW-11), HUD con temporizador (OUFW-5/12), gestor de fin de combate (OUFW-16)
+## y cuadro de dialogo (OUFW-13). Se llama despues de crear Jugadora/Rival y su
+## Controlador; no toca la geometria del nivel.
+static func montar_partida(nivel: Node, con_dialogo: bool = true) -> void:
+	var jugadora := nivel.get_node_or_null("Jugadora") as Personaje
+	var rival := nivel.get_node_or_null("Rival") as Personaje
+	if jugadora == null or rival == null:
+		return
+
+	var bot := ControladorBot.new()
+	bot.name = "Bot"
+	bot.personaje = rival
+	bot.rival = jugadora
+	bot.activo = false
+	rival.add_child(bot)
+	bot.owner = _duenyo(nivel)
+
+	var capa := CanvasLayer.new()
+	capa.name = "HUD"
+	nivel.add_child(capa)
+	capa.owner = _duenyo(nivel)
+
+	var etiqueta := Label.new()
+	etiqueta.name = "Estado"
+	etiqueta.position = Vector2(12.0, 8.0)
+	etiqueta.add_theme_font_size_override("font_size", 14)
+	capa.add_child(etiqueta)
+	etiqueta.owner = _duenyo(nivel)
+
+	var temporizador := TemporizadorCombate.new()
+	temporizador.name = "Temporizador"
+	temporizador.position = Vector2(456.0, 4.0)
+	temporizador.custom_minimum_size = Vector2(48.0, 0.0)
+	temporizador.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	temporizador.add_theme_font_size_override("font_size", 28)
+	capa.add_child(temporizador)
+	temporizador.owner = _duenyo(nivel)
+
+	var gestor := CanvasLayer.new()
+	gestor.name = "GestorCombate"
+	gestor.layer = 10
+	gestor.set_script(load("res://scripts/ui/gestor_combate.gd"))
+	nivel.add_child(gestor)
+	gestor.owner = _duenyo(nivel)
+	panel_fin(gestor, nivel)
+
+	if con_dialogo:
+		var dialogo: CanvasLayer = load("res://escenas/dialogo.tscn").instantiate()
+		dialogo.name = "Dialogo"
+		nivel.add_child(dialogo)
+		dialogo.owner = _duenyo(nivel)
+
+
+## Panel de Victoria/Game Over del [GestorCombate]. Todos los nodos nuevos llevan
+## el owner de la raiz para que [PackedScene.pack] los serialice.
+static func panel_fin(gestor: CanvasLayer, raiz: Node) -> void:
+	var panel := Control.new()
+	panel.name = "Panel"
+	panel.visible = false
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gestor.add_child(panel)
+	panel.owner = _duenyo(raiz)
+
+	var fondo := ColorRect.new()
+	fondo.name = "Fondo"
+	fondo.color = Color(0, 0, 0, 0.62)
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(fondo)
+	fondo.owner = _duenyo(raiz)
+
+	var titulo := Label.new()
+	titulo.name = "Titulo"
+	titulo.text = "VICTORIA"
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	titulo.position = Vector2(0, 150.0)
+	titulo.custom_minimum_size = Vector2(960.0, 0.0)
+	titulo.add_theme_font_size_override("font_size", 48)
+	panel.add_child(titulo)
+	titulo.owner = _duenyo(raiz)
+
+	var reintentar := Button.new()
+	reintentar.name = "BotonReintentar"
+	reintentar.text = "Reintentar"
+	reintentar.position = Vector2(390.0, 260.0)
+	reintentar.custom_minimum_size = Vector2(180.0, 44.0)
+	panel.add_child(reintentar)
+	reintentar.owner = _duenyo(raiz)
+
+	var menu := Button.new()
+	menu.name = "BotonMenu"
+	menu.text = "Menu Principal"
+	menu.position = Vector2(390.0, 320.0)
+	menu.custom_minimum_size = Vector2(180.0, 44.0)
+	panel.add_child(menu)
+	menu.owner = _duenyo(raiz)
+
+
 static func guardar(raiz: Node, ruta: String) -> bool:
 	var escena := PackedScene.new()
 	var err := escena.pack(raiz)

@@ -1,5 +1,5 @@
 class_name Nivel3Cumbres
-extends NivelArena
+extends NivelJugable
 ## Nivel 3 "Cumbres de Azucar" (OUFW-14): graybox del Capitulo 3.
 ##
 ## Mismo encuadre, paredes y spawns que el resto de arenas ([NivelArena]), mas cinco
@@ -31,3 +31,12 @@ const PLATAFORMAS := [
 	{"nombre": "TerronMedioDerecho", "centro_x": 160.0, "ancho": 140.0, "altura": 120.0},
 	{"nombre": "TerronCima", "centro_x": 0.0, "ancho": 140.0, "altura": 180.0},
 ]
+
+
+const SIGUIENTE_NIVEL := "res://escenas/fin_juego.tscn"
+
+
+func _ready() -> void:
+	numero_nivel = 3
+	siguiente_escena = SIGUIENTE_NIVEL
+	super._ready()

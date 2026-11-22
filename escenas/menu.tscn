@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://da5lsrsl668lv"]
+
+[ext_resource type="Script" uid="uid://buwg4neancwet" path="res://DARRIVER900 Videogame_Princess main godot/escenas/menu.gd" id="1_o7sky"]
+
+[node name="Menu" type="Control" unique_id=373767993]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+script = ExtResource("1_o7sky")
+
+[node name="Titulo" type="Label" parent="." unique_id=776921325]
+layout_mode = 1
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 325.0
+offset_top = 84.0
+offset_right = 501.0
+offset_bottom = 107.0
+grow_horizontal = 0
+grow_vertical = 2
+text = "Once Upon a Final War"
+horizontal_alignment = 1
+
+[node name="BotonDulcecito" type="Button" parent="." unique_id=500861772]
+layout_mode = 0
+offset_left = 372.0
+offset_top = 249.0
+offset_right = 544.0
+offset_bottom = 280.0
+text = "Jugar como Dulcecito"
+
+[node name="BotonChocolatito" type="Button" parent="." unique_id=2078333763]
+layout_mode = 0
+offset_left = 365.0
+offset_top = 181.0
+offset_right = 553.0
+offset_bottom = 212.0
+text = "Jugar como Chocolatito"
+
+[node name="BotonSalir" type="Button" parent="." unique_id=880632240]
+layout_mode = 0
+offset_left = 440.0
+offset_top = 318.0
+offset_right = 482.0
+offset_bottom = 349.0
+text = "Salir"

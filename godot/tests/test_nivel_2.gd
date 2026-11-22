@@ -229,9 +229,9 @@ func _prueba_dificultad_y_camara() -> void:
 	var nivel := _montar()
 	var rival := nivel.get_node("Rival") as Personaje
 	var jugadora := nivel.get_node("Jugadora") as Personaje
-	_comprobar("el rival entra con la dificultad del Cap 2 (130 HP, dano x1.10)",
-		rival.hp_max == 130 and is_equal_approx(rival.multiplicador_dano, 1.1)
-		and rival.current_hp == 130,
+	_comprobar("el rival entra con la dificultad del Cap 2 (125 HP, dano x1.05)",
+		rival.hp_max == 125 and is_equal_approx(rival.multiplicador_dano, 1.05)
+		and rival.current_hp == 125,
 		"hp=%d/%d dano=%.2f" % [rival.current_hp, rival.hp_max, rival.multiplicador_dano])
 	_comprobar("la jugadora no se toca (100 HP, dano x1.0)",
 		jugadora.hp_max == 100 and is_equal_approx(jugadora.multiplicador_dano, 1.0))

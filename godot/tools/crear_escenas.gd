@@ -7,10 +7,11 @@ extends SceneTree
 ## Genera:
 ##   recursos/placeholder_dulcecito.png / placeholder_chocolatito.png
 ##   escenas/princesa_dulcecito.tscn  escenas/princesa_chocolatito.tscn
-##   escenas/arena_movimiento.tscn    (arena de pruebas de OUFW-2)
+##   escenas/arena_movimiento.tscn    (arena de pruebas de OUFW-2/3/9/11 + gestor OUFW-16)
+##   escenas/menu_principal.tscn      (menu y seleccion de OUFW-17)
 ##
-## IMPORTANTE: estas escenas son el HARNESS de pruebas de OUFW-2, no la arena
-## de produccion. El graybox del Capitulo 1 es OUFW-6.
+## IMPORTANTE: la arena es el HARNESS de pruebas de OUFW-2, no la arena de
+## produccion. El graybox del Capitulo 1 es OUFW-6.
 
 const DIR_ESCENAS := "res://escenas"
 const DIR_RECURSOS := "res://recursos"
@@ -38,6 +39,9 @@ func _generar_tarde() -> void:
 	_crear_escenas_de_princesa(PrincesaDulcecito, "princesa_dulcecito", Color("#e78ac3"))
 	_crear_escenas_de_princesa(PrincesaChocolatito, "princesa_chocolatito", Color("#a9744f"))
 	_crear_arena_de_prueba()
+	_crear_menu_principal()
+	_crear_dialogo_ui()
+	_crear_fin_juego()
 	_fijar_escena_principal()
 
 	if _textura_pendiente:
@@ -177,6 +181,15 @@ func _crear_arena_de_prueba() -> void:
 	jugadora.add_child(ctrl)
 	ctrl.owner = arena
 
+	# --- FSM del rival (OUFW-11): el bot decide solo, reutilizando la misma
+	# fisica y el mismo combate que la jugadora, sin leer el teclado. ---
+	var bot := ControladorBot.new()
+	bot.name = "Bot"
+	bot.personaje = rival
+	bot.rival = jugadora
+	rival.add_child(bot)
+	bot.owner = arena
+
 	# --- Camara y HUD ---
 	var camara := Camera2D.new()
 	camara.name = "Camara"
@@ -196,14 +209,296 @@ func _crear_arena_de_prueba() -> void:
 	etiqueta.owner = arena
 	capa.owner = arena
 
+	# --- Gestor de fin de combate (OUFW-16): escucha la muerte de jugadora y rival
+	# y despliega la pantalla de Victoria/Game Over. El script resuelve las
+	# referencias solo, asi que no hace falta cablear nada aqui. ---
+	var gestor := CanvasLayer.new()
+	gestor.name = "GestorCombate"
+	gestor.layer = 10
+	gestor.set_script(load("res://scripts/ui/gestor_combate.gd"))
+	arena.add_child(gestor)
+	gestor.owner = arena
+	_construir_panel_fin(gestor, arena)
+
 	root.remove_child(arena)
 	_guardar(arena, "%s/arena_movimiento.tscn" % DIR_ESCENAS)
 	arena.free()
 
 
+## Monta el panel de Victoria/Game Over dentro del [CanvasLayer] del gestor. Nace
+## oculto: el gestor lo muestra al morir un combatiente.
+##
+## [param raiz] es la escena raiz (la arena): TODOS los nodos nuevos deben llevar
+## [code]owner = raiz[/code] para que [method PackedScene.pack] los serialice. Poner
+## el owner al padre inmediato los dejaria fuera del .tscn (escena vacia en runtime).
+func _construir_panel_fin(gestor: CanvasLayer, raiz: Node) -> void:
+	var panel := Control.new()
+	panel.name = "Panel"
+	panel.visible = false
+	panel.set_anchors_preset(Control.PRESET_FULL_RECT)
+	gestor.add_child(panel)
+	panel.owner = raiz
+
+	# Fondo semitransparente a pantalla completa, para que el texto se lea.
+	var fondo := ColorRect.new()
+	fondo.name = "Fondo"
+	fondo.color = Color(0, 0, 0, 0.62)
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	panel.add_child(fondo)
+	fondo.owner = raiz
+
+	var titulo := Label.new()
+	titulo.name = "Titulo"
+	titulo.text = "VICTORIA"
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	titulo.position = Vector2(0, 150.0)
+	titulo.custom_minimum_size = Vector2(960.0, 0.0)
+	titulo.add_theme_font_size_override("font_size", 48)
+	panel.add_child(titulo)
+	titulo.owner = raiz
+
+	var reintentar := Button.new()
+	reintentar.name = "BotonReintentar"
+	reintentar.text = "Reintentar"
+	reintentar.position = Vector2(390.0, 260.0)
+	reintentar.custom_minimum_size = Vector2(180.0, 44.0)
+	panel.add_child(reintentar)
+	reintentar.owner = raiz
+
+	var menu := Button.new()
+	menu.name = "BotonMenu"
+	menu.text = "Menu Principal"
+	menu.position = Vector2(390.0, 320.0)
+	menu.custom_minimum_size = Vector2(180.0, 44.0)
+	panel.add_child(menu)
+	menu.owner = raiz
+
+
+## Construye la escena del menu principal (OUFW-17): titulo, botones de seleccion
+## de princesa y boton "Jugar". El script cablea las senales al cargar.
+func _crear_menu_principal() -> void:
+	var menu := Control.new()
+	menu.name = "MenuPrincipal"
+	menu.set_script(load("res://scripts/menu_principal.gd"))
+	menu.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_child(menu)
+
+	var fondo := ColorRect.new()
+	fondo.name = "Fondo"
+	fondo.color = Color("#2b1b3a")
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	menu.add_child(fondo)
+	fondo.owner = menu
+
+	var titulo := Label.new()
+	titulo.name = "Titulo"
+	titulo.text = "Once Upon a Final War"
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	titulo.position = Vector2(0, 90.0)
+	titulo.custom_minimum_size = Vector2(960.0, 0.0)
+	titulo.add_theme_font_size_override("font_size", 40)
+	menu.add_child(titulo)
+	titulo.owner = menu
+
+	var panel := VBoxContainer.new()
+	panel.name = "Panel"
+	panel.position = Vector2(360.0, 210.0)
+	panel.custom_minimum_size = Vector2(240.0, 0.0)
+	menu.add_child(panel)
+	panel.owner = menu
+
+	var etiqueta := Label.new()
+	etiqueta.name = "EtiquetaSeleccion"
+	etiqueta.text = "Elige tu princesa"
+	etiqueta.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	panel.add_child(etiqueta)
+	etiqueta.owner = menu
+
+	# Botones de seleccion en modo toggle: la eleccion se VE marcada.
+	for datos: Array in [
+		["BotonDulcecito", "Princesa Dulcecito"],
+		["BotonChocolatito", "Princesa Chocolatito"],
+	]:
+		var boton := Button.new()
+		boton.name = datos[0]
+		boton.text = datos[1]
+		boton.toggle_mode = true
+		boton.custom_minimum_size = Vector2(240.0, 48.0)
+		panel.add_child(boton)
+		boton.owner = menu
+
+	var separador := Control.new()
+	separador.custom_minimum_size = Vector2(0.0, 16.0)
+	panel.add_child(separador)
+	separador.owner = menu
+
+	var jugar := Button.new()
+	jugar.name = "BotonJugar"
+	jugar.text = "Jugar"
+	jugar.custom_minimum_size = Vector2(240.0, 48.0)
+	panel.add_child(jugar)
+	jugar.owner = menu
+
+	root.remove_child(menu)
+	_guardar(menu, "%s/menu_principal.tscn" % DIR_ESCENAS)
+	menu.free()
+
+
+## Construye el cuadro de dialogo de novela visual (OUFW-13). Nace oculto; el
+## nivel lo arranca con DialogoUI.iniciar() y se cierra solo al acabar el guion.
+func _crear_dialogo_ui() -> void:
+	var ui := CanvasLayer.new()
+	ui.name = "DialogoUI"
+	ui.layer = 20
+	ui.visible = false
+	ui.set_script(load("res://scripts/ui/dialogo_ui.gd"))
+	root.add_child(ui)
+
+	var raiz := Control.new()
+	raiz.name = "Raiz"
+	raiz.set_anchors_preset(Control.PRESET_FULL_RECT)
+	raiz.mouse_filter = Control.MOUSE_FILTER_STOP
+	ui.add_child(raiz)
+	raiz.owner = ui
+
+	var fondo := ColorRect.new()
+	fondo.name = "Fondo"
+	fondo.color = Color(0.02, 0.01, 0.04, 0.45)
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	raiz.add_child(fondo)
+	fondo.owner = ui
+
+	var panel := ColorRect.new()
+	panel.name = "Panel"
+	panel.color = Color(0.07, 0.04, 0.1, 0.94)
+	panel.anchor_top = 0.62
+	panel.anchor_right = 1.0
+	panel.anchor_bottom = 1.0
+	raiz.add_child(panel)
+	panel.owner = ui
+
+	var borde := ColorRect.new()
+	borde.name = "Borde"
+	borde.color = Color("#e78ac3")
+	borde.anchor_right = 1.0
+	borde.offset_bottom = 3.0
+	panel.add_child(borde)
+	borde.owner = ui
+
+	var nombre := Label.new()
+	nombre.name = "Nombre"
+	nombre.position = Vector2(48.0, 346.0)
+	nombre.add_theme_font_size_override("font_size", 26)
+	nombre.add_theme_color_override("font_color", Color("#f2a7d0"))
+	raiz.add_child(nombre)
+	nombre.owner = ui
+
+	var texto := RichTextLabel.new()
+	texto.name = "Texto"
+	texto.position = Vector2(48.0, 386.0)
+	texto.size = Vector2(600.0, 126.0)
+	texto.fit_content = true
+	texto.scroll_active = false
+	texto.add_theme_font_size_override("normal_font_size", 20)
+	raiz.add_child(texto)
+	texto.owner = ui
+
+	var retrato := TextureRect.new()
+	retrato.name = "Retrato"
+	retrato.position = Vector2(650.0, 18.0)
+	retrato.size = Vector2(292.0, 326.0)
+	retrato.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	retrato.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	raiz.add_child(retrato)
+	retrato.owner = ui
+
+	var indicador := Label.new()
+	indicador.name = "Indicador"
+	indicador.position = Vector2(790.0, 506.0)
+	indicador.text = "Espacio / clic  >"
+	indicador.add_theme_font_size_override("font_size", 14)
+	indicador.add_theme_color_override("font_color", Color(0.85, 0.85, 0.9))
+	raiz.add_child(indicador)
+	indicador.owner = ui
+
+	var contador := Label.new()
+	contador.name = "Contador"
+	contador.position = Vector2(880.0, 10.0)
+	contador.add_theme_font_size_override("font_size", 14)
+	raiz.add_child(contador)
+	contador.owner = ui
+
+	root.remove_child(ui)
+	_guardar(ui, "%s/dialogo.tscn" % DIR_ESCENAS)
+	ui.free()
+
+
+## Construye la pantalla de fin de juego del core loop (OUFW-18).
+func _crear_fin_juego() -> void:
+	var fin := Control.new()
+	fin.name = "FinJuego"
+	fin.set_script(load("res://scripts/fin_juego.gd"))
+	fin.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_child(fin)
+
+	var fondo := ColorRect.new()
+	fondo.name = "Fondo"
+	fondo.color = Color(0.08, 0.03, 0.12, 1.0)
+	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	fin.add_child(fondo)
+	fondo.owner = fin
+
+	var panel := VBoxContainer.new()
+	panel.name = "Panel"
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.custom_minimum_size = Vector2(560.0, 300.0)
+	panel.position = Vector2(200.0, 120.0)
+	panel.add_theme_constant_override("separation", 22)
+	fin.add_child(panel)
+	panel.owner = fin
+
+	var titulo := Label.new()
+	titulo.name = "Titulo"
+	titulo.text = "FIN DEL JUEGO"
+	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	titulo.add_theme_font_size_override("font_size", 48)
+	titulo.add_theme_color_override("font_color", Color("#f2a7d0"))
+	panel.add_child(titulo)
+	titulo.owner = fin
+
+	var resumen := Label.new()
+	resumen.name = "Resumen"
+	resumen.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	resumen.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	resumen.custom_minimum_size = Vector2(560.0, 90.0)
+	resumen.add_theme_font_size_override("font_size", 20)
+	panel.add_child(resumen)
+	resumen.owner = fin
+
+	var menu := Button.new()
+	menu.name = "BotonMenu"
+	menu.text = "Menu Principal"
+	menu.custom_minimum_size = Vector2(260.0, 48.0)
+	panel.add_child(menu)
+	menu.owner = fin
+
+	var salir := Button.new()
+	salir.name = "BotonSalir"
+	salir.text = "Salir"
+	salir.custom_minimum_size = Vector2(260.0, 48.0)
+	panel.add_child(salir)
+	salir.owner = fin
+
+	root.remove_child(fin)
+	_guardar(fin, "%s/fin_juego.tscn" % DIR_ESCENAS)
+	fin.free()
+
+
 func _fijar_escena_principal() -> void:
+	# El juego arranca en el MENU (OUFW-17), no en la arena: desde ahi el jugador
+	# elige princesa y entra al combate. Las pruebas cargan la arena directamente.
 	ProjectSettings.set_setting("application/run/main_scene",
-		"%s/arena_movimiento.tscn" % DIR_ESCENAS)
+		"%s/menu_principal.tscn" % DIR_ESCENAS)
 	ProjectSettings.set_setting("display/window/size/viewport_width", 960)
 	ProjectSettings.set_setting("display/window/size/viewport_height", 540)
 	ProjectSettings.set_setting("display/window/size/window_width_override", 960)

@@ -12,8 +12,37 @@ extends CharacterBody2D
 ##
 ## Referencia: OUFW-1 "Implementar Clase Base Personaje (POO)".
 
+#referencia al nodo de animación al inicio del archivo
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+
 ## Perfil de combate (moveset). GDD seccion 8 "Fichas de Personajes".
 enum Modset { AGIL_DISTANCIA, PESADO_PESA }
+
+## Estados de skin que activan diferentes sprites (OUFW-21).
+enum SkinState { NORMAL, COMBO_ALTO, DAÑADO, GOLPE_CRITICO, NO_JUGADOR }
+
+## Claves de skin válidas (deben coincidir con [member id_skin_activa] en cada princesa).
+const SKIN_CANDYR_DEFAULT: String = "SKIN_CANDYR_DEFAULT"
+const SKIN_CHOCOLATE_DEFAULT: String = "SKIN_CHOCOLATE_DEFAULT"
+
+## Mapeo de skins a rutas de texturas. Usa strings como claves porque los enums
+## no son expresiones constantes válidas en diccionarios const en GDScript.
+var RUTAS_SPRITES: Dictionary = {
+	SKIN_CANDYR_DEFAULT: {
+		"NORMAL": "res://recursos/Dulcecito-removebg-preview.png",
+		"COMBO_ALTO": "res://recursos/Dulcecito-removebg-preview.png",
+		"DAÑADO": "res://recursos/Dulcecito-removebg-preview.png",
+		"GOLPE_CRITICO": "res://recursos/Dulcecito-removebg-preview.png",
+		"NO_JUGADOR": "res://recursos/placeholder_dulcecito.png"
+	},
+	SKIN_CHOCOLATE_DEFAULT: {
+		"NORMAL": "res://recursos/chocolatito-removebg-preview.png",
+		"COMBO_ALTO": "res://recursos/chocolatito-removebg-preview.png",
+		"DAÑADO": "res://recursos/chocolatito-removebg-preview.png",
+		"GOLPE_CRITICO": "res://recursos/chocolatito-removebg-preview.png",
+		"NO_JUGADOR": "res://recursos/placeholder_chocolatito.png"
+	}
+}
 
 ## Tipos de ataque del moveset base. El mapeo de teclas vive en la seccion [code][input]
 ## de [code]project.godot[/code] y lo consumen [ControladorJugador] (OUFW-2) y los
@@ -71,6 +100,73 @@ signal aterrizaje
 ## retroalimentacion y OUFW-8 para encadenar el moveset.
 signal ataque_ejecutado(tipo: TipoAtaque)
 
+## Se empezo a acumular la carga pesada (OUFW-9, tecla `J`).
+
+## Escala base del sprite (capturada en _ready desde la escena).
+## Se usa para restaurar la escala correcta tras efectos visuales.
+var _escala_base_sprite: Vector2 = Vector2.ONE
+
+## Aplica el sprite correspondiente al estado actual de skin (OUFW-21).
+func _aplicar_sprite_por_skin_estado(nuevo_estado: SkinState) -> void:
+	if nuevo_estado == skin_estado:
+		return
+	skin_estado = nuevo_estado
+	if nodo_sprite == null:
+		return
+	var estado_str: String = _skin_state_to_string(skin_estado)
+	var ruta_textura: String = RUTAS_SPRITES.get(id_skin_activa, {}).get(estado_str)
+	if ruta_textura == null:
+		return
+	nodo_sprite.texture = load(ruta_textura)
+	skin_cambiada.emit(skin_estado)
+
+
+## Convierte un valor de SkinState a su nombre en string (GDScript no permite .name en enums).
+func _skin_state_to_string(estado: SkinState) -> String:
+	match estado:
+		SkinState.NORMAL:
+			return "NORMAL"
+		SkinState.COMBO_ALTO:
+			return "COMBO_ALTO"
+		SkinState.DAÑADO:
+			return "DAÑADO"
+		SkinState.GOLPE_CRITICO:
+			return "GOLPE_CRITICO"
+		SkinState.NO_JUGADOR:
+			return "NO_JUGADOR"
+		_:
+			return "NORMAL"
+
+
+## Establece el estado de skin a NORMAL (base street fighter) (OUFW-21).
+func establecer_skin_normal() -> void:
+	_aplicar_sprite_por_skin_estado(SkinState.NORMAL)
+
+## Establece el estado de skin a COMBO_ALTO (sprites de combo) (OUFW-21).
+func establecer_skin_combo_alto() -> void:
+	_aplicar_sprite_por_skin_estado(SkinState.COMBO_ALTO)
+
+## Establece el estado de skin a DAÑADO (sprites de daño) (OUFW-21).
+func establecer_skin_dañado() -> void:
+	_aplicar_sprite_por_skin_estado(SkinState.DAÑADO)
+
+## Establece el estado de skin a GOLPE_CRITICO (sprites de golpe crítico) (OUFW-21).
+func establecer_skin_golpe_critico() -> void:
+	_aplicar_sprite_por_skin_estado(SkinState.GOLPE_CRITICO)
+
+## Establece el estado de skin a NO_JUGADOR (sprite placeholder) (OUFW-21).
+func establecer_skin_no_jugador() -> void:
+	_aplicar_sprite_por_skin_estado(SkinState.NO_JUGADOR)
+signal carga_iniciada
+
+## Nivel de carga actual (0.0..1.0) en cada frame de acumulacion. El HUD dibuja la
+## barra y el sprite usa el nivel para el efecto visual de "inflarse".
+signal carga_cambiada(nivel: float)
+
+## Se libero la carga y el golpe acaba de salir con este multiplicador de dano
+## (1.0 = soltada al instante, [member multiplicador_carga_max] = carga llena).
+signal carga_liberada(multiplicador: float)
+
 ## Se consumio una pocion (OUFW-10). [param pociones_restantes] es el inventario que
 ## queda y [param hp_recuperada] la vida que de verdad se curo (puede ser menor que
 ## [member curacion_pocion] si el personaje estaba cerca del tope).
@@ -113,13 +209,33 @@ signal estado_alterado_cambiado(estado: EstadoAlterado)
 ## Empuje horizontal (knockback) en px/s del golpe fuerte. El golpe normal no empuja.
 @export var empuje_golpe_fuerte: float = 300.0
 ## Pausa entre golpes normales. Corta el spam de tecla mantenida.
-@export var cooldown_golpe_normal: float = 0.15
+@export var cooldown_golpe_normal: float = 0.22
 ## Pausa entre golpes fuertes: mas lenta por dano y alcance.
-@export var cooldown_golpe_fuerte: float = 0.35
+@export var cooldown_golpe_fuerte: float = 0.48
 ## Ventana de frames activos ("active frames") del hitbox del golpe normal.
 @export var duracion_hitbox_golpe_normal: float = 0.12
 ## Ventana activa del golpe fuerte: algo mas generosa que la del normal.
 @export var duracion_hitbox_golpe_fuerte: float = 0.18
+
+@export_group("Carga (OUFW-9)")
+## Dano base de la carga pesada (`J`) soltada al instante. Se multiplica por el
+## nivel de acumulacion y despues por [member multiplicador_dano].
+@export var dano_carga: int = 30
+## Multiplicador de dano con la carga llena ([member tiempo_carga_max] completo).
+@export var multiplicador_carga_max: float = 2.0
+## Segundos de mantener `J` para llegar a la carga maxima.
+@export var tiempo_carga_max: float = 1.0
+## Tamano del volumen de la carga: el golpe mas ancho del moveset.
+@export var alcance_carga: Vector2 = Vector2(190.0, 80.0)
+## Empuje (knockback) de la carga: sacude mas que el golpe fuerte.
+@export var empuje_carga: float = 420.0
+## Pausa tras soltar la carga. El golpe es lento a proposito: es un gancho leible.
+@export var cooldown_carga: float = 0.80
+## Ventana activa del hitbox de carga.
+@export var duracion_hitbox_carga: float = 0.25
+## Cuanto se "infla" el sprite con la carga llena (0.2 = +20%). Es el efecto visual
+## de acumulacion que pide OUFW-9; el HUD puede sumar su barra con [signal carga_cambiada].
+@export var factor_escala_carga: float = 0.2
 ## Veneno (OUFW-8, tecla `U`). Danio por segundo (DoT) del estado Envenenado, ANTES del
 ## [member multiplicador_dano]. Cada segundo completo descuenta esta cantidad de vida.
 @export var dano_veneno_por_segundo: int = 4
@@ -129,7 +245,7 @@ signal estado_alterado_cambiado(estado: EstadoAlterado)
 ## moveset [constant Modset.AGIL_DISTANCIA].
 @export var alcance_veneno: Vector2 = Vector2(260.0, 56.0)
 ## Cooldown tras lanzar el veneno: mas largo que el de los golpes para que no se spamee.
-@export var cooldown_veneno: float = 1.2
+@export var cooldown_veneno: float = 1.40
 ## Segundos que el volumen del ataque de veneno queda activo.
 @export var duracion_hitbox_veneno: float = 0.15
 
@@ -187,6 +303,9 @@ signal estado_alterado_cambiado(estado: EstadoAlterado)
 ## [Sprite2D] o [AnimatedSprite2D], que es la convencion de las escenas de OUFW-6.
 @export var nodo_sprite: CanvasItem
 
+## Estado actual de skin que determina qué sprite usar (OUFW-21).
+@export var skin_estado: SkinState = SkinState.NORMAL
+
 ## Vida actual. La inicializa [_ready] a partir de [member hp_max] y solo se
 ## modifica mediante [method recibir_dano] o [method aplicar_curacion].
 var current_hp: int = 0
@@ -207,8 +326,18 @@ var mirando_a_la_derecha: bool = true
 ## frame. La consume [method avanzar_movimiento] para no sobreescribirla con el input.
 var mirada_externa: bool = false
 
+## Señal que se emite cuando el estado de skin cambia (OUFW-21).
+signal skin_cambiada(estado: SkinState)
+
 ## Segundos que le quedan al derrape en curso.
 var tiempo_derrape: float = 0.0
+
+## true mientras se mantiene pulsada la carga pesada (OUFW-9). La acumula
+## [method _physics_process] y la consume [method soltar_carga].
+var cargando: bool = false
+
+## Segundos acumulados de carga en curso, con techo en [member tiempo_carga_max].
+var tiempo_carga: float = 0.0
 
 ## Fraccion de vida actual en rango 0.0..1.0. La consume el HUD para calcular el
 ## `fill_amount` de la barra (OUFW-5).
@@ -268,16 +397,31 @@ var _contador_hitboxes: int = 0
 ## subclases sobrescriben para fijar su identidad y su [member hp_max]), y solo
 ## despues se deriva [member current_hp] de ese [member hp_max].
 func _ready() -> void:
+	collision_layer = CAPA_PERSONAJE
+	collision_mask = CAPA_GROUND | CAPA_PERSONAJE
+	# Buscar sprite ANTES de configurar atributos, para que establecer_skin_normal()
+	# en _configurar_atributos_por_defecto() funcione correctamente.
+	if nodo_sprite == null:
+		nodo_sprite = _buscar_sprite()
+	# Guardar la escala base del sprite (definida en la escena) para restaurarla
+	# correctamente tras efectos visuales (carga, etc.).
+	if nodo_sprite != null:
+		_escala_base_sprite = nodo_sprite.scale
 	_configurar_atributos_por_defecto()
 	_hp_max_base = hp_max
 	_multiplicador_dano_base = multiplicador_dano
 	current_hp = hp_max
 	esta_muerto = false
-	if nodo_sprite == null:
-		nodo_sprite = _buscar_sprite()
 	_estaba_en_suelo = en_suelo()
 	_aplicar_flip()
 	_crear_hurtbox()
+	# _aplicar_sprite_por_skin_estado ya se llamó desde _configurar_atributos_por_defecto()
+	# vía establecer_skin_normal() en las subclases, pero nos aseguramos aquí también.
+	_aplicar_sprite_por_skin_estado(SkinState.NORMAL)
+	# === CONEXIÓN DE ANIMACIONES ===
+	ataque_ejecutado.connect(_on_ataque_ejecutado_anim)
+	health_changed.connect(_on_health_changed_anim)
+	died.connect(_on_died_anim)
 
 
 ## Punto de extension donde cada princesa declara su identidad y sus atributos
@@ -313,6 +457,7 @@ func recibir_dano(cantidad: int, tipo: TipoAtaque = TipoAtaque.GOLPE_NORMAL,
 
 	if current_hp <= 0:
 		esta_muerto = true
+		cancelar_carga()
 		_terminar_veneno()
 		died.emit()
 
@@ -519,6 +664,12 @@ func _fijar_estado_alterado(nuevo: EstadoAlterado) -> void:
 func _physics_process(delta: float) -> void:
 	if _cooldown_ataque > 0.0:
 		_cooldown_ataque = maxf(0.0, _cooldown_ataque - delta)
+	if cargando:
+		var nivel_previo := carga_nivel()
+		tiempo_carga = minf(tiempo_carga + delta, tiempo_carga_max)
+		if not is_equal_approx(nivel_previo, carga_nivel()):
+			_actualizar_escalado_carga()
+			carga_cambiada.emit(carga_nivel())
 	_actualizar_veneno(delta)
 
 
@@ -548,6 +699,84 @@ func ataque_fuerte() -> void:
 	)
 
 
+# --- OUFW-9: carga rompe-guardia (tecla J) ---
+
+## Empieza a acumular la carga pesada (`J` mantenida). No se puede cargar dos veces
+## a la vez ni con el golpe anterior todavia en cooldown; tampoco un personaje
+## muerto. La acumulacion avanza sola en [method _physics_process].
+func iniciar_carga() -> void:
+	if esta_muerto or cargando or _cooldown_ataque > 0.0 or not is_inside_tree():
+		return
+	cargando = true
+	tiempo_carga = 0.0
+	carga_iniciada.emit()
+
+
+## Suelta la carga y despacha el golpe: el dano escala con el nivel acumulado, de
+## [member dano_carga] (soltada al instante) hasta dano_carga x
+## [member multiplicador_carga_max] (carga llena). El golpe lleva la marca
+## [member Hitbox.rompe_guardia], la que la Hurtbox rival convierte en
+## [signal Hurtbox.guardia_rota].
+func soltar_carga() -> void:
+	if not cargando:
+		return
+
+	var multiplicador := lerpf(1.0, multiplicador_carga_max, carga_nivel())
+	cargando = false
+	tiempo_carga = 0.0
+	_restaurar_escala_sprite()
+	carga_liberada.emit(multiplicador)
+
+	_ejecutar_ataque(
+		roundi(dano_carga * multiplicador),
+		TipoAtaque.SUPER_PESADO_CARGA,
+		alcance_carga,
+		empuje_carga,
+		cooldown_carga,
+		duracion_hitbox_carga,
+		0,
+		0.0,
+		true
+	)
+
+
+## Cancela la carga en curso SIN golpear: se usa cuando la accion se interrumpe
+## (controles congelados, muerte del personaje, reinicio del combate).
+func cancelar_carga() -> void:
+	cargando = false
+	tiempo_carga = 0.0
+	_restaurar_escala_sprite()
+
+
+## [return] Progreso de la carga en rango 0.0..1.0. 1.0 = [member tiempo_carga_max].
+func carga_nivel() -> float:
+	if tiempo_carga_max <= 0.0:
+		return 1.0
+	return clampf(tiempo_carga / tiempo_carga_max, 0.0, 1.0)
+
+
+## [return] Si hay una carga acumulandose en este momento.
+func esta_cargando() -> bool:
+	return cargando
+
+
+## Efecto visual de acumulacion (OUFW-9): el sprite se "infla" con la carga, hasta
+## [member factor_escala_carga] extra al nivel maximo. OJO: usa [member Node2D.scale]
+## del sprite, asi que solo conviene con sprites que se volteen via `flip_h` (la
+## convencion de las escenas); un sprite que dependa del signo de `scale.x` para
+## mirar perderia el flip mientras dure la carga.
+func _actualizar_escalado_carga() -> void:
+	if nodo_sprite == null:
+		return
+	var escala_mult := 1.0 + factor_escala_carga * carga_nivel()
+	nodo_sprite.scale = _escala_base_sprite * escala_mult
+
+
+func _restaurar_escala_sprite() -> void:
+	if nodo_sprite != null:
+		nodo_sprite.scale = _escala_base_sprite
+
+
 ## Crea un [Hitbox] frontal como hijo (viaja con el personaje) y lo posiciona a la
 ## distancia de alcance EN FRENTE de la mirada. El cooldown corta el spam de tecla
 ## mantenida: pulsar `K` en bucle solo suelta un golpe cada
@@ -557,7 +786,7 @@ func ataque_fuerte() -> void:
 ## seccion 8); el resto del volumen y el empuje se inyectan tal cual.
 func _ejecutar_ataque(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: float,
 		cooldown: float, duracion: float, veneno_dps: int = 0,
-		veneno_duracion: float = 0.0) -> void:
+		veneno_duracion: float = 0.0, rompe_guardia: bool = false) -> void:
 	if esta_muerto or _cooldown_ataque > 0.0 or not is_inside_tree():
 		return
 
@@ -576,7 +805,8 @@ func _ejecutar_ataque(dano: int, tipo: TipoAtaque, tamano: Vector2, empuje: floa
 		empuje,
 		_signo_mirada(),
 		self,
-		duracion
+		duracion,
+		rompe_guardia
 	)
 	# El golpe nace a alcance corto del cuerpo (media del tamano + 8 px) para no
 	# "nacer adentro" del rival: la superposicion se produce cuando el golpe entra
@@ -637,10 +867,28 @@ func avanzar_movimiento(delta: float, direccion: float, quiere_saltar: bool = fa
 	if is_inside_tree():
 		move_and_slide()
 
+# --- LLAMADA A LA ANIMACIÓN DE MOVIMIENTO ---
+	_actualizar_animacion_movimiento()
+
 	var suelo_final := en_suelo()
 	if suelo_final and not _estaba_en_suelo:
 		aterrizaje.emit()
 	_estaba_en_suelo = suelo_final
+	
+# Función para actualizar el movimiento
+func _actualizar_animacion_movimiento() -> void:
+	if not has_node("AnimationPlayer"):
+		return
+		
+	var anim := $AnimationPlayer
+	# Si se está ejecutando un ataque, daño o muerte, evitamos interrumpirla con la caminata
+	if anim.is_playing() and anim.current_animation in ["attack", "hurt", "dead"]:
+		return
+
+	if velocity.x != 0 and en_suelo():
+		anim.play("walk")
+	elif en_suelo():
+		anim.play("idle")
 
 
 ## Traduce `S` y `S + A/D` a la pose del cuerpo (GDD seccion 5).
@@ -861,3 +1109,19 @@ func _invertir_por_movimiento(direccion: float) -> void:
 	if is_zero_approx(direccion):
 		return
 	_fijar_mirando(direccion > 0.0)
+
+# Funciones controladoras de animación conectadas a las señales:
+
+func _on_ataque_ejecutado_anim(_tipo: TipoAtaque) -> void:
+	if has_node("AnimationPlayer"):
+		$AnimationPlayer.play("attack")
+
+func _on_health_changed_anim(current: int, _max_hp: int) -> void:
+	# Si la vida bajó y no está muerto, reproduce la animación de recibir daño
+	if current < current_hp and not esta_muerto:
+		if has_node("AnimationPlayer"):
+			$AnimationPlayer.play("hurt")
+
+func _on_died_anim() -> void:
+	if has_node("AnimationPlayer"):
+		$AnimationPlayer.play("dead")

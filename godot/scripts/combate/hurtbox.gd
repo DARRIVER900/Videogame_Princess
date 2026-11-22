@@ -28,6 +28,11 @@ const RADIO := 12.0
 ## escuchan para la retroalimentacion de impacto.
 signal golpe_recibido(hitbox: Hitbox)
 
+## El golpe recibido traia la marca [member Hitbox.rompe_guardia] (OUFW-9). Cuando
+## exista el sistema de defensa/bloqueo, esta senal es el enganche para romperlo:
+## el daño ya entro; aqui solo se notifica que la guardia no valio de nada.
+signal guardia_rota(hitbox: Hitbox)
+
 ## Princesa duena de esta hurtbox. Se resuelve sola en [_ready]; en runtime lo fija
 ## [method Personaje._crear_hurtbox] antes de anadir el nodo.
 @export var personaje: Personaje
@@ -106,6 +111,8 @@ func recibir_golpe(hitbox: Hitbox) -> void:
 		hitbox.empuje,
 		hitbox.direccion_empuje
 	)
+	if hitbox.rompe_guardia:
+		guardia_rota.emit(hitbox)
 	# Veneno (OUFW-8): el golpe puede tener danio directo 0, asi que el estado no
 	# depende de que recibir_dano haya descontado vida.
 	if hitbox.tipo_ataque == Personaje.TipoAtaque.VENENO and hitbox.veneno_dps > 0:

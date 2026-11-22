@@ -386,7 +386,7 @@ func _prueba_cooldown() -> void:
 		lanzados[0] == 1 and _contar_hitboxes(atacante) == 1,
 		"lanzados=%d hitboxes=%d" % [lanzados[0], _contar_hitboxes(atacante)])
 
-	await _pasos(11)  # cooldown_golpe_normal = 0.15 s => ~9 frames
+	await _pasos(int(atacante.cooldown_golpe_normal * 60.0) + 5)
 	atacante.ataque_normal()
 	_comprobar("terminado el cooldown se puede volver a golpear",
 		lanzados[0] == 2, "lanzados=%d" % lanzados[0])

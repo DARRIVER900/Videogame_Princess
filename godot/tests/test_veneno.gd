@@ -341,9 +341,9 @@ func _prueba_cooldown_y_escalado() -> void:
 	var atacante: Personaje = m["atacante"]
 	atacante.ataque_veneno()
 	atacante.ataque_veneno()
-	_comprobar("dos U seguidas lanzan un solo ataque (cooldown 1.2 s)",
+	_comprobar("dos U seguidas lanzan un solo ataque (cooldown 1.4 s)",
 		_hitbox_de(atacante, 1) == null and _hitbox_de(atacante, 0) != null)
-	await _pasos(80)  # > 1.2 s
+	await _pasos(int(atacante.cooldown_veneno * 60.0) + 5)
 	atacante.ataque_veneno()
 	_comprobar("pasado el cooldown vuelve a poder lanzarse", _hitbox_de(atacante, 1) != null)
 	_desmontar(m)

@@ -34,6 +34,11 @@ var dueno: Personaje = null
 ## Una vez la hurtbox rival consume el golpe, ya no puede herir a nadie mas.
 var consumida: bool = false
 
+## true si este golpe rompe la defensa/bloqueo enemigo (OUFW-9): la carga pesada
+## ignora cualquier reduccion de dano defensiva. La [Hurtbox] lo traduce en su
+## senal [signal Hurtbox.guardia_rota], que es el enganche del futuro sistema de guardia.
+var rompe_guardia: bool = false
+
 ## Segundos de ventana activa restantes. Al agotarse el golpe se destruye solo.
 var _tiempo_activo: float = 0.0
 
@@ -52,13 +57,15 @@ func _physics_process(delta: float) -> void:
 ## Configura el golpe y crea su volumen de alcance. Llamar tras anadir el nodo al
 ## arbol del dueno (necesita estar dentro para que el shape registre en fisica).
 func iniciar(p_dano: int, p_tipo: Personaje.TipoAtaque, tamano: Vector2,
-		p_empuje: float, p_direccion: int, p_dueno: Personaje, duracion: float) -> void:
+		p_empuje: float, p_direccion: int, p_dueno: Personaje, duracion: float,
+		p_rompe_guardia: bool = false) -> void:
 	dano = p_dano
 	tipo_ataque = p_tipo
 	empuje = p_empuje
 	direccion_empuje = p_direccion
 	dueno = p_dueno
 	_tiempo_activo = duracion
+	rompe_guardia = p_rompe_guardia
 	collision_layer = Personaje.CAPA_HITBOX
 	collision_mask = Personaje.CAPA_HURTBOX
 

@@ -151,6 +151,8 @@ func _crear_nivel() -> bool:
 	jugadora.add_child(ctrl)
 	ctrl.owner = nivel
 
+	Util.montar_partida(nivel)
+
 	# --- Camara: sus limites son el encuadre del nivel ---
 	var camara := Camera2D.new()
 	camara.name = "Camara"
