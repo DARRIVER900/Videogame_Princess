@@ -12,6 +12,7 @@ extends SceneTree
 ## Codigo de salida: 0 si todo pasa, 1 si algo falla.
 
 const RUTA_ARENA := "res://escenas/arena_movimiento.tscn"
+const RUTA_MENU := "res://escenas/menu_principal.tscn"
 
 var _fallos: int = 0
 var _total: int = 0
