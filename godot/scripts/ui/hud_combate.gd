@@ -3,14 +3,15 @@ extends Control
 ## HUD visual de combate (OUFW-5): vida con corazones y pociones con su sprite.
 ##
 ## El panel de la jugadora vive arriba a la izquierda; el de la rival, arriba a la
-## derecha. Cada corazon vale 10 HP y usa [TextureProgressBar] para que la ultima
-## unidad pueda quedar parcialmente llena (p. ej. 125/125 = 12 corazones y medio).
+## derecha. Ambos muestran siempre 5 corazones: cada uno vale [code]hp_max / 5[/code]
+## (20 HP con 100 de vida, 30 con 150) y usa [TextureProgressBar] para que el ultimo
+## pueda quedar parcialmente lleno. Asi la barra no crece con la dificultad.
 
 const TEX_CORAZON_LLENO := preload("res://recursos/Corazon_lleno-removebg-preview.png")
 const TEX_CORAZON_VACIO := preload("res://recursos/Corazon vacio(1).png")
 const TEX_POCION := preload("res://recursos/pocion.svg")
 
-const HP_POR_CORAZON := 10
+const CORAZONES := 5
 const ANCHO_PANEL := 350.0
 const ALTO_PANEL := 96.0
 const MARGEN := 12.0
@@ -70,9 +71,16 @@ func rect_panel_jugadora() -> Rect2:
 	return Rect2(_panel_jugadora.position, _panel_jugadora.size)
 
 
-## Cuantos corazones necesita un HP maximo. Publico para las pruebas.
-static func corazones_para(hp_max: int) -> int:
-	return maxi(1, ceili(float(hp_max) / float(HP_POR_CORAZON)))
+## Siempre se muestran 5 corazones, sea la jugadora o el jefe de turno. Se conserva
+## el parametro para no romper las pruebas que consultan la funcion con un hp_max.
+static func corazones_para(_hp_max: int) -> int:
+	return CORAZONES
+
+
+## Cuantos HP representa cada corazon con 5 unidades fijas. Publico para las pruebas
+## (100 HP -> 20 por corazon; 125 -> 25; 150 -> 30).
+static func hp_por_corazon(hp_max: int) -> int:
+	return maxi(1, ceili(float(hp_max) / float(CORAZONES)))
 
 
 func _process(_delta: float) -> void:
@@ -230,17 +238,19 @@ func _refrescar_personaje(p: Personaje, panel: Panel, nombre: Label, hp_texto: L
 	hp_texto.text = "%d/%d" % [p.current_hp, p.hp_max]
 
 	var max_corazones := corazones_para(p.hp_max)
+	var hp_por := hp_por_corazon(p.hp_max)
 	if es_jugadora and max_corazones != _max_corazones_jugadora:
 		_max_corazones_jugadora = max_corazones
-		_montar_corazones(corazones, max_corazones)
+		_montar_corazones(corazones, max_corazones, hp_por)
 	elif not es_jugadora and max_corazones != _max_corazones_rival:
 		_max_corazones_rival = max_corazones
-		_montar_corazones(corazones, max_corazones)
+		_montar_corazones(corazones, max_corazones, hp_por)
 
 	for i in corazones.get_child_count():
 		var corazon := corazones.get_child(i) as TextureProgressBar
 		if corazon != null:
-			corazon.value = clampi(p.current_hp - i * HP_POR_CORAZON, 0, HP_POR_CORAZON)
+			corazon.max_value = float(hp_por)
+			corazon.value = clampi(p.current_hp - i * hp_por, 0, hp_por)
 
 	var visibles := mini(p.cantidad_pociones, MAX_ICONOS_POCION)
 	for i in iconos.size():
@@ -255,7 +265,7 @@ func _refrescar_personaje(p: Personaje, panel: Panel, nombre: Label, hp_texto: L
 		hp_texto.add_theme_color_override("font_color", Color(1.0, 0.94, 0.97))
 
 
-func _montar_corazones(fila: HBoxContainer, cantidad: int) -> void:
+func _montar_corazones(fila: HBoxContainer, cantidad: int, hp_por: int) -> void:
 	for hijo in fila.get_children():
 		fila.remove_child(hijo)
 		hijo.queue_free()
@@ -266,7 +276,7 @@ func _montar_corazones(fila: HBoxContainer, cantidad: int) -> void:
 		corazon.texture_progress = TEX_CORAZON_LLENO
 		corazon.fill_mode = TextureProgressBar.FILL_LEFT_TO_RIGHT
 		corazon.min_value = 0.0
-		corazon.max_value = float(HP_POR_CORAZON)
+		corazon.max_value = float(hp_por)
 		corazon.custom_minimum_size = Vector2(
 			TEX_CORAZON_LLENO.get_width(), TEX_CORAZON_LLENO.get_height()) * ESCALA_CORAZON
 		corazon.size = corazon.custom_minimum_size

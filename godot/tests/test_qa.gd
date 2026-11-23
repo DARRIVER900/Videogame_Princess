@@ -120,8 +120,9 @@ func _prueba_hud() -> void:
 		var jugadora := nivel.get_node("Jugadora") as Personaje
 		var rival := nivel.get_node("Rival") as Personaje
 		var corazones := hud.get_node("PanelJugador/Corazones")
-		_comprobar("la vida se dibuja con un corazon por cada 10 HP",
-			corazones.get_child_count() == hud.corazones_para(jugadora.hp_max),
+		_comprobar("la vida se dibuja con 5 corazones",
+			corazones.get_child_count() == 5
+			and hud.corazones_para(jugadora.hp_max) == 5,
 			"%d corazones" % corazones.get_child_count())
 		_comprobar("cada corazon usa los sprites lleno/vacio",
 			(corazones.get_child(0) as TextureProgressBar).texture_progress != null
@@ -137,11 +138,19 @@ func _prueba_hud() -> void:
 			"x=%.0f y=%.0f" % [rect_rival.position.x, rect_rival.position.y])
 		_comprobar("el panel rival no tapa el temporizador",
 			rect_rival.position.x >= 504.0)
-		_comprobar("los corazones escalan con la vida del jefe",
-			HudCombate.corazones_para(125) == 13 and HudCombate.corazones_para(150) == 15)
+		_comprobar("todos los personajes usan 5 corazones",
+			HudCombate.corazones_para(100) == 5
+			and HudCombate.corazones_para(125) == 5
+			and HudCombate.corazones_para(150) == 5)
+		var corazon_rival := hud.get_node("PanelRival/Corazones").get_child(0) as TextureProgressBar
 		_comprobar("la fila de corazones del rival existe",
-			hud.get_node("PanelRival/Corazones").get_child_count()
-			== hud.corazones_para(rival.hp_max))
+			hud.get_node("PanelRival/Corazones").get_child_count() == 5)
+		_comprobar("cada corazon del rival vale hp_max/5",
+			HudCombate.hp_por_corazon(125) == 25
+			and HudCombate.hp_por_corazon(150) == 30
+			and is_equal_approx(corazon_rival.max_value,
+				float(HudCombate.hp_por_corazon(rival.hp_max))),
+			"max=%.0f hp_max=%d" % [corazon_rival.max_value, rival.hp_max])
 	nivel.queue_free()
 	await _pasos(1)
 
