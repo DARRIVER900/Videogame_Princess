@@ -144,6 +144,7 @@ position = Vector2(140, -32)
 
 [node name="Jugadora" parent="." unique_id=1896326512 node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("3_0i50g")]
 position = Vector2(-140, -32)
+scale = Vector2(0.5, 0.5)
 nodo_sprite = NodePath("Sprite")
 
 [node name="Controlador" type="Node" parent="Jugadora" unique_id=1890191055 node_paths=PackedStringArray("personaje", "rival")]
@@ -153,6 +154,7 @@ rival = NodePath("../../Rival")
 
 [node name="Rival" parent="." unique_id=869882467 node_paths=PackedStringArray("nodo_sprite") instance=ExtResource("6_jaqq6")]
 position = Vector2(140, -32)
+scale = Vector2(0.54, 0.54)
 nodo_sprite = NodePath("Sprite")
 
 [node name="Bot" type="Node" parent="Rival" unique_id=770779289 node_paths=PackedStringArray("personaje", "rival")]

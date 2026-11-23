@@ -3,6 +3,13 @@
 [ext_resource type="Script" uid="uid://c1mcc7g1xxv7v" path="res://scripts/fin_juego.gd" id="1_mv1cv"]
 [ext_resource type="Texture2D" uid="uid://l2obh2rp6p26" path="res://recursos/Gemini_Generated_Image_4pnjxm4pnjxm4pnj.jpeg" id="2_4mrpl"]
 [ext_resource type="FontFile" uid="uid://c66yivdtye5rb" path="res://recursos/VCR_OSD_MONO_1.001.ttf" id="3_exvn8"]
+[ext_resource type="Texture2D" uid="uid://b3ocdpo5serr" path="res://recursos/Gemini_Generated_Image_9lb3wk9lb3wk9lb3-removebg-preview.png" id="4_exvn8"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nnh24"]
+texture = ExtResource("4_exvn8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_v02rl"]
+texture = ExtResource("4_exvn8")
 
 [node name="FinJuego" type="Control" unique_id=2120242892]
 layout_mode = 3
@@ -20,7 +27,8 @@ texture = ExtResource("2_4mrpl")
 
 [node name="Panel" type="VBoxContainer" parent="." unique_id=823176333]
 custom_minimum_size = Vector2(560, 300)
-layout_mode = 0
+layout_mode = 1
+anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
@@ -42,10 +50,12 @@ autowrap_mode = 3
 custom_minimum_size = Vector2(260, 48)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_exvn8")
+theme_override_styles/normal = SubResource("StyleBoxTexture_nnh24")
 text = "Menu Principal"
 
 [node name="BotonSalir" type="Button" parent="Panel" unique_id=1125445155]
 custom_minimum_size = Vector2(260, 48)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_exvn8")
+theme_override_styles/normal = SubResource("StyleBoxTexture_v02rl")
 text = "Salir"
