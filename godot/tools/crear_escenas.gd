@@ -9,6 +9,8 @@ extends SceneTree
 ##   escenas/princesa_dulcecito.tscn  escenas/princesa_chocolatito.tscn
 ##   escenas/arena_movimiento.tscn    (arena de pruebas de OUFW-2/3/9/11 + gestor OUFW-16)
 ##   escenas/menu_principal.tscn      (menu y seleccion de OUFW-17)
+##   escenas/dialogo.tscn              (cuadro de novela visual de OUFW-13)
+##   escenas/fin_juego.tscn            (pantalla final del core loop, OUFW-18)
 ##
 ## IMPORTANTE: la arena es el HARNESS de pruebas de OUFW-2, no la arena de
 ## produccion. El graybox del Capitulo 1 es OUFW-6.
@@ -434,6 +436,11 @@ func _crear_dialogo_ui() -> void:
 
 
 ## Construye la pantalla de fin de juego del core loop (OUFW-18).
+##
+## El fondo y la fuente son los recursos de arte exportados con el juego: se cargan
+## por ruta para que regenerar escenas no borre ese trabajo. [code]Titulo[/code] es
+## obligatorio: [code]fin_juego.gd[/code] lo rellena y [code]test_core_loop.gd[/code]
+## lo comprueba. Si falta, la prueba debe fallar, no callarse.
 func _crear_fin_juego() -> void:
 	var fin := Control.new()
 	fin.name = "FinJuego"
@@ -441,18 +448,24 @@ func _crear_fin_juego() -> void:
 	fin.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.add_child(fin)
 
-	var fondo := ColorRect.new()
+	var fondo := Sprite2D.new()
 	fondo.name = "Fondo"
-	fondo.color = Color(0.08, 0.03, 0.12, 1.0)
-	fondo.set_anchors_preset(Control.PRESET_FULL_RECT)
+	fondo.texture = load("%s/Gemini_Generated_Image_4pnjxm4pnjxm4pnj.jpeg" % DIR_RECURSOS)
+	fondo.position = Vector2(484.5, 276.5)
+	fondo.scale = Vector2(0.6853693, 0.71744794)
 	fin.add_child(fondo)
 	fondo.owner = fin
+
+	var fuente := load("%s/VCR_OSD_MONO_1.001.ttf" % DIR_RECURSOS) as Font
 
 	var panel := VBoxContainer.new()
 	panel.name = "Panel"
 	panel.set_anchors_preset(Control.PRESET_CENTER)
 	panel.custom_minimum_size = Vector2(560.0, 300.0)
-	panel.position = Vector2(200.0, 120.0)
+	panel.offset_left = -280.0
+	panel.offset_top = -150.0
+	panel.offset_right = 280.0
+	panel.offset_bottom = 150.0
 	panel.add_theme_constant_override("separation", 22)
 	fin.add_child(panel)
 	panel.owner = fin
@@ -463,6 +476,8 @@ func _crear_fin_juego() -> void:
 	titulo.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	titulo.add_theme_font_size_override("font_size", 48)
 	titulo.add_theme_color_override("font_color", Color("#f2a7d0"))
+	if fuente != null:
+		titulo.add_theme_font_override("font", fuente)
 	panel.add_child(titulo)
 	titulo.owner = fin
 
@@ -479,6 +494,8 @@ func _crear_fin_juego() -> void:
 	menu.name = "BotonMenu"
 	menu.text = "Menu Principal"
 	menu.custom_minimum_size = Vector2(260.0, 48.0)
+	if fuente != null:
+		menu.add_theme_font_override("font", fuente)
 	panel.add_child(menu)
 	menu.owner = fin
 
@@ -486,6 +503,8 @@ func _crear_fin_juego() -> void:
 	salir.name = "BotonSalir"
 	salir.text = "Salir"
 	salir.custom_minimum_size = Vector2(260.0, 48.0)
+	if fuente != null:
+		salir.add_theme_font_override("font", fuente)
 	panel.add_child(salir)
 	salir.owner = fin
 

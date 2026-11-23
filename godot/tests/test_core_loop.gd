@@ -178,12 +178,19 @@ func _prueba_fin_de_juego() -> void:
 	root.add_child(fin)
 	await _pasos(2)
 	_comprobar("la pantalla existe", fin != null)
+	if fin == null:
+		return
+
+	# get_node_or_null + _comprobar: si falta un nodo la suite cuenta un fallo y
+	# sigue con el resto, en vez de abortar con un script error y dar exit 0.
+	var titulo := fin.get_node_or_null("Panel/Titulo") as Label
 	_comprobar("el titulo es FIN DEL JUEGO",
-		(fin.get_node("Panel/Titulo") as Label).text == "FIN DEL JUEGO",
-		(fin.get_node("Panel/Titulo") as Label).text)
+		titulo != null and titulo.text == "FIN DEL JUEGO",
+		"falta" if titulo == null else titulo.text)
+	var resumen := fin.get_node_or_null("Panel/Resumen") as Label
 	_comprobar("el resumen menciona a la princesa elegida",
-		"Chocolatito" in (fin.get_node("Panel/Resumen") as Label).text,
-		(fin.get_node("Panel/Resumen") as Label).text)
+		resumen != null and "Chocolatito" in resumen.text,
+		"falta" if resumen == null else resumen.text)
 	_comprobar("tiene boton de menu",
 		fin.get_node_or_null("Panel/BotonMenu") is Button)
 	_comprobar("tiene boton de salir",

@@ -39,6 +39,14 @@ offset_right = 280.0
 offset_bottom = 150.0
 theme_override_constants/separation = 22
 
+[node name="Titulo" type="Label" parent="Panel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9490196, 0.654902, 0.8156863, 1)
+theme_override_fonts/font = ExtResource("3_exvn8")
+theme_override_font_sizes/font_size = 48
+text = "FIN DEL JUEGO"
+horizontal_alignment = 1
+
 [node name="Resumen" type="Label" parent="Panel" unique_id=1804951606]
 custom_minimum_size = Vector2(560, 90)
 layout_mode = 2
