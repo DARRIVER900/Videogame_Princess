@@ -95,6 +95,25 @@ func _prueba_escenas_cargan() -> void:
 		str((p.get_node_or_null("Colision") as CollisionShape2D).shape.height))
 	p.free()
 
+	# Las texturas de arte miden ~693 px y antes ocupaban toda la pantalla. La
+	# escala visual y el desplazamiento dejan los pies sobre la colision de 64 px
+	# sin tocar la fisica (las pistas de animacion llevan la misma escala).
+	for ruta_princesa in [
+		"res://escenas/princesa_dulcecito.tscn",
+		"res://escenas/princesa_chocolatito.tscn",
+	]:
+		var inst := load(ruta_princesa).instantiate() as Personaje
+		var spr := inst.get_node_or_null("Sprite") as Node2D
+		_comprobar("sprite reducido en %s" % ruta_princesa.get_file(),
+			spr != null
+			and is_equal_approx(spr.scale.x, 0.15)
+			and is_equal_approx(spr.scale.y, 0.15),
+			"falta" if spr == null else str(spr.scale))
+		_comprobar("pies alineados en %s" % ruta_princesa.get_file(),
+			spr != null and is_equal_approx(spr.position.y, -20.0),
+			"falta" if spr == null else str(spr.position.y))
+		inst.free()
+
 
 func _prueba_cableado_del_rival() -> void:
 	print("-- Cableado que sostiene el criterio 3 --")

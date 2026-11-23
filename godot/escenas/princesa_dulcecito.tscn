@@ -19,7 +19,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(0, 0)]
+"values": [Vector2(0, -20)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -31,7 +31,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0),
 "transitions": PackedFloat32Array(1),
 "update": 0,
-"values": [Vector2(1, 1)]
+"values": [Vector2(0.15, 0.15)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -70,7 +70,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.1, 0.2, 0.4),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(0, 0), Vector2(0, -2), Vector2(5, -2), Vector2(0, 0)]
+"values": [Vector2(0, -20), Vector2(0, -22), Vector2(5, -22), Vector2(0, -20)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -82,7 +82,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.1, 0.2, 0.4),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(1, 0.95), Vector2(1.15, 0.95), Vector2(1, 1)]
+"values": [Vector2(0.15, 0.15), Vector2(0.15, 0.1425), Vector2(0.1725, 0.1425), Vector2(0.15, 0.15)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -109,7 +109,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(0, 0), Vector2(0, -10)]
+"values": [Vector2(0, -20), Vector2(0, -30)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -133,7 +133,7 @@ tracks/2/keys = {
 "times": PackedFloat32Array(0, 1),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(1.5, 0.1)]
+"values": [Vector2(0.15, 0.15), Vector2(0.225, 0.015)]
 }
 tracks/3/type = "value"
 tracks/3/imported = false
@@ -161,7 +161,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.1, 0.4),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector2(0, 0), Vector2(-10, 0), Vector2(0, 0)]
+"values": [Vector2(0, -20), Vector2(-10, -20), Vector2(0, -20)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -173,7 +173,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.1, 0.4),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(1.2, 0.8), Vector2(1, 1)]
+"values": [Vector2(0.15, 0.15), Vector2(0.18, 0.12), Vector2(0.15, 0.15)]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -214,7 +214,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 1, 2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector2(0, 0), Vector2(0, -4), Vector2(0, 0)]
+"values": [Vector2(0, -20), Vector2(0, -24), Vector2(0, -20)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -226,7 +226,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 1, 2),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(0.92, 1.08), Vector2(1, 1)]
+"values": [Vector2(0.15, 0.15), Vector2(0.138, 0.162), Vector2(0.15, 0.15)]
 }
 
 [sub_resource type="Animation" id="Animation_18ld2"]
@@ -243,7 +243,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector2(0, 0), Vector2(0, 2), Vector2(0.95, -3)]
+"values": [Vector2(0, -20), Vector2(0, -18), Vector2(0.95, -23)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -255,7 +255,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.3, 0.6),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [Vector2(1, 1), Vector2(1.1, 0.9), Vector2(0.95, 1.05)]
+"values": [Vector2(0.15, 0.15), Vector2(0.165, 0.135), Vector2(0.1425, 0.1575)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_6w3we"]
@@ -276,6 +276,8 @@ nombre = "Princesa Dulcecito"
 id_skin_activa = "SKIN_CANDYR_DEFAULT"
 
 [node name="Sprite" type="Sprite2D" parent="." unique_id=1484000719]
+position = Vector2(0, -20)
+scale = Vector2(0.15, 0.15)
 texture = ExtResource("2_18ld2")
 
 [node name="Colision" type="CollisionShape2D" parent="." unique_id=1721470432]
