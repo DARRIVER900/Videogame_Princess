@@ -9,7 +9,7 @@
 [ext_resource type="Script" uid="uid://dmwi57bdus5bn" path="res://scripts/personaje/controlador_bot.gd" id="8_ojd3c"]
 [ext_resource type="Script" uid="uid://lvkvy6angpwa" path="res://scripts/ui/temporizador_combate.gd" id="9_yw5fc"]
 [ext_resource type="Script" uid="uid://cp7luh7oe1fqp" path="res://scripts/ui/gestor_combate.gd" id="10_r8gsi"]
-[ext_resource type="PackedScene" path="res://escenas/dialogo.tscn" id="11_q5tml"]
+[ext_resource type="PackedScene" uid="uid://fqiviutnpr22" path="res://escenas/dialogo.tscn" id="11_q5tml"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fshd6"]
 size = Vector2(1040, 200)

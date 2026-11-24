@@ -5,10 +5,28 @@
 [ext_resource type="FontFile" uid="uid://c66yivdtye5rb" path="res://recursos/VCR_OSD_MONO_1.001.ttf" id="3_exvn8"]
 [ext_resource type="Texture2D" uid="uid://b3ocdpo5serr" path="res://recursos/Gemini_Generated_Image_9lb3wk9lb3wk9lb3-removebg-preview.png" id="4_exvn8"]
 
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nnh24"]
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_exvn8"]
+texture = ExtResource("4_exvn8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_0hc1n"]
+texture = ExtResource("4_exvn8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_y26im"]
+texture = ExtResource("4_exvn8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_cr775"]
 texture = ExtResource("4_exvn8")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_v02rl"]
+texture = ExtResource("4_exvn8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qcp47"]
+texture = ExtResource("4_exvn8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_s4w81"]
+texture = ExtResource("4_exvn8")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gq55c"]
 texture = ExtResource("4_exvn8")
 
 [node name="FinJuego" type="Control" unique_id=2120242892]
@@ -37,9 +55,11 @@ offset_left = -280.0
 offset_top = -150.0
 offset_right = 280.0
 offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_constants/separation = 22
 
-[node name="Titulo" type="Label" parent="Panel"]
+[node name="Titulo" type="Label" parent="Panel" unique_id=415240399]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.9490196, 0.654902, 0.8156863, 1)
 theme_override_fonts/font = ExtResource("3_exvn8")
@@ -58,7 +78,10 @@ autowrap_mode = 3
 custom_minimum_size = Vector2(260, 48)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_exvn8")
-theme_override_styles/normal = SubResource("StyleBoxTexture_nnh24")
+theme_override_styles/normal = SubResource("StyleBoxTexture_exvn8")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_0hc1n")
+theme_override_styles/hover = SubResource("StyleBoxTexture_y26im")
+theme_override_styles/focus = SubResource("StyleBoxTexture_cr775")
 text = "Menu Principal"
 
 [node name="BotonSalir" type="Button" parent="Panel" unique_id=1125445155]
@@ -66,4 +89,7 @@ custom_minimum_size = Vector2(260, 48)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_exvn8")
 theme_override_styles/normal = SubResource("StyleBoxTexture_v02rl")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_qcp47")
+theme_override_styles/hover = SubResource("StyleBoxTexture_s4w81")
+theme_override_styles/focus = SubResource("StyleBoxTexture_gq55c")
 text = "Salir"
