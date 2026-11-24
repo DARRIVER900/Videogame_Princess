@@ -8,6 +8,8 @@
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tetk2"]
 texture = ExtResource("4_p8sbp")
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_jqfya"]
+
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_aorhf"]
 texture = ExtResource("4_p8sbp")
 
@@ -47,6 +49,10 @@ custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_p8sbp")
 theme_override_styles/normal = SubResource("StyleBoxTexture_tetk2")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_tetk2")
+theme_override_styles/hover = SubResource("StyleBoxTexture_tetk2")
+theme_override_styles/hover_pressed_mirrored = SubResource("StyleBoxTexture_jqfya")
+theme_override_styles/focus = SubResource("StyleBoxTexture_tetk2")
 toggle_mode = true
 text = "Princesa Dulcecito"
 
@@ -55,6 +61,9 @@ custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_p8sbp")
 theme_override_styles/normal = SubResource("StyleBoxTexture_aorhf")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_aorhf")
+theme_override_styles/hover = SubResource("StyleBoxTexture_aorhf")
+theme_override_styles/focus = SubResource("StyleBoxTexture_aorhf")
 toggle_mode = true
 text = "Princesa Chocolatito"
 
@@ -67,4 +76,7 @@ custom_minimum_size = Vector2(240, 48)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_p8sbp")
 theme_override_styles/normal = SubResource("StyleBoxTexture_nobax")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_nobax")
+theme_override_styles/hover = SubResource("StyleBoxTexture_nobax")
+theme_override_styles/focus = SubResource("StyleBoxTexture_nobax")
 text = "Jugar"

@@ -3,67 +3,8 @@
 [ext_resource type="Script" uid="uid://b2301k01i8rgl" path="res://scripts/personaje/princesa_chocolatito.gd" id="1_v5mhl"]
 [ext_resource type="Texture2D" uid="uid://d00xwxqqmkrto" path="res://recursos/Gemini_Generated_Image_u3nmlyu3nmlyu3nm-removebg-preview.png" id="2_5vo58"]
 [ext_resource type="Texture2D" uid="uid://cq5oe1exya65f" path="res://recursos/chocolatito-removebg-preview.png" id="2_uq6s8"]
-[ext_resource type="Texture2D" uid="uid://b6d1anrbntr0l" path="res://recursos/Gemini_Generated_Image_r4832pr4832pr483-removebg-preview.png" id="3_wdsiy"]
 [ext_resource type="Texture2D" uid="uid://58l31481aq3d" path="res://recursos/Gemini_Generated_Image_fsrekafsrekafsre.png" id="4_3gwmu"]
 [ext_resource type="Texture2D" uid="uid://cxoi82bt3leu" path="res://recursos/Gemini_Generated_Image_ak0vq3ak0vq3ak0v-removebg-preview.png" id="6_eo85t"]
-
-[sub_resource type="SpriteFrames" id="SpriteFrames_wdrn8"]
-animations = [{
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("2_5vo58")
-}],
-"loop": 1,
-"name": &"attack",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("3_wdsiy")
-}, {
-"duration": 1.0,
-"texture": ExtResource("4_3gwmu")
-}],
-"loop": 1,
-"name": &"derrota",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("2_uq6s8")
-}],
-"loop": 1,
-"name": &"idle",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("6_eo85t")
-}],
-"loop": 1,
-"name": &"recibir_dano",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": ExtResource("2_uq6s8")
-}, {
-"duration": 1.0,
-"texture": ExtResource("2_uq6s8")
-}, {
-"duration": 1.0,
-"texture": ExtResource("2_uq6s8")
-}, {
-"duration": 1.0,
-"texture": ExtResource("2_uq6s8")
-}, {
-"duration": 1.0,
-"texture": ExtResource("2_uq6s8")
-}],
-"loop": 1,
-"name": &"walk",
-"speed": 8.0
-}]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_emk6m"]
 radius = 12.0
@@ -143,6 +84,30 @@ tracks/5/keys = {
 "update": 1,
 "values": [0]
 }
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sprite:texture")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("2_uq6s8")]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("Sprite:flip_h")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
 
 [sub_resource type="Animation" id="Animation_7283d"]
 resource_name = "attack"
@@ -183,10 +148,35 @@ tracks/2/keys = {
 "update": 0,
 "values": [Color(1, 1, 1, 1), Color(1, 1, 1, 1)]
 }
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("Sprite:texture")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("2_5vo58")]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sprite:flip_h")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
 
 [sub_resource type="Animation" id="Animation_wdsiy"]
 resource_name = "dead"
 length = 0.8333333
+loop_mode = 1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -197,7 +187,7 @@ tracks/0/keys = {
 "times": PackedFloat32Array(0, 0.8),
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
-"values": [Vector2(0, -20), Vector2(0, -12)]
+"values": [Vector2(0, 0), Vector2(0, 0)]
 }
 tracks/1/type = "value"
 tracks/1/imported = false
@@ -209,7 +199,7 @@ tracks/1/keys = {
 "times": PackedFloat32Array(0, 0.8, 0.8333333),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": [0.0, 1.5707964, 0.0]
+"values": [0.0, 0.0, 0.0]
 }
 tracks/2/type = "value"
 tracks/2/imported = false
@@ -254,10 +244,22 @@ tracks/5/path = NodePath("Sprite:scale")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/keys = {
-"times": PackedFloat32Array(0.8333333),
-"transitions": PackedFloat32Array(1),
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.8333333),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
-"values": [Vector2(0.5, 0.5)]
+"values": [Vector2(0.15, 0.15), Vector2(0.15, 0.18), Vector2(0.15, 0.15), Vector2(0.15, 0.15)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("Sprite:texture")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("4_3gwmu")]
 }
 
 [sub_resource type="Animation" id="Animation_5vo58"]
@@ -310,6 +312,18 @@ tracks/3/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 0,
 "values": [Vector2(0.15, 0.15)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("Sprite:texture")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [ExtResource("6_eo85t")]
 }
 
 [sub_resource type="Animation" id="Animation_emk6m"]
@@ -376,12 +390,10 @@ nombre = "Princesa Chocolatito"
 id_skin_activa = "SKIN_CHOCOLATE_DEFAULT"
 modset_clase = 1
 
-[node name="Sprite" type="AnimatedSprite2D" parent="." unique_id=1516541023]
+[node name="Sprite" type="Sprite2D" parent="." unique_id=1711515442]
 position = Vector2(0, -20)
 scale = Vector2(0.15, 0.15)
-sprite_frames = SubResource("SpriteFrames_wdrn8")
-animation = &"attack"
-flip_h = true
+texture = ExtResource("2_uq6s8")
 
 [node name="Colision" type="CollisionShape2D" parent="." unique_id=980237132]
 shape = SubResource("CapsuleShape2D_emk6m")
